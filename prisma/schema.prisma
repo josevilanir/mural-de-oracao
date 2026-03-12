@@ -1,0 +1,179 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Category {
+  HEALTH
+  FAMILY
+  FINANCES
+  RELATIONSHIPS
+  WORK_STUDY
+  HOLINESS
+}
+
+enum PrayerStatus {
+  ACTIVE
+  CHRONIC
+  ANSWERED
+}
+
+enum NotificationType {
+  PRAYER_CLICK
+  COMMENT_ADDED
+}
+
+// ─────────────────────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  emailVerified DateTime?
+  image     String?
+  password  String?  // hashed — nullable para OAuth users
+  role      Role     @default(USER)
+  isDeleted Boolean  @default(false) // soft-flag para conta anonimizada (LGPD)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  accounts         Account[]
+  sessions         Session[]
+  prayers          Prayer[]
+  prayedFor        PrayerAction[]
+  comments         Comment[]
+  reports          Report[]
+  notifications    Notification[] @relation("RecipientRelation")
+  actionsPerformed Notification[] @relation("ActorRelation")
+}
+
+// NextAuth required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Prayer {
+  id             String       @id @default(cuid())
+  title          String
+  description    String       @db.Text
+  category       Category
+  status         PrayerStatus @default(ACTIVE)
+  isAnonymous    Boolean      @default(false)
+  allowComments  Boolean      @default(true)
+  isHidden       Boolean      @default(false) // moderação admin
+  testimony      String?      @db.Text
+  verseReference String?      // e.g. "Filipenses 4:13"
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  actions       PrayerAction[]
+  comments      Comment[]
+  notifications Notification[]
+  reports       Report[]
+}
+
+model PrayerAction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId   String
+  prayerId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prayer Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, prayerId]) // RF10 — unicidade da oração
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+
+  authorId String
+  prayerId String
+
+  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  prayer Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  recipientId String
+  actorId     String? // nullable — ação de usuário anônimo
+  prayerId    String?
+  commentId   String?
+
+  recipient User    @relation("RecipientRelation", fields: [recipientId], references: [id])
+  actor     User?   @relation("ActorRelation", fields: [actorId], references: [id])
+  prayer    Prayer? @relation(fields: [prayerId], references: [id])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  reason    String
+  createdAt DateTime @default(now())
+
+  reporterId String
+  prayerId   String
+
+  reporter User   @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  prayer   Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+}

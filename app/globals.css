@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Nunito+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --background: #FAF7F2;
+  --foreground: #1E3A5F;
+}
+
+html {
+  font-family: 'Nunito Sans', sans-serif;
+}
+
+body {
+  background-color: #FAF7F2;
+  color: #1E3A5F;
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
