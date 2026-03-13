@@ -27,12 +27,17 @@
 ## 🔲 Próximos Passos (Dev/Infra)
 - [x] Configurar banco de dados Neon e adicionar DATABASE_URL no .env.local
 - [x] Rodar `npx prisma migrate dev --name init` para criar as tabelas
-- [ ] Configurar Google OAuth no Google Cloud Console
+- [x] Bug corrigido: botão "Editar" removido (rota inexistente, não é MVP CA)
+- [ ] Configurar Google OAuth no Google Cloud Console (CA01)
+  - Callback URL: `http://localhost:3000/api/auth/callback/google` (dev)
+  - Callback URL: `https://<seu-dominio>/api/auth/callback/google` (prod)
+  - Variáveis: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET em .env.local
 - [ ] Testar fluxo de cadastro e login
-- [ ] Testar publicação de pedido anônimo (RF05)
-- [ ] Testar unicidade de PrayerAction (RF10)
-- [ ] Testar painel admin e toggle isHidden (RF13/RF14)
-- [ ] Testar anonimização de conta (LGPD — seção 4.5 do PRD)
+- [ ] Testar publicação de pedido anônimo (RF05 / CA02)
+- [ ] Testar unicidade de PrayerAction — duplo clique retorna 409 (RF10 / CA04)
+- [ ] Testar painel admin e toggle isHidden (RF13/RF14 / CA06)
+- [ ] Testar anonimização de conta (LGPD / CA07)
+- [ ] Verificar layout mobile em 375px (CA08)
 - [ ] Deploy na Vercel
 
 ## Critérios de Aceitação MVP

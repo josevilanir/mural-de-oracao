@@ -99,15 +99,10 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
           </p>
 
           {/* Author actions */}
-          {isOwner && (
-            <div className="mt-4 pt-4 border-t border-gray-100 flex gap-2 flex-wrap">
-              {prayer.status !== "ANSWERED" && (
-                <Button asChild variant="primary" size="sm">
-                  <Link href={`/pedido/${prayer.id}/resolver`}>✅ Marcar como Respondido</Link>
-                </Button>
-              )}
-              <Button asChild variant="secondary" size="sm">
-                <Link href={`/pedido/${prayer.id}/editar`}>✏️ Editar</Link>
+          {isOwner && prayer.status !== "ANSWERED" && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <Button asChild variant="primary" size="sm">
+                <Link href={`/pedido/${prayer.id}/resolver`}>✅ Marcar como Respondido</Link>
               </Button>
             </div>
           )}

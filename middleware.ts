@@ -1,11 +1,11 @@
-import { auth } from "@/lib/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-// Routes that require authentication
 const PRIVATE_ROUTES = ["/meus-pedidos", "/novo-pedido"];
-// Routes that require ADMIN role
 const ADMIN_ROUTES = ["/admin"];
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req: any) => {
   const { nextUrl, auth: session } = req;
