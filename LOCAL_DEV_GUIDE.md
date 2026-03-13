@@ -12,9 +12,9 @@ Este arquivo fornece instruções rápidas para validar seu ambiente de desenvol
    - Você deve ver a página inicial (Mural de Oração).
 
 2. **Banco de Dados (Prisma)**:
-   - Se você configurou um banco de dados local no `.env`, execute:
+   - Se você configurou um banco de dados local ou remoto no `.env`, execute:
      ```bash
-     npx prisma db push
+     npx dotenv -e .env -- npx prisma db push
      ```
      para garantir que o esquema está sincronizado.
    - Para visualizar os dados, use o Prisma Studio:
