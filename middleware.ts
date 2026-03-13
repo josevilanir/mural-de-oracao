@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 const PRIVATE_ROUTES = ["/meus-pedidos", "/novo-pedido"];
 const ADMIN_ROUTES = ["/admin"];
+const AUTH_ONLY_PUBLIC = ["/welcome", "/login", "/register"];
 
 const { auth } = NextAuth(authConfig);
 
@@ -13,6 +14,14 @@ export default auth((req: any) => {
 
   const isPrivate = PRIVATE_ROUTES.some((route) => pathname.startsWith(route));
   const isAdmin = ADMIN_ROUTES.some((route) => pathname.startsWith(route));
+  const isAuthOnlyPublic = AUTH_ONLY_PUBLIC.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // Redirect authenticated users away from welcome/login/register
+  if (isAuthOnlyPublic && session?.user) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
   if (isPrivate && !session?.user) {
     const callbackUrl = encodeURIComponent(pathname);
