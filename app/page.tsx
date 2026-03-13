@@ -99,9 +99,9 @@ async function TestimonialsFeed() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {sanitized.map((prayer: any) => (
-        <div key={prayer.id} className="border-l-4 border-status-green bg-green-50 rounded-lg p-4 shadow-sm flex flex-col justify-between">
+        <div key={prayer.id} className="border-l-4 border-status-green bg-green-50 dark:bg-green-950/30 rounded-lg p-4 shadow-sm flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-2 text-xs text-gray-600">
+            <div className="flex items-center gap-2 mb-2 text-xs text-gray-600 dark:text-gray-400">
               <span className="font-semibold text-navy">
                 {prayer.isAnonymous ? "Anônimo" : prayer.author.name}
               </span>
@@ -114,7 +114,7 @@ async function TestimonialsFeed() {
           </div>
           <div className="text-xs text-status-green font-semibold flex items-center justify-between">
             <span>✅ Oração respondida</span>
-            <span className="text-gray-500 font-normal">{formatRelativeDate(prayer.updatedAt)}</span>
+            <span className="text-gray-500 dark:text-gray-400 font-normal">{formatRelativeDate(prayer.updatedAt)}</span>
           </div>
         </div>
       ))}
@@ -170,7 +170,7 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
       {/* Journey of Faith section (for guests) */}
       {!isLoggedIn && (
-        <section className="bg-white py-12 px-4 text-center">
+        <section className="bg-card py-12 px-4 text-center">
           <h2 className="font-display text-2xl font-bold text-navy mb-8">
             Sua Jornada de Fé Compartilhada
           </h2>

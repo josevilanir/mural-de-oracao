@@ -41,7 +41,7 @@ export function UserAccountNav({ name, email, image }: UserAccountNavProps) {
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className="z-50 min-w-[200px] rounded-lg border border-gray-med bg-white shadow-lg py-1 animate-in fade-in-0 zoom-in-95"
+          className="z-50 min-w-[200px] rounded-lg border border-gray-med bg-card shadow-lg py-1 animate-in fade-in-0 zoom-in-95"
         >
           {/* User info */}
           <div className="px-3 py-2 border-b border-gray-med">
@@ -53,7 +53,7 @@ export function UserAccountNav({ name, email, image }: UserAccountNavProps) {
           <DropdownMenu.Item asChild>
             <Link
               href="/meus-pedidos"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-navy hover:bg-gray-light cursor-pointer outline-none focus:bg-gray-light"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-navy hover:bg-gray-light focus:bg-gray-light cursor-pointer outline-none"
             >
               <Heart className="w-4 h-4 text-gold-warm" />
               Meus Pedidos
@@ -65,7 +65,7 @@ export function UserAccountNav({ name, email, image }: UserAccountNavProps) {
           {/* Sair */}
           <DropdownMenu.Item
             onSelect={() => signOut({ callbackUrl: "/" })}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer outline-none focus:bg-red-50"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer outline-none focus:bg-red-50 dark:focus:bg-red-950/30"
           >
             <LogOut className="w-4 h-4" />
             Sair

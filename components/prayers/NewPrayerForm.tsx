@@ -49,7 +49,7 @@ export default function NewPrayerForm() {
         <input
           {...register("title")}
           placeholder="e.g., Cura para minha mãe"
-          className="w-full h-10 px-3 rounded-md border border-gray-med bg-white text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm"
+          className="w-full h-10 px-3 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm"
         />
         {errors.title && (
           <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
@@ -63,7 +63,7 @@ export default function NewPrayerForm() {
         </label>
         <select
           {...register("category")}
-          className="w-full h-10 px-3 rounded-md border border-gray-med bg-white text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold-warm"
+          className="w-full h-10 px-3 rounded-md border border-gray-med bg-card text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold-warm"
         >
           <option value="">Selecione uma categoria</option>
           {Object.entries(CATEGORY_LABELS).map(([value, { label, emoji }]) => (
@@ -105,7 +105,7 @@ export default function NewPrayerForm() {
         <input
           {...register("verseReference")}
           placeholder="e.g., Filipenses 4:13"
-          className="w-full h-10 px-3 rounded-md border border-gray-med bg-white text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm"
+          className="w-full h-10 px-3 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm"
         />
       </div>
 
@@ -135,7 +135,7 @@ export default function NewPrayerForm() {
       </div>
 
       {serverError && (
-        <p className="text-red-500 text-sm bg-red-50 rounded p-2">{serverError}</p>
+        <p className="text-red-500 text-sm bg-red-50 dark:bg-red-950/30 rounded p-2">{serverError}</p>
       )}
 
       {/* Submit */}

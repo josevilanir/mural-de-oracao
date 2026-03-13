@@ -30,14 +30,14 @@ export default function CommentForm({ prayerId }: { prayerId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 border-t border-gray-100 pt-6">
+    <form onSubmit={handleSubmit} className="mt-6 border-t border-gray-med/50 pt-6">
       <h3 className="text-sm font-semibold text-navy mb-3">Deixe uma palavra de encorajamento</h3>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Escreva sua mensagem aqui..."
         rows={3}
-        className="w-full px-3 py-2 rounded-md border border-gray-med bg-white text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none mb-2"
+        className="w-full px-3 py-2 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none mb-2"
         required
         minLength={3}
         maxLength={500}

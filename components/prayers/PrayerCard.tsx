@@ -63,7 +63,7 @@ export default function PrayerCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-100 flex flex-col",
+        "bg-card rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-med/50 flex flex-col",
         isOwner && "border-l-4 border-l-gold-warm bg-gold-light/30"
       )}
     >
@@ -86,14 +86,14 @@ export default function PrayerCard({
           {prayer.description}
         </p>
         {prayer.status === "ANSWERED" && prayer.testimony && (
-          <div className="mt-2 p-2 bg-green-50 border-l-2 border-status-green rounded text-xs text-green-700 line-clamp-2">
+          <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 border-l-2 border-status-green rounded text-xs text-green-700 dark:text-green-400 line-clamp-2">
             ✅ {prayer.testimony}
           </div>
         )}
       </Link>
 
       {/* Footer */}
-      <div className="px-4 pt-2 pb-3 border-t border-gray-100">
+      <div className="px-4 pt-2 pb-3 border-t border-gray-med/50">
         <div className="flex items-center justify-between text-xs text-gray-text mb-2">
           <span>⏱ {formatRelativeDate(prayer.createdAt)}</span>
           <span>

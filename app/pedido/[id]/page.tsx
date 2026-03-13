@@ -65,7 +65,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
         </Link>
 
         {/* Header do Pedido */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
+        <div className="bg-card rounded-xl shadow-sm p-6 mb-4">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Badge variant="category">{cat?.emoji} {cat?.label}</Badge>
             <Badge variant={statusVariantMap[prayer.status as PrayerStatus]}>
@@ -88,7 +88,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
           </div>
 
           {prayer.verseReference && (
-            <div className="bg-blue-soft rounded-lg p-3 border border-blue-200 mb-4 flex items-center gap-2">
+            <div className="bg-blue-soft rounded-lg p-3 border border-blue-200 dark:border-blue-900 mb-4 flex items-center gap-2">
               <span>📖</span>
               <span className="text-sm italic text-navy">{prayer.verseReference}</span>
             </div>
@@ -100,7 +100,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
 
           {/* Author actions */}
           {isOwner && prayer.status !== "ANSWERED" && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="mt-4 pt-4 border-t border-gray-med/50">
               <Button asChild variant="primary" size="sm">
                 <Link href={`/pedido/${prayer.id}/resolver`}>✅ Marcar como Respondido</Link>
               </Button>
@@ -109,7 +109,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
         </div>
 
         {/* Prayer Counter */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-4 text-center">
+        <div className="bg-card rounded-xl shadow-sm p-6 mb-4 text-center">
           <p className="text-gold-warm font-bold text-lg mb-3">
             🙏 {prayer._count.actions} pessoa{prayer._count.actions !== 1 ? "s" : ""} já{" "}
             {prayer._count.actions !== 1 ? "oraram" : "orou"} por este pedido
@@ -124,15 +124,15 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
 
         {/* Testimony */}
         {prayer.status === "ANSWERED" && prayer.testimony && (
-          <div className="bg-green-50 border-l-4 border-status-green rounded-lg p-5 mb-4">
-            <h2 className="font-semibold text-green-700 mb-2">✅ Oração Respondida!</h2>
-            <p className="text-sm text-green-800 leading-relaxed">{prayer.testimony}</p>
+          <div className="bg-green-50 dark:bg-green-950/30 border-l-4 border-status-green rounded-lg p-5 mb-4">
+            <h2 className="font-semibold text-green-700 dark:text-green-400 mb-2">✅ Oração Respondida!</h2>
+            <p className="text-sm text-green-800 dark:text-green-300 leading-relaxed">{prayer.testimony}</p>
           </div>
         )}
 
         {/* Comments */}
         {prayer.allowComments && (
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-card rounded-xl shadow-sm p-6">
             <h2 className="font-semibold text-navy mb-4">
               Palavras de Encorajamento ({prayer._count.comments})
             </h2>
@@ -163,7 +163,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
             {userId ? (
               <CommentForm prayerId={prayer.id} />
             ) : (
-              <p className="mt-4 text-sm text-gray-text border-t border-gray-100 pt-4">
+              <p className="mt-4 text-sm text-gray-text border-t border-gray-med/50 pt-4">
                 <Link href="/login" className="text-blue-main hover:underline">
                   Entre
                 </Link>{" "}
