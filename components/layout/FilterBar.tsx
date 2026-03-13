@@ -27,16 +27,22 @@ export default function FilterBar() {
 
   function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
-    if (value) {
+    const current = searchParams.get(key) ?? "";
+
+    // Clicar no filtro ativo desmarca (toggle); clicar em outro aplica.
+    if (value && value === current) {
+      params.delete(key);
+    } else if (value) {
       params.set(key, value);
     } else {
       params.delete(key);
     }
+
     router.push(`/?${params.toString()}`);
   }
 
   return (
-    <div className="overflow-x-auto scrollbar-hide bg-white border-b border-gray-med">
+    <div className="overflow-x-auto scrollbar-hide bg-card border-b border-gray-med">
       <div className="flex gap-2 px-4 py-2 min-w-max">
         {STATUS_FILTERS.map((f) => (
           <button
@@ -46,7 +52,7 @@ export default function FilterBar() {
               "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap",
               (f.value === "" && !currentStatus) || currentStatus === f.value
                 ? "bg-gold-warm text-white border-gold-warm"
-                : "bg-white border-gray-med text-navy hover:border-gold-warm"
+                : "bg-card border-gray-med text-navy hover:border-gold-warm"
             )}
           >
             {f.label}
@@ -61,7 +67,7 @@ export default function FilterBar() {
               "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap",
               currentCategory === f.value
                 ? "bg-gold-warm text-white border-gold-warm"
-                : "bg-white border-gray-med text-navy hover:border-gold-warm"
+                : "bg-card border-gray-med text-navy hover:border-gold-warm"
             )}
           >
             {f.label}

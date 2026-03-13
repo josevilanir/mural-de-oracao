@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default async function Header() {
   const session = await auth();
@@ -19,13 +20,14 @@ export default async function Header() {
         <input
           type="search"
           placeholder="Buscar pedidos por título, categoria..."
-          className="w-full h-9 px-3 rounded-md border border-gray-med bg-white text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm"
+          className="w-full h-9 px-3 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm"
           readOnly
         />
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-2 shrink-0">
+        <ThemeToggle />
         {user ? (
           <>
             <button className="relative p-2 rounded-full hover:bg-gray-light transition-colors">

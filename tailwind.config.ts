@@ -10,25 +10,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── Cores Primárias ──────────────────────────────
-        cream: "#FAF7F2",        // Background geral da aplicação
-        navy: "#1E3A5F",         // Títulos principais, texto de peso
-        "blue-main": "#3B82C4", // Links, ações primárias, destaques
-
-        // ── Cores de Ação e Status ───────────────────────
-        "gold-warm": "#C9853A",  // CTA principal (Publicar/Criar Conta)
-        "gold-light": "#FEF3E2", // Background de CTAs secundários
-        "blue-soft": "#D6E8F7",  // Cards, backgrounds informativos
-
-        // ── Status dos Pedidos ───────────────────────────
-        "status-blue": "#2E75B6",   // Badge 'Em Oração'
-        "status-amber": "#E67E22",  // Badge 'Crônico'
-        "status-green": "#27AE60",  // Badge 'Respondido'
-
-        // ── Neutros e Suporte ────────────────────────────
-        "gray-light": "#F5F4F0", // Fundo alternado, inputs
-        "gray-med": "#D9D9D9",   // Bordas, separadores
-        "gray-text": "#555555",  // Texto de suporte, labels, meta
+        // ── Cores via variáveis CSS ──────────────────────────────────
+        // O padrão `rgb(var(--x) / <alpha-value>)` permite modificadores
+        // de opacidade do Tailwind (ex: bg-cream/95, text-navy/70).
+        cream:          "rgb(var(--cream) / <alpha-value>)",
+        card:           "rgb(var(--card) / <alpha-value>)",
+        navy:           "rgb(var(--navy) / <alpha-value>)",
+        "blue-main":    "rgb(var(--blue-main) / <alpha-value>)",
+        "gold-warm":    "rgb(var(--gold-warm) / <alpha-value>)",
+        "gold-light":   "rgb(var(--gold-light) / <alpha-value>)",
+        "blue-soft":    "rgb(var(--blue-soft) / <alpha-value>)",
+        "gray-light":   "rgb(var(--gray-light) / <alpha-value>)",
+        "gray-med":     "rgb(var(--gray-med) / <alpha-value>)",
+        "gray-text":    "rgb(var(--gray-text) / <alpha-value>)",
+        "status-blue":  "rgb(var(--status-blue) / <alpha-value>)",
+        "status-amber": "rgb(var(--status-amber) / <alpha-value>)",
+        "status-green": "rgb(var(--status-green) / <alpha-value>)",
       },
       fontFamily: {
         display: ["Lora", "serif"],
