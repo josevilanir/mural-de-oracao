@@ -220,7 +220,7 @@ export default async function WelcomePage() {
                 className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/8 transition-colors"
               >
                 <div className="text-gold-warm text-4xl font-display leading-none mb-4">
-                  "
+                  &quot;
                 </div>
                 <p className="text-cream/75 leading-relaxed mb-6 italic">
                   {t.text}

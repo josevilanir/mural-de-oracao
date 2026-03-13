@@ -3,7 +3,7 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { LogOut, ListHeart } from "lucide-react";
+import { LogOut, Heart } from "lucide-react";
 
 interface UserAccountNavProps {
   name: string | null | undefined;
@@ -55,7 +55,7 @@ export function UserAccountNav({ name, email, image }: UserAccountNavProps) {
               href="/meus-pedidos"
               className="flex items-center gap-2 px-3 py-2 text-sm text-navy hover:bg-gray-light cursor-pointer outline-none focus:bg-gray-light"
             >
-              <ListHeart className="w-4 h-4 text-gold-warm" />
+              <Heart className="w-4 h-4 text-gold-warm" />
               Meus Pedidos
             </Link>
           </DropdownMenu.Item>
