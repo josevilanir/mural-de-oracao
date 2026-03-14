@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sanitizePrayer, CATEGORY_LABELS, STATUS_LABELS, formatRelativeDate } from "@/lib/utils";
-import Header from "@/components/layout/Header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -57,7 +56,6 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
 
   return (
     <>
-      <Header />
       <main className="container mx-auto max-w-2xl px-4 py-8">
         {/* Breadcrumb */}
         <Link href="/" className="text-sm text-gray-text hover:text-blue-main mb-4 inline-block">

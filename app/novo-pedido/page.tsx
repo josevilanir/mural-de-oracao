@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import Header from "@/components/layout/Header";
 import NewPrayerForm from "@/components/prayers/NewPrayerForm";
 
 export default async function NovoPedidoPage() {
@@ -9,7 +8,6 @@ export default async function NovoPedidoPage() {
 
   return (
     <>
-      <Header />
       <main className="container mx-auto max-w-2xl px-4 py-8">
         <h1 className="font-display text-2xl font-bold text-navy mb-2">
           Criar Novo Pedido de Oração

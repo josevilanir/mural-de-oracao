@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sanitizePrayers, formatRelativeDate, CATEGORY_LABELS } from "@/lib/utils";
-import Header from "@/components/layout/Header";
 import FilterBar from "@/components/layout/FilterBar";
 import PrayerCard from "@/components/prayers/PrayerCard";
 import PrayerCardSkeleton from "@/components/prayers/PrayerCardSkeleton";
@@ -128,8 +127,6 @@ export default async function HomePage({ searchParams }: HomeProps) {
 
   return (
     <>
-      <Header />
-
       {/* Hero Banner — only for guests */}
       {!isLoggedIn && (
         <section className="mx-4 mt-4 mb-0 rounded-2xl overflow-hidden bg-gradient-to-br from-cream to-blue-soft px-6 py-10 text-center">
