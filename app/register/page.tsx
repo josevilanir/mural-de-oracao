@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-sm p-8 w-full max-w-md">
+      <div className="bg-card rounded-xl shadow-sm p-8 w-full max-w-md">
         <div className="text-center mb-6">
           <span className="text-4xl">🙏</span>
           <h1 className="font-display text-2xl font-bold text-navy mt-2">Criar Conta</h1>
@@ -53,7 +53,7 @@ export default function RegisterPage() {
 
         <button
           onClick={handleGoogle}
-          className="w-full flex items-center justify-center gap-2 h-10 rounded-md border border-gray-med bg-white text-navy text-sm font-medium hover:bg-gray-light transition-colors mb-4"
+          className="w-full flex items-center justify-center gap-2 h-10 rounded-md border border-gray-med bg-card text-navy text-sm font-medium hover:bg-gray-light transition-colors mb-4"
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

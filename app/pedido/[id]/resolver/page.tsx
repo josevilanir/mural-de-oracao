@@ -32,7 +32,7 @@ export default function ResolverPedidoPage({ params }: { params: { id: string } 
 
   return (
     <div className="container mx-auto max-w-lg px-4 py-12">
-      <div className="bg-white rounded-xl shadow-xl p-8 border border-gray-100">
+      <div className="bg-card rounded-xl shadow-xl p-8 border border-gray-100">
         <h1 className="font-display text-2xl font-bold text-navy mb-2">
           ✅ Que alegria! Compartilhe seu testemunho
         </h1>
