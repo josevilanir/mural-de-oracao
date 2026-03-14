@@ -37,7 +37,7 @@ export default async function MeusPedidosPage() {
     <>
       <main className="container mx-auto max-w-3xl px-4 py-8">
         {/* Profile Header */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-card rounded-xl shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               {session.user.image ? (
@@ -68,7 +68,7 @@ export default async function MeusPedidosPage() {
               { label: "Orações Recebidas", value: totalReceived },
               { label: "Orações que Fiz", value: totalPrayed },
             ].map((stat) => (
-              <div key={stat.label} className="bg-cream rounded-lg p-3">
+              <div key={stat.label} className="bg-gray-light rounded-lg p-3">
                 <p className="text-2xl font-bold text-navy">{stat.value}</p>
                 <p className="text-xs text-gray-text mt-1">{stat.label}</p>
               </div>
@@ -85,7 +85,7 @@ export default async function MeusPedidosPage() {
         </div>
 
         {prayers.length === 0 ? (
-          <div className="bg-white rounded-lg p-8 text-center text-gray-text">
+          <div className="bg-card rounded-lg p-8 text-center text-gray-text">
             <p className="text-4xl mb-3">🙏</p>
             <p>Você ainda não publicou nenhum pedido. Que tal compartilhar uma necessidade?</p>
             <Button asChild variant="primary" size="md" className="mt-4">
@@ -100,7 +100,7 @@ export default async function MeusPedidosPage() {
               return (
                 <div
                   key={prayer.id}
-                  className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm"
+                  className="bg-card rounded-lg p-4 border border-gray-med/40 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 flex-wrap">
