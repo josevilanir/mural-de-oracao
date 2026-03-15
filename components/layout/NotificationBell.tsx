@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Heart, MessageSquare, GripHorizontal } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,11 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  // null = anchored to button; {x,y} = floating (after drag)
+  const [floatPos, setFloatPos] = useState<{ x: number; y: number } | null>(null);
+  const dragging = useRef(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   const unread = notifications.filter((n) => !n.isRead).length;
@@ -43,25 +48,59 @@ export function NotificationBell() {
 
   useEffect(() => {
     fetchNotifications();
-    // Polling a cada 30s
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Fecha dropdown ao clicar fora
+  // Close on outside click (only when anchored)
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
+      if (floatPos) return; // floating panels stay open until explicitly closed
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [floatPos]);
+
+  // Reset float position when panel closes
+  useEffect(() => {
+    if (!open) setFloatPos(null);
+  }, [open]);
 
   function handleOpen() {
     setOpen((v) => !v);
     if (!open && unread > 0) markAllRead();
+  }
+
+  // Drag: capture initial position on mousedown of the handle
+  function handleDragStart(e: React.MouseEvent) {
+    if (!panelRef.current) return;
+    const rect = panelRef.current.getBoundingClientRect();
+    dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    dragging.current = true;
+
+    // If still anchored, snapshot current screen position and switch to floating
+    setFloatPos({ x: rect.left, y: rect.top });
+
+    function onMouseMove(ev: MouseEvent) {
+      if (!dragging.current) return;
+      setFloatPos({
+        x: ev.clientX - dragOffset.current.x,
+        y: ev.clientY - dragOffset.current.y,
+      });
+    }
+
+    function onMouseUp() {
+      dragging.current = false;
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
+
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
+    e.preventDefault();
   }
 
   function getNotificationText(n: Notification) {
@@ -70,6 +109,8 @@ export function NotificationBell() {
     if (n.type === "COMMENT_ADDED") return `${actor} comentou no seu pedido "${n.prayer?.title}"`;
     return "Nova notificação";
   }
+
+  const isFloating = floatPos !== null;
 
   return (
     <div className="relative" ref={ref}>
@@ -87,17 +128,44 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-12 w-80 bg-card border border-gray-med rounded-xl shadow-lg z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-med">
-            <span className="font-semibold text-navy text-sm">Notificações</span>
-            {unread > 0 && (
-              <button
-                onClick={markAllRead}
-                className="text-xs text-blue-main hover:underline"
-              >
-                Marcar todas como lidas
-              </button>
-            )}
+        <div
+          ref={panelRef}
+          className={cn(
+            "notification-panel w-80 bg-card border border-gray-med rounded-xl shadow-lg z-50 overflow-hidden",
+            isFloating ? "fixed" : "absolute left-0 top-12"
+          )}
+          style={isFloating ? { left: floatPos.x, top: floatPos.y } : undefined}
+        >
+          {/* Drag handle — header */}
+          <div
+            onMouseDown={handleDragStart}
+            className="flex items-center justify-between px-4 py-3 border-b border-gray-med cursor-grab active:cursor-grabbing select-none"
+          >
+            <div className="flex items-center gap-2">
+              <GripHorizontal className="w-4 h-4 text-gray-text opacity-50" />
+              <span className="font-semibold text-navy text-sm">Notificações</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {unread > 0 && (
+                <button
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={markAllRead}
+                  className="text-xs text-blue-main hover:underline"
+                >
+                  Marcar todas como lidas
+                </button>
+              )}
+              {isFloating && (
+                <button
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => setOpen(false)}
+                  className="text-xs text-gray-text hover:text-navy ml-1"
+                  aria-label="Fechar"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="max-h-80 overflow-y-auto">
@@ -105,7 +173,7 @@ export function NotificationBell() {
               <p className="text-center text-sm text-gray-text py-6">Carregando...</p>
             )}
             {!loading && notifications.length === 0 && (
-              <p className="text-center text-sm text-gray-text py-6">Nenhuma notificação ainda 🕊️</p>
+              <p className="text-center text-sm text-gray-text py-6">Nenhuma notificação ainda</p>
             )}
             {notifications.map((n) => (
               <Link
@@ -117,8 +185,10 @@ export function NotificationBell() {
                   !n.isRead && "bg-blue-soft/40"
                 )}
               >
-                <span className="text-xl mt-0.5">
-                  {n.type === "PRAYER_CLICK" ? "🙏" : "💬"}
+                <span className="mt-0.5 text-gray-text">
+                  {n.type === "PRAYER_CLICK"
+                    ? <Heart className="w-4 h-4 text-gold-warm" />
+                    : <MessageSquare className="w-4 h-4 text-blue-main" />}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-navy line-clamp-2">

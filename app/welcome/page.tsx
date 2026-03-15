@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import PrayerRequestsSection from "@/components/prayers/PrayerRequestsSection";
 
 export const metadata = {
   title: "Bem-vindo — Mural de Oração",
@@ -20,7 +21,7 @@ export default async function WelcomePage() {
           href="/"
           className="flex items-center gap-2 font-display text-xl font-bold text-cream hover:text-gold-warm transition-colors"
         >
-          🙏 <span>Mural de Oração</span>
+          <span>Mural de Oração</span>
         </Link>
 
         <nav className="flex items-center gap-3">
@@ -64,7 +65,7 @@ export default async function WelcomePage() {
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto pt-28 pb-16">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-warm/20 border border-gold-warm/40 text-gold-warm text-sm font-medium mb-8">
-            ✨ Comunidade de Intercessão
+            Comunidade de Intercessão
           </div>
 
           <h1 className="font-display text-5xl md:text-7xl font-bold text-cream leading-[1.1] mb-6">
@@ -137,6 +138,9 @@ export default async function WelcomePage() {
         </div>
       </section>
 
+      {/* ── Prayer Requests Scroll ─────────────────────────── */}
+      <PrayerRequestsSection />
+
       {/* ── How it works ───────────────────────────────────── */}
       <section className="py-24 px-6 bg-cream text-navy">
         <div className="max-w-5xl mx-auto">
@@ -153,19 +157,19 @@ export default async function WelcomePage() {
             {[
               {
                 num: "01",
-                icon: "✍️",
+                icon: "✦",
                 title: "Compartilhe seu pedido",
                 desc: "Escreva o que está no seu coração. Você pode compartilhar com seu nome ou de forma anônima — sem julgamentos.",
               },
               {
                 num: "02",
-                icon: "🙏",
+                icon: "✦",
                 title: "A comunidade intercede",
                 desc: 'Pessoas reais oram por você. Cada toque em "Estou orando" é uma oração real subindo aos céus.',
               },
               {
                 num: "03",
-                icon: "✨",
+                icon: "✦",
                 title: "Celebre as respostas",
                 desc: "Quando Deus responder, marque como respondido e compartilhe o testemunho para encorajar outros.",
               },
@@ -240,7 +244,7 @@ export default async function WelcomePage() {
       {/* ── Final CTA ──────────────────────────────────────── */}
       <section className="py-24 px-6 bg-gold-warm text-white text-center">
         <div className="max-w-2xl mx-auto">
-          <div className="text-5xl mb-6">🙏</div>
+          <div className="text-5xl mb-6 text-white/60 font-display font-bold">✦</div>
           <h2 className="font-display text-4xl font-bold mb-4">
             Junte-se à comunidade
           </h2>

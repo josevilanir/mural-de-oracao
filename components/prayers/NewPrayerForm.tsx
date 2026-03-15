@@ -66,9 +66,9 @@ export default function NewPrayerForm() {
           className="w-full h-10 px-3 rounded-md border border-gray-med bg-card text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold-warm"
         >
           <option value="">Selecione uma categoria</option>
-          {Object.entries(CATEGORY_LABELS).map(([value, { label, emoji }]) => (
+          {Object.entries(CATEGORY_LABELS).map(([value, { label }]) => (
             <option key={value} value={value}>
-              {emoji} {label}
+              {label}
             </option>
           ))}
         </select>
@@ -119,7 +119,7 @@ export default function NewPrayerForm() {
           />
           <span className="text-sm text-navy">Postar como anônimo</span>
           <span className="text-xs text-gray-text" title="Seu nome e foto não aparecerão no feed.">
-            ℹ️
+            (seu nome e foto não aparecerão)
           </span>
         </label>
 
@@ -144,7 +144,7 @@ export default function NewPrayerForm() {
           Cancelar
         </Button>
         <Button type="submit" variant="primary" disabled={isSubmitting}>
-          {isSubmitting ? "Publicando..." : "🙏 Publicar Pedido"}
+          {isSubmitting ? "Publicando..." : "Publicar Pedido"}
         </Button>
       </div>
     </form>

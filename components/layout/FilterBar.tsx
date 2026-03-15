@@ -5,18 +5,18 @@ import { cn } from "@/lib/utils";
 
 const STATUS_FILTERS = [
   { label: "Tudo", value: "" },
-  { label: "🙏 Em oração", value: "ACTIVE" },
-  { label: "🔄 Crônico", value: "CHRONIC" },
-  { label: "✅ Respondido", value: "ANSWERED" },
+  { label: "Em oração", value: "ACTIVE" },
+  { label: "Crônico", value: "CHRONIC" },
+  { label: "Respondido", value: "ANSWERED" },
 ];
 
 const CATEGORY_FILTERS = [
-  { label: "🏥 Saúde", value: "HEALTH" },
-  { label: "👨‍👩‍👧 Família", value: "FAMILY" },
-  { label: "💰 Finanças", value: "FINANCES" },
-  { label: "💍 Relacionamentos", value: "RELATIONSHIPS" },
-  { label: "🎓 Estudos", value: "WORK_STUDY" },
-  { label: "🙏 Santidade", value: "HOLINESS" },
+  { label: "Saúde", value: "HEALTH" },
+  { label: "Família", value: "FAMILY" },
+  { label: "Finanças", value: "FINANCES" },
+  { label: "Relacionamentos", value: "RELATIONSHIPS" },
+  { label: "Estudos", value: "WORK_STUDY" },
+  { label: "Santidade", value: "HOLINESS" },
 ];
 
 export default function FilterBar() {
@@ -43,7 +43,7 @@ export default function FilterBar() {
 
   return (
     <div className="overflow-x-auto scrollbar-hide bg-card border-b border-gray-med">
-      <div className="flex gap-2 px-4 py-2 min-w-max">
+      <div className="flex justify-center gap-2 px-4 py-2 w-full min-w-max">
         {STATUS_FILTERS.map((f) => (
           <button
             key={f.value}

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { Trash2 } from "lucide-react";
 import { formatRelativeDate, CATEGORY_LABELS, STATUS_LABELS, cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { prayAction } from "@/app/actions/prayers/pray";
+import { prayAction, unprayAction } from "@/app/actions/prayers/pray";
+import { deletePrayer } from "@/app/actions/prayers/delete";
 import type { PrayerStatus, Category } from "@/types/prisma";
 
 interface PrayerCardProps {
@@ -26,6 +28,7 @@ interface PrayerCardProps {
   currentUserId?: string | null;
   userHasPrayed?: boolean;
   isOwner?: boolean;
+  isAdmin?: boolean;
 }
 
 export default function PrayerCard({
@@ -33,10 +36,13 @@ export default function PrayerCard({
   currentUserId,
   userHasPrayed = false,
   isOwner = false,
+  isAdmin = false,
 }: PrayerCardProps) {
   const [hasPrayed, setHasPrayed] = useState(userHasPrayed);
   const [prayCount, setPrayCount] = useState(prayer._count?.actions ?? 0);
+  const [isDeleted, setIsDeleted] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [isDeletePending, startDeleteTransition] = useTransition();
 
   const cat = CATEGORY_LABELS[prayer.category];
   const status = STATUS_LABELS[prayer.status];
@@ -49,16 +55,36 @@ export default function PrayerCard({
       : "answered";
 
   function handlePray() {
-    if (!currentUserId || hasPrayed || isPending) return;
+    if (!currentUserId || isPending) return;
 
     startTransition(async () => {
-      const result = await prayAction(prayer.id);
-      if (result.success) {
-        setHasPrayed(true);
-        setPrayCount((prev) => prev + 1);
+      if (hasPrayed) {
+        const result = await unprayAction(prayer.id);
+        if (result.success) {
+          setHasPrayed(false);
+          setPrayCount((prev) => prev - 1);
+        }
+      } else {
+        const result = await prayAction(prayer.id);
+        if (result.success) {
+          setHasPrayed(true);
+          setPrayCount((prev) => prev + 1);
+        }
       }
     });
   }
+
+  function handleDelete() {
+    if (!confirm("Tem certeza que deseja excluir este pedido de oração?")) return;
+    startDeleteTransition(async () => {
+      const result = await deletePrayer(prayer.id);
+      if (result.success) setIsDeleted(true);
+    });
+  }
+
+  if (isDeleted) return null;
+
+  const canDelete = isOwner || isAdmin;
 
   return (
     <div
@@ -70,11 +96,23 @@ export default function PrayerCard({
       {/* Top */}
       <div className="p-4 flex items-start justify-between gap-2">
         <Badge variant="category">
-          {cat?.emoji} {cat?.label}
+          {cat?.label}
         </Badge>
-        <Badge variant={statusVariant}>
-          {status?.emoji} {status?.label}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={statusVariant}>
+            {status?.label}
+          </Badge>
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              disabled={isDeletePending}
+              className="text-red-400 hover:text-red-600 disabled:opacity-50 transition-colors"
+              title="Excluir pedido"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Body */}
@@ -87,7 +125,7 @@ export default function PrayerCard({
         </p>
         {prayer.status === "ANSWERED" && prayer.testimony && (
           <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 border-l-2 border-status-green rounded text-xs text-green-700 dark:text-green-400 line-clamp-2">
-            ✅ {prayer.testimony}
+            {prayer.testimony}
           </div>
         )}
       </Link>
@@ -95,33 +133,31 @@ export default function PrayerCard({
       {/* Footer */}
       <div className="px-4 pt-2 pb-3 border-t border-gray-med/50">
         <div className="flex items-center justify-between text-xs text-gray-text mb-2">
-          <span>⏱ {formatRelativeDate(prayer.createdAt)}</span>
+          <span>{formatRelativeDate(prayer.createdAt)}</span>
           <span>
             {prayer.isAnonymous ? (
-              <span className="flex items-center gap-1">
-                <span className="text-gray-400">🕵️</span> Anônimo
-              </span>
+              <span>Anônimo</span>
             ) : (
-              <span>👤 {prayer.author?.name ?? "Usuário"}</span>
+              <span>{prayer.author?.name ?? "Usuário"}</span>
             )}
           </span>
         </div>
 
         <button
           onClick={handlePray}
-          disabled={!currentUserId || hasPrayed || isPending}
+          disabled={!currentUserId || isPending}
           className={cn(
             "w-full py-2 rounded-md text-sm font-medium transition-all duration-200 border",
             hasPrayed
-              ? "bg-blue-main text-white border-blue-main cursor-not-allowed"
+              ? "bg-blue-main text-white border-blue-main hover:bg-blue-700 hover:border-blue-700"
               : !currentUserId
               ? "bg-blue-soft text-gray-text border-blue-200 cursor-not-allowed opacity-70"
               : "bg-blue-soft text-navy border-blue-200 hover:bg-blue-main hover:text-white hover:border-blue-main"
           )}
-          title={!currentUserId ? "Entre para orar" : undefined}
+          title={!currentUserId ? "Entre para orar" : hasPrayed ? "Clique para desfazer" : undefined}
         >
-          🙏 Orei por você ({prayCount})
-          {isPending && <span className="ml-1 animate-spin inline-block">⏳</span>}
+          {hasPrayed ? "Orei por você ✓" : "Orei por você"} ({prayCount})
+          {isPending && <span className="ml-1 inline-block animate-spin">·</span>}
         </button>
       </div>
     </div>

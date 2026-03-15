@@ -5,7 +5,6 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center p-4 text-center">
       <div>
-        <span className="text-6xl">🙏</span>
         <h1 className="font-display text-3xl font-bold text-navy mt-4 mb-2">
           Página não encontrada
         </h1>

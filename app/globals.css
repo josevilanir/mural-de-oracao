@@ -31,14 +31,14 @@
 .dark {
   --cream:         13  22  35;   /* fundo principal escuro */
   --card:          22  35  55;   /* superfície elevada */
-  --navy:         220 232 248;   /* texto principal (claro) */
+  --navy:         245 245 245;   /* texto principal (claro) */
   --blue-main:    100 165 220;   /* links e ações */
   --gold-warm:    218 155  70;   /* acento dourado mais vivo */
   --gold-light:    40  28  10;   /* bg CTA secundário escuro */
   --blue-soft:     20  40  65;   /* cards informativos escuros */
   --gray-light:    20  32  50;   /* fundo alternado escuro */
   --gray-med:      60  85 115;   /* bordas sutis */
-  --gray-text:    140 165 190;   /* texto secundário */
+  --gray-text:    180 200 220;   /* texto secundário */
   --status-blue:   80 150 210;
   --status-amber: 230 126  34;
   --status-green:  50 210 110;
@@ -63,4 +63,20 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Notification panel slide-in animation */
+@keyframes notification-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.notification-panel {
+  animation: notification-slide-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

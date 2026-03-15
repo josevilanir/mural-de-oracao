@@ -34,7 +34,7 @@ export default function ResolverPedidoPage({ params }: { params: { id: string } 
     <div className="container mx-auto max-w-lg px-4 py-12">
       <div className="bg-card rounded-xl shadow-xl p-8 border border-gray-100">
         <h1 className="font-display text-2xl font-bold text-navy mb-2">
-          ✅ Que alegria! Compartilhe seu testemunho
+          Que alegria! Compartilhe seu testemunho
         </h1>
         <p className="text-sm text-gray-text mb-6">
           Conte para a comunidade como Deus respondeu a esta oração.
@@ -74,11 +74,11 @@ export default function ResolverPedidoPage({ params }: { params: { id: string } 
               Cancelar
             </Button>
             <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? "Salvando..." : "✅ Confirmar e Publicar"}
+              {isSubmitting ? "Salvando..." : "Confirmar e Publicar"}
             </Button>
           </div>
           <p className="text-xs text-center text-gray-500 mt-2">
-            Seu testemunho será visível para toda a comunidade 🙏
+            Seu testemunho será visível para toda a comunidade.
           </p>
         </form>
       </div>

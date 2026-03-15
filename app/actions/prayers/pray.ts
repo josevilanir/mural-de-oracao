@@ -47,3 +47,23 @@ export async function prayAction(prayerId: string) {
     return { success: false, error: "Algo deu errado. Tente novamente." };
   }
 }
+
+export async function unprayAction(prayerId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Você precisa estar logado." };
+  }
+
+  try {
+    await prisma.prayerAction.delete({
+      where: { userId_prayerId: { userId: session.user.id, prayerId } },
+    });
+
+    revalidatePath("/");
+    revalidatePath(`/pedido/${prayerId}`);
+    return { success: true };
+  } catch (err) {
+    console.error("[unprayAction]", err);
+    return { success: false, error: "Algo deu errado. Tente novamente." };
+  }
+}

@@ -47,7 +47,6 @@ export default function LoginPage() {
     <div className="min-h-screen bg-cream flex items-center justify-center p-4">
       <div className="bg-card rounded-xl shadow-sm p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <span className="text-4xl">🙏</span>
           <h1 className="font-display text-2xl font-bold text-navy mt-2">Entrar</h1>
           <p className="text-sm text-gray-text mt-1">Bem-vindo de volta ao Mural de Oração</p>
         </div>

@@ -48,17 +48,17 @@ export function sanitizePrayers<T extends {
 
 /** Map Category enum to label + emoji. */
 export const CATEGORY_LABELS: Record<string, { label: string; emoji: string }> = {
-  HEALTH:        { label: "Saúde",          emoji: "🏥" },
-  FAMILY:        { label: "Família",        emoji: "👨‍👩‍👧" },
-  FINANCES:      { label: "Finanças",       emoji: "💰" },
-  RELATIONSHIPS: { label: "Relacionamentos", emoji: "💍" },
-  WORK_STUDY:    { label: "Estudos",        emoji: "🎓" },
-  HOLINESS:      { label: "Santidade",      emoji: "🙏" },
+  HEALTH:        { label: "Saúde",          emoji: "" },
+  FAMILY:        { label: "Família",        emoji: "" },
+  FINANCES:      { label: "Finanças",       emoji: "" },
+  RELATIONSHIPS: { label: "Relacionamentos", emoji: "" },
+  WORK_STUDY:    { label: "Estudos",        emoji: "" },
+  HOLINESS:      { label: "Santidade",      emoji: "" },
 };
 
 /** Map PrayerStatus enum to label + emoji. */
 export const STATUS_LABELS: Record<string, { label: string; emoji: string }> = {
-  ACTIVE:   { label: "Em oração",  emoji: "🙏" },
-  CHRONIC:  { label: "Crônico",    emoji: "🔄" },
-  ANSWERED: { label: "Respondido", emoji: "✅" },
+  ACTIVE:   { label: "Em oração",  emoji: "" },
+  CHRONIC:  { label: "Crônico",    emoji: "" },
+  ANSWERED: { label: "Respondido", emoji: "" },
 };

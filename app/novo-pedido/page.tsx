@@ -13,7 +13,7 @@ export default async function NovoPedidoPage() {
           Criar Novo Pedido de Oração
         </h1>
         <p className="text-sm text-gray-text italic mb-6">
-          A comunidade está aqui para orar por você 🙏
+          A comunidade está aqui para orar por você
         </p>
         <div className="bg-white rounded-xl shadow-sm p-6">
           <NewPrayerForm />

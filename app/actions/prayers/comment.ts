@@ -43,3 +43,33 @@ export async function createCommentAction(data: unknown) {
     return { success: false, error: "Algo deu errado ao enviar o comentário." };
   }
 }
+
+export async function deleteCommentAction(commentId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "Você precisa estar logado." };
+  }
+
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+    select: { authorId: true, prayerId: true },
+  });
+
+  if (!comment) return { success: false, error: "Comentário não encontrado." };
+
+  const isAuthor = comment.authorId === session.user.id;
+  const isAdmin = (session.user as any).role === "ADMIN";
+
+  if (!isAuthor && !isAdmin) {
+    return { success: false, error: "Acesso negado." };
+  }
+
+  try {
+    await prisma.comment.delete({ where: { id: commentId } });
+    revalidatePath(`/pedido/${comment.prayerId}`);
+    return { success: true };
+  } catch (err) {
+    console.error("[deleteCommentAction]", err);
+    return { success: false, error: "Algo deu errado. Tente novamente." };
+  }
+}

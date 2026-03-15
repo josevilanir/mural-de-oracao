@@ -86,7 +86,6 @@ export default async function MeusPedidosPage() {
 
         {prayers.length === 0 ? (
           <div className="bg-card rounded-lg p-8 text-center text-gray-text">
-            <p className="text-4xl mb-3">🙏</p>
             <p>Você ainda não publicou nenhum pedido. Que tal compartilhar uma necessidade?</p>
             <Button asChild variant="primary" size="md" className="mt-4">
               <Link href="/novo-pedido">Criar primeiro pedido</Link>
@@ -105,14 +104,14 @@ export default async function MeusPedidosPage() {
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-xs text-gray-text">
-                        {cat?.emoji} {cat?.label}
+                        {cat?.label}
                       </span>
                       <span className="font-semibold text-navy text-base">
                         {prayer.title}
                       </span>
                     </div>
                     <Badge variant={statusVariantMap[prayer.status as PrayerStatus]}>
-                      {status?.emoji} {status?.label}
+                      {status?.label}
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-text line-clamp-2 mb-3">
@@ -120,7 +119,7 @@ export default async function MeusPedidosPage() {
                   </p>
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-xs text-gray-text">
-                      ⏱ {formatRelativeDate(prayer.createdAt)} · 🙏 {prayer._count.actions} orações
+                      {formatRelativeDate(prayer.createdAt)} · {prayer._count.actions} orações
                     </span>
                     <div className="ml-auto flex gap-2">
                       <Button asChild variant="secondary" size="sm">
@@ -129,7 +128,7 @@ export default async function MeusPedidosPage() {
                       {prayer.status !== "ANSWERED" && (
                         <Button asChild variant="primary" size="sm">
                           <Link href={`/pedido/${prayer.id}/resolver`}>
-                            ✅ Marcar como Respondido
+                            Marcar como Respondido
                           </Link>
                         </Button>
                       )}

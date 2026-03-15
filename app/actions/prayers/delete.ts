@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function deletePrayerAction(prayerId: string) {
+export async function deletePrayer(prayerId: string) {
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Você precisa estar logado." };
@@ -28,9 +28,10 @@ export async function deletePrayerAction(prayerId: string) {
     await prisma.prayer.delete({ where: { id: prayerId } });
     revalidatePath("/");
     revalidatePath("/meus-pedidos");
+    revalidatePath(`/pedido/${prayerId}`);
     return { success: true };
   } catch (err) {
-    console.error("[deletePrayerAction]", err);
+    console.error("[deletePrayer]", err);
     return { success: false, error: "Algo deu errado. Tente novamente." };
   }
 }
