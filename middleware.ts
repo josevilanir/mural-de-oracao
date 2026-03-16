@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth.config";
 import { NextResponse } from "next/server";
 
-const PRIVATE_ROUTES = ["/meus-pedidos", "/novo-pedido"];
+const PRIVATE_ROUTES = ["/meus-pedidos", "/novo-pedido", "/grupos/novo"];
 const ADMIN_ROUTES = ["/admin"];
 const AUTH_ONLY_PUBLIC = ["/welcome", "/login", "/register"];
 

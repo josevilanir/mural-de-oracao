@@ -29,6 +29,7 @@ async function PrayerFeed({ searchParams }: HomeProps) {
   const prayers = await prisma.prayer.findMany({
     where: {
       isHidden: false,
+      OR: [{ groupId: null }, { visibility: "PUBLIC" }],
       ...(whereStatus ? { status: whereStatus } : {}),
       ...(whereCategory ? { category: whereCategory } : {}),
     },

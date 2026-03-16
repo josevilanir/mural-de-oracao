@@ -36,6 +36,29 @@ enum PrayerStatus {
 enum NotificationType {
   PRAYER_CLICK
   COMMENT_ADDED
+  GROUP_JOIN_REQUEST
+  GROUP_REQUEST_APPROVED
+  GROUP_REQUEST_REJECTED
+  GROUP_CREATION_APPROVED
+  GROUP_CREATION_REJECTED
+  GROUP_PRAYER_REMOVAL_REQUEST
+}
+
+enum GroupStatus {
+  PENDING
+  ACTIVE
+  ARCHIVED
+}
+
+enum GroupMemberStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+}
+
+enum PrayerVisibility {
+  PUBLIC
+  GROUP_ONLY
 }
 
 // ─────────────────────────────────────────────────────────
@@ -63,6 +86,9 @@ model User {
   reports          Report[]
   notifications    Notification[] @relation("RecipientRelation")
   actionsPerformed Notification[] @relation("ActorRelation")
+  ledGroups        Group[]        @relation("GroupLeader")
+  groupMemberships GroupMember[]
+  removalRequests  PrayerRemovalRequest[]
 }
 
 // NextAuth required models
@@ -116,13 +142,18 @@ model Prayer {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
+  visibility  PrayerVisibility @default(PUBLIC)
+  groupId     String?
+  group       Group?  @relation(fields: [groupId], references: [id])
+
   authorId String
   author   User   @relation(fields: [authorId], references: [id])
 
-  actions       PrayerAction[]
-  comments      Comment[]
-  notifications Notification[]
-  reports       Report[]
+  actions         PrayerAction[]
+  comments        Comment[]
+  notifications   Notification[]
+  reports         Report[]
+  removalRequests PrayerRemovalRequest[]
 }
 
 model PrayerAction {
@@ -160,10 +191,12 @@ model Notification {
   actorId     String? // nullable — ação de usuário anônimo
   prayerId    String?
   commentId   String?
+  groupId     String?
 
   recipient User    @relation("RecipientRelation", fields: [recipientId], references: [id])
   actor     User?   @relation("ActorRelation", fields: [actorId], references: [id])
   prayer    Prayer? @relation(fields: [prayerId], references: [id])
+  group     Group?  @relation(fields: [groupId], references: [id])
 }
 
 model Report {
@@ -176,4 +209,52 @@ model Report {
 
   reporter User   @relation(fields: [reporterId], references: [id], onDelete: Cascade)
   prayer   Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+}
+
+model Group {
+  id          String      @id @default(cuid())
+  name        String
+  image       String?
+  description String?     @db.Text
+  status      GroupStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  leaderId String
+  leader   User   @relation("GroupLeader", fields: [leaderId], references: [id])
+
+  members         GroupMember[]
+  prayers         Prayer[]
+  removalRequests PrayerRemovalRequest[]
+  notifications   Notification[]
+}
+
+model GroupMember {
+  id       String            @id @default(cuid())
+  status   GroupMemberStatus @default(PENDING)
+  joinedAt DateTime?
+  createdAt DateTime         @default(now())
+
+  userId  String
+  groupId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model PrayerRemovalRequest {
+  id        String   @id @default(cuid())
+  reason    String   @db.Text
+  createdAt DateTime @default(now())
+  resolved  Boolean  @default(false)
+
+  prayerId String
+  groupId  String
+  leaderId String
+
+  prayer Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  leader User   @relation(fields: [leaderId], references: [id])
 }

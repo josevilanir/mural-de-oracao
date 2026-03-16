@@ -16,6 +16,7 @@ import {
   UserPlus,
   Sun,
   Moon,
+  Users,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
@@ -46,6 +47,11 @@ export function AppSidebarClient({ user }: Props) {
       label: "Mural",
       href: "/",
       icon: <Home className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />,
+    },
+    {
+      label: "Comunidade",
+      href: "/grupos",
+      icon: <Users className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />,
     },
     ...(user
       ? [

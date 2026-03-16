@@ -16,16 +16,33 @@ export async function createPrayerAction(data: unknown) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
 
+  const { visibility, groupId } = parsed.data;
+
+  if (visibility === "GROUP_ONLY" && !groupId) {
+    return { success: false, error: "Pedido privado precisa estar vinculado a um grupo." };
+  }
+
+  if (groupId) {
+    const membership = await prisma.groupMember.findUnique({
+      where: { userId_groupId: { userId: session.user.id, groupId } },
+    });
+    if (membership?.status !== "ACTIVE") {
+      return { success: false, error: "Você precisa ser membro ativo do grupo para postar nele." };
+    }
+  }
+
   try {
     const prayer = await prisma.prayer.create({
       data: {
         ...parsed.data,
         verseReference: parsed.data.verseReference || null,
+        groupId: groupId || null,
         authorId: session.user.id,
       },
     });
 
     revalidatePath("/");
+    if (groupId) revalidatePath(`/grupos/${groupId}`);
     return { success: true, prayer };
   } catch (err) {
     console.error("[createPrayerAction]", err);
