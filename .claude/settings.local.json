@@ -5,7 +5,9 @@
       "Bash(npx tsc:*)",
       "Bash(node -e \"const t = require\\('next-themes'\\); console.log\\(Object.keys\\(t\\)\\)\")",
       "Bash(node -e \"require\\('framer-motion'\\); console.log\\('ok'\\)\" 2>&1)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(cd:*)",
+      "Bash(node_modules/.bin/tsc --noEmit 2>&1)"
     ]
   }
 }

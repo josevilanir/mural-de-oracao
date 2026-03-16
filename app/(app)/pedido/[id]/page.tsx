@@ -15,6 +15,35 @@ interface PrayerDetailPageProps {
   searchParams: { marcar?: string };
 }
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const prayer = await prisma.prayer.findUnique({
+    where: { id: params.id },
+    select: { title: true, description: true, isAnonymous: true, isHidden: true, author: { select: { name: true } } },
+  });
+
+  if (!prayer || prayer.isHidden) {
+    return { title: "Mural de Oração" };
+  }
+
+  const raw = prayer.description.slice(0, 140) + (prayer.description.length > 140 ? "..." : "");
+  const description =
+    !prayer.isAnonymous && prayer.author?.name
+      ? `Pedido de ${prayer.author.name} · ${raw}`
+      : raw;
+
+  const title = `${prayer.title} — Mural de Oração`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+    },
+  };
+}
+
 const statusVariantMap: Record<PrayerStatus, "active" | "chronic" | "answered"> = {
   ACTIVE: "active",
   CHRONIC: "chronic",
