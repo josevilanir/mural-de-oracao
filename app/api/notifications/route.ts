@@ -13,6 +13,7 @@ export async function GET() {
     include: {
       actor: { select: { name: true, image: true } },
       prayer: { select: { id: true, title: true } },
+      group: { select: { id: true, name: true } },
     },
   });
 

@@ -1,18 +1,29 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, Heart, MessageSquare, GripHorizontal } from "lucide-react";
+import { Bell, Heart, MessageSquare, GripHorizontal, Users } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+type NotificationType =
+  | "PRAYER_CLICK"
+  | "COMMENT_ADDED"
+  | "GROUP_JOIN_REQUEST"
+  | "GROUP_REQUEST_APPROVED"
+  | "GROUP_REQUEST_REJECTED"
+  | "GROUP_CREATION_APPROVED"
+  | "GROUP_CREATION_REJECTED"
+  | "GROUP_PRAYER_REMOVAL_REQUEST";
+
 interface Notification {
   id: string;
-  type: "PRAYER_CLICK" | "COMMENT_ADDED";
+  type: NotificationType;
   isRead: boolean;
   createdAt: string;
   actor?: { name: string | null; image: string | null } | null;
   prayer?: { id: string; title: string } | null;
+  group?: { id: string; name: string } | null;
 }
 
 export function NotificationBell() {
@@ -105,9 +116,18 @@ export function NotificationBell() {
 
   function getNotificationText(n: Notification) {
     const actor = n.actor?.name ?? "Alguém";
-    if (n.type === "PRAYER_CLICK") return `${actor} orou pelo seu pedido "${n.prayer?.title}"`;
-    if (n.type === "COMMENT_ADDED") return `${actor} comentou no seu pedido "${n.prayer?.title}"`;
-    return "Nova notificação";
+    const group = n.group?.name ?? "seu grupo";
+    const prayer = n.prayer?.title ?? "um pedido";
+    switch (n.type) {
+      case "PRAYER_CLICK":        return `${actor} orou pelo seu pedido "${prayer}"`;
+      case "COMMENT_ADDED":       return `${actor} comentou no seu pedido "${prayer}"`;
+      case "GROUP_CREATION_APPROVED": return `🎉 Parabéns! Seu grupo "${group}" foi aprovado!`;
+      case "GROUP_CREATION_REJECTED": return `Seu pedido de criação do grupo "${group}" foi recusado.`;
+      case "GROUP_JOIN_REQUEST":  return `${actor} pediu para entrar no grupo "${group}"`;
+      case "GROUP_REQUEST_APPROVED": return `✅ Sua solicitação para entrar no grupo "${group}" foi aprovada!`;
+      case "GROUP_REQUEST_REJECTED": return `Sua solicitação para entrar no grupo "${group}" foi recusada.`;
+      case "GROUP_PRAYER_REMOVAL_REQUEST": return `${actor} solicitou a remoção do pedido "${prayer}" no grupo "${group}"`;
+    }
   }
 
   const isFloating = floatPos !== null;
@@ -178,7 +198,11 @@ export function NotificationBell() {
             {notifications.map((n) => (
               <Link
                 key={n.id}
-                href={n.prayer ? `/pedido/${n.prayer.id}` : "#"}
+                href={
+                  n.prayer ? `/pedido/${n.prayer.id}`
+                  : n.group ? `/grupos/${n.group.id}`
+                  : "#"
+                }
                 onClick={() => setOpen(false)}
                 className={cn(
                   "flex items-start gap-3 px-4 py-3 hover:bg-gray-light transition-colors border-b border-gray-med/40 last:border-0",
@@ -186,9 +210,13 @@ export function NotificationBell() {
                 )}
               >
                 <span className="mt-0.5 text-gray-text">
-                  {n.type === "PRAYER_CLICK"
-                    ? <Heart className="w-4 h-4 text-gold-warm" />
-                    : <MessageSquare className="w-4 h-4 text-blue-main" />}
+                  {n.type === "PRAYER_CLICK" ? (
+                    <Heart className="w-4 h-4 text-gold-warm" />
+                  ) : n.type === "COMMENT_ADDED" ? (
+                    <MessageSquare className="w-4 h-4 text-blue-main" />
+                  ) : (
+                    <Users className="w-4 h-4 text-navy" />
+                  )}
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-navy line-clamp-2">
