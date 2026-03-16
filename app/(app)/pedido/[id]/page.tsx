@@ -8,6 +8,7 @@ import Link from "next/link";
 import PrayButtonClient from "@/components/prayers/PrayButtonClient";
 import CommentForm from "@/components/prayers/CommentForm";
 import { DeletePrayerButton, DeleteCommentButton } from "@/components/prayers/DeleteButtons";
+import ShareButton from "@/components/prayers/ShareButton";
 import type { PrayerStatus } from "@/types/prisma";
 
 interface PrayerDetailPageProps {
@@ -111,6 +112,10 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
           <h1 className="font-display text-2xl md:text-3xl font-bold text-navy mb-3">
             {prayer.title}
           </h1>
+
+          <div className="flex items-center gap-3 text-sm text-gray-text mb-3">
+            <ShareButton prayerId={prayer.id} title={prayer.title} />
+          </div>
 
           <div className="flex items-center gap-3 text-sm text-gray-text mb-4">
             <span>{formatRelativeDate(prayer.createdAt)}</span>
