@@ -8,11 +8,41 @@ import Link from "next/link";
 import PrayButtonClient from "@/components/prayers/PrayButtonClient";
 import CommentForm from "@/components/prayers/CommentForm";
 import { DeletePrayerButton, DeleteCommentButton } from "@/components/prayers/DeleteButtons";
+import ShareButton from "@/components/prayers/ShareButton";
 import type { PrayerStatus } from "@/types/prisma";
 
 interface PrayerDetailPageProps {
   params: { id: string };
   searchParams: { marcar?: string };
+}
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const prayer = await prisma.prayer.findUnique({
+    where: { id: params.id },
+    select: { title: true, description: true, isAnonymous: true, isHidden: true, author: { select: { name: true } } },
+  });
+
+  if (!prayer || prayer.isHidden) {
+    return { title: "Mural de Oração" };
+  }
+
+  const raw = prayer.description.slice(0, 140) + (prayer.description.length > 140 ? "..." : "");
+  const description =
+    !prayer.isAnonymous && prayer.author?.name
+      ? `Pedido de ${prayer.author.name} · ${raw}`
+      : raw;
+
+  const title = `${prayer.title} — Mural de Oração`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+    },
+  };
 }
 
 const statusVariantMap: Record<PrayerStatus, "active" | "chronic" | "answered"> = {
@@ -82,6 +112,10 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
           <h1 className="font-display text-2xl md:text-3xl font-bold text-navy mb-3">
             {prayer.title}
           </h1>
+          
+          <div className="flex items-center gap-3 text-sm text-gray-text mb-3">
+            <ShareButton prayerId={prayer.id} title={prayer.title} />
+          </div>
 
           <div className="flex items-center gap-3 text-sm text-gray-text mb-4">
             <span>{formatRelativeDate(prayer.createdAt)}</span>
