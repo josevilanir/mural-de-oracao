@@ -9,7 +9,7 @@ import { formatRelativeDate } from "@/lib/utils";
 export default async function AdminRemocoesPage() {
   const session = await auth();
   if (!session?.user) redirect("/");
-  if ((session.user as any).role !== "ADMIN") redirect("/");
+  if (session.user.role !== "ADMIN") redirect("/");
 
   const requests = await prisma.prayerRemovalRequest.findMany({
     where: { resolved: false },

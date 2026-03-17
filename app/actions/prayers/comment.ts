@@ -21,11 +21,22 @@ export async function createCommentAction(data: unknown) {
   // Verify prayer exists and allows comments
   const prayer = await prisma.prayer.findUnique({
     where: { id: prayerId },
-    select: { allowComments: true, authorId: true, isAnonymous: true },
+    select: { allowComments: true, authorId: true, isAnonymous: true, visibility: true, groupId: true, isHidden: true },
   });
 
-  if (!prayer) return { success: false, error: "Pedido não encontrado." };
+  if (!prayer || prayer.isHidden) return { success: false, error: "Pedido não encontrado." };
   if (!prayer.allowComments) return { success: false, error: "Comentários estão desativados para este pedido." };
+
+  // GROUP_ONLY prayers require active membership
+  if (prayer.visibility === "GROUP_ONLY" && prayer.groupId) {
+    const membership = await prisma.groupMember.findUnique({
+      where: { userId_groupId: { userId: session.user.id, groupId: prayer.groupId } },
+      select: { status: true },
+    });
+    if (membership?.status !== "ACTIVE") {
+      return { success: false, error: "Acesso negado." };
+    }
+  }
 
   try {
     const comment = await prisma.comment.create({
@@ -71,7 +82,7 @@ export async function deleteCommentAction(commentId: string) {
   if (!comment) return { success: false, error: "Comentário não encontrado." };
 
   const isAuthor = comment.authorId === session.user.id;
-  const isAdmin = (session.user as any).role === "ADMIN";
+  const isAdmin = session.user.role === "ADMIN";
 
   if (!isAuthor && !isAdmin) {
     return { success: false, error: "Acesso negado." };

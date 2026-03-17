@@ -101,7 +101,7 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
           {...register("description")}
           rows={5}
           placeholder="Conte sua necessidade em detalhes. A comunidade está aqui para orar por você."
-          className="w-full px-3 py-2 rounded-md border border-gray-med bg-white text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none"
+          className="w-full px-3 py-2 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none"
         />
         <div className="text-right text-xs text-gray-text mt-1">
           {description.length} / 1000

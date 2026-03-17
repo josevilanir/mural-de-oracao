@@ -11,6 +11,27 @@ export async function prayAction(prayerId: string) {
   }
 
   try {
+    // Fetch prayer first to enforce visibility rules
+    const prayer = await prisma.prayer.findUnique({
+      where: { id: prayerId },
+      select: { authorId: true, isAnonymous: true, visibility: true, groupId: true, isHidden: true },
+    });
+
+    if (!prayer || prayer.isHidden) {
+      return { success: false, error: "Pedido não encontrado." };
+    }
+
+    // GROUP_ONLY prayers require active membership
+    if (prayer.visibility === "GROUP_ONLY" && prayer.groupId) {
+      const membership = await prisma.groupMember.findUnique({
+        where: { userId_groupId: { userId: session.user.id, groupId: prayer.groupId } },
+        select: { status: true },
+      });
+      if (membership?.status !== "ACTIVE") {
+        return { success: false, error: "Acesso negado." };
+      }
+    }
+
     await prisma.prayerAction.create({
       data: {
         userId: session.user.id,
@@ -18,13 +39,7 @@ export async function prayAction(prayerId: string) {
       },
     });
 
-    // Notify prayer author (if not anonymous and not self)
-    const prayer = await prisma.prayer.findUnique({
-      where: { id: prayerId },
-      select: { authorId: true, isAnonymous: true },
-    });
-
-    if (prayer && prayer.authorId !== session.user.id) {
+    if (prayer.authorId !== session.user.id) {
       await prisma.notification.create({
         data: {
           type: "PRAYER_CLICK",
@@ -39,7 +54,6 @@ export async function prayAction(prayerId: string) {
     revalidatePath(`/pedido/${prayerId}`);
     return { success: true };
   } catch (err: any) {
-    // @@unique violation — already prayed
     if (err?.code === "P2002") {
       return { success: false, error: "Você já orou por este pedido.", code: 409 };
     }

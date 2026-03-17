@@ -54,13 +54,14 @@ const statusVariantMap: Record<PrayerStatus, "active" | "chronic" | "answered"> 
 export default async function PrayerDetailPage({ params }: PrayerDetailPageProps) {
   const session = await auth();
   const userId = session?.user?.id;
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isAdmin = session?.user?.role === "ADMIN";
 
   const prayer = await prisma.prayer.findUnique({
     where: { id: params.id, isHidden: false },
     include: {
       author: { select: { name: true, image: true, id: true } },
       _count: { select: { actions: true, comments: true } },
+      group: { select: { id: true } },
       comments: {
         include: {
           author: { select: { name: true, image: true, id: true } },
@@ -91,8 +92,11 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
     <>
       <main className="container mx-auto max-w-2xl px-4 py-8">
         {/* Breadcrumb */}
-        <Link href="/" className="text-sm text-gray-text hover:text-blue-main mb-4 inline-block">
-          ← Voltar ao mural
+        <Link
+          href={prayer.group ? `/grupos/${prayer.group.id}` : "/"}
+          className="text-sm text-gray-text hover:text-blue-main mb-4 inline-block"
+        >
+          ← Voltar ao mural{prayer.group ? " do grupo" : ""}
         </Link>
 
         {/* Header do Pedido */}
@@ -113,11 +117,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
             {prayer.title}
           </h1>
           
-          <div className="flex items-center gap-3 text-sm text-gray-text mb-3">
-            <ShareButton prayerId={prayer.id} title={prayer.title} />
-          </div>
-
-          <div className="flex items-center gap-3 text-sm text-gray-text mb-3">
+          <div className="flex items-center gap-3 text-sm text-gray-text mb-4">
             <ShareButton prayerId={prayer.id} title={prayer.title} />
           </div>
 

@@ -9,7 +9,7 @@ import { formatRelativeDate } from "@/lib/utils";
 export default async function AdminGruposPage() {
   const session = await auth();
   if (!session?.user) redirect("/");
-  if ((session.user as any).role !== "ADMIN") redirect("/");
+  if (session.user.role !== "ADMIN") redirect("/");
 
   const pendingGroups = await prisma.group.findMany({
     where: { status: "PENDING" },

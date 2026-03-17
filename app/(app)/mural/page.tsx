@@ -19,7 +19,7 @@ interface MuralProps {
 async function PrayerFeed({ searchParams }: MuralProps) {
   const session = await auth();
   const userId = session?.user?.id;
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isAdmin = session?.user?.role === "ADMIN";
 
   const whereStatus = searchParams.status as PrayerStatus | undefined;
   const whereCategory = searchParams.category as Category | undefined;

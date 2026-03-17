@@ -11,7 +11,7 @@ import { CATEGORY_LABELS, STATUS_LABELS } from "@/lib/utils";
 export default async function AdminPage() {
   const session = await auth();
   if (!session?.user) redirect("/");
-  if ((session.user as any).role !== "ADMIN") redirect("/");
+  if (session.user.role !== "ADMIN") redirect("/");
 
   const [prayers, pendingGroups, activeGroups, removalRequests] = await Promise.all([
     prisma.prayer.findMany({

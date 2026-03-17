@@ -9,7 +9,7 @@ export default async function AdminPrayersPage() {
   const session = await auth();
 
   if (!session?.user) redirect("/");
-  if ((session.user as any).role !== "ADMIN") redirect("/");
+  if (session.user.role !== "ADMIN") redirect("/");
 
   const prayers = await prisma.prayer.findMany({
     include: {

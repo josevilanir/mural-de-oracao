@@ -18,7 +18,7 @@ export async function deletePrayer(prayerId: string) {
   if (!prayer) return { success: false, error: "Pedido não encontrado." };
 
   const isOwner = prayer.authorId === session.user.id;
-  const isAdmin = (session.user as any).role === "ADMIN";
+  const isAdmin = session.user.role === "ADMIN";
 
   if (!isOwner && !isAdmin) {
     return { success: false, error: "Acesso negado." };

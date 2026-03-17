@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { sanitizePrayers } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -11,7 +12,7 @@ export async function GET(
 
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
-  const limit = Math.min(50, parseInt(searchParams.get("limit") ?? "20"));
+  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") ?? "20")));
   const skip = (page - 1) * limit;
 
   const group = await prisma.group.findUnique({
@@ -36,7 +37,7 @@ export async function GET(
   const isMember = membership?.status === "ACTIVE";
 
   const members = await prisma.groupMember.findMany({
-    where: { groupId: params.id, status: "ACTIVE" },
+    where: { groupId: params.id, status: "ACTIVE", user: { isDeleted: false } },
     include: { user: { select: { id: true, name: true, image: true } } },
     skip,
     take: limit,
@@ -60,7 +61,7 @@ export async function GET(
   return NextResponse.json({
     group,
     members,
-    prayers,
+    prayers: sanitizePrayers(prayers),
     membership: membership ?? null,
     pagination: {
       page,

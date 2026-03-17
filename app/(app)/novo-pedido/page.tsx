@@ -27,7 +27,7 @@ export default async function NovoPedidoPage({ searchParams }: Props) {
         <p className="text-sm text-gray-text italic mb-6">
           A comunidade está aqui para orar por você
         </p>
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-card rounded-xl shadow-sm p-6">
           <NewPrayerForm groups={groups} defaultGroupId={searchParams.groupId} />
         </div>
       </main>

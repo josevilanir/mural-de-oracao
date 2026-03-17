@@ -27,7 +27,8 @@ export async function deleteAccountAction() {
       },
     });
 
-    // Delete active sessions
+    // Remove group memberships and active sessions
+    await prisma.groupMember.deleteMany({ where: { userId } });
     await prisma.session.deleteMany({ where: { userId } });
     await prisma.account.deleteMany({ where: { userId } });
 

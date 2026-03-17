@@ -11,7 +11,7 @@ import { revalidatePath } from "next/cache";
 const RequestGroupSchema = z.object({
   name: z.string().min(2, "Nome precisa ter ao menos 2 caracteres").max(80),
   description: z.string().max(500).optional(),
-  image: z.string().optional(),
+  image: z.string().regex(/^data:image\/(jpeg|jpg|png|webp|gif);base64,/, "Formato de imagem inválido").optional(),
 });
 
 export async function requestGroupCreation(data: unknown) {
@@ -50,13 +50,14 @@ export async function deleteGroup(groupId: string) {
   const group = await prisma.group.findUnique({ where: { id: groupId } });
   if (!group) return { success: false, error: "Grupo não encontrado." };
 
-  const isAdmin = (session.user as any).role === "ADMIN";
+  const isAdmin = session.user.role === "ADMIN";
   const isLeader = group.leaderId === session.user.id;
 
   if (!isAdmin && !isLeader) {
     return { success: false, error: "Sem permissão para apagar este grupo." };
   }
 
+  await prisma.prayer.deleteMany({ where: { groupId } });
   await prisma.group.delete({ where: { id: groupId } });
 
   revalidatePath("/admin");
@@ -70,7 +71,7 @@ export async function deleteGroup(groupId: string) {
 export async function approveGroup(groupId: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Não autorizado." };
-  if ((session.user as any).role !== "ADMIN") return { success: false, error: "Apenas admins." };
+  if (session.user.role !== "ADMIN") return { success: false, error: "Apenas admins." };
 
   const group = await prisma.group.update({
     where: { id: groupId },
@@ -103,7 +104,7 @@ export async function approveGroup(groupId: string) {
 export async function rejectGroup(groupId: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Não autorizado." };
-  if ((session.user as any).role !== "ADMIN") return { success: false, error: "Apenas admins." };
+  if (session.user.role !== "ADMIN") return { success: false, error: "Apenas admins." };
 
   const group = await prisma.group.update({
     where: { id: groupId },
@@ -279,7 +280,7 @@ export async function requestPrayerRemoval(prayerId: string, groupId: string, re
 export async function resolvePrayerRemoval(removalRequestId: string, approve: boolean) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Não autorizado." };
-  if ((session.user as any).role !== "ADMIN") return { success: false, error: "Apenas admins." };
+  if (session.user.role !== "ADMIN") return { success: false, error: "Apenas admins." };
 
   const request = await prisma.prayerRemovalRequest.findUnique({
     where: { id: removalRequestId },
