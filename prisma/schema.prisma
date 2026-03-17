@@ -244,6 +244,22 @@ model GroupMember {
   @@unique([userId, groupId])
 }
 
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+}
+
 model PrayerRemovalRequest {
   id        String   @id @default(cuid())
   reason    String   @db.Text
