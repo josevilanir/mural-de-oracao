@@ -8,7 +8,7 @@ export const authConfig: NextAuthConfig = {
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role ?? "USER";
+        token.role = (user as { role?: string }).role ?? "USER";
       }
       return token;
     },
@@ -20,7 +20,7 @@ export const authConfig: NextAuthConfig = {
       return session;
     },
   },
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 }, // 30 dias
   pages: {
     signIn: "/login",
     error: "/login",
