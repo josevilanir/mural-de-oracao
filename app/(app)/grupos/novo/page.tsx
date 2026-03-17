@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { requestGroupCreation } from "@/app/actions/groups";
 import { Button } from "@/components/ui/button";
 
-function compressImage(file: File): Promise<string> {
+function compressImage(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -17,7 +17,14 @@ function compressImage(file: File): Promise<string> {
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
         canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.8));
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error("Falha ao comprimir imagem"));
+          },
+          "image/jpeg",
+          0.8
+        );
       };
       img.onerror = reject;
       img.src = e.target!.result as string;
@@ -30,17 +37,46 @@ function compressImage(file: File): Promise<string> {
 export default function NovoGrupoPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const imageBase64Ref = useRef<string | null>(null);
+  const imageUrlRef = useRef<string | null>(null);
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const base64 = await compressImage(file);
-    imageBase64Ref.current = base64;
-    setPreview(base64);
+
+    setImageUploading(true);
+    setError(null);
+
+    try {
+      // 1. Comprimir no cliente
+      const blob = await compressImage(file);
+
+      // 2. Obter presigned URL
+      const res = await fetch(`/api/upload?contentType=${encodeURIComponent(blob.type)}`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Erro ao obter URL de upload.");
+      }
+      const { presignedUrl, publicUrl } = await res.json();
+
+      // 3. Upload direto para o R2
+      const uploadRes = await fetch(presignedUrl, {
+        method: "PUT",
+        body: blob,
+        headers: { "Content-Type": blob.type },
+      });
+      if (!uploadRes.ok) throw new Error("Erro ao enviar imagem.");
+
+      imageUrlRef.current = publicUrl;
+      setPreview(URL.createObjectURL(blob));
+    } catch (err: any) {
+      setError(err.message ?? "Erro ao processar imagem.");
+    } finally {
+      setImageUploading(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -52,7 +88,7 @@ export default function NovoGrupoPage() {
     const data = {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
       description: (form.elements.namedItem("description") as HTMLTextAreaElement).value,
-      image: imageBase64Ref.current ?? undefined,
+      image: imageUrlRef.current ?? undefined,
     };
 
     const result = await requestGroupCreation(data);
@@ -134,14 +170,14 @@ export default function NovoGrupoPage() {
                 />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gold-warm/10 border-2 border-dashed border-gold-warm/40 flex items-center justify-center text-gray-text text-xs flex-shrink-0">
-                  foto
+                  {imageUploading ? "···" : "foto"}
                 </div>
               )}
               <label
                 htmlFor="image"
-                className="cursor-pointer text-sm text-blue-main hover:underline"
+                className={`cursor-pointer text-sm text-blue-main hover:underline ${imageUploading ? "opacity-50 pointer-events-none" : ""}`}
               >
-                {preview ? "Trocar foto" : "Escolher arquivo"}
+                {imageUploading ? "Enviando..." : preview ? "Trocar foto" : "Escolher arquivo"}
                 <input
                   id="image"
                   name="image"
@@ -149,11 +185,12 @@ export default function NovoGrupoPage() {
                   accept="image/*"
                   className="hidden"
                   onChange={handleImageChange}
+                  disabled={imageUploading}
                 />
               </label>
             </div>
             <p className="text-xs text-gray-text mt-1">
-              JPG, PNG ou WEBP. Será redimensionado para 200×200px automaticamente.
+              JPG, PNG ou WEBP. Será redimensionado para 400×400px automaticamente.
             </p>
           </div>
 
@@ -161,7 +198,7 @@ export default function NovoGrupoPage() {
             <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
           )}
 
-          <Button type="submit" variant="primary" size="md" disabled={loading}>
+          <Button type="submit" variant="primary" size="md" disabled={loading || imageUploading}>
             {loading ? "Enviando..." : "Enviar solicitação"}
           </Button>
         </form>
