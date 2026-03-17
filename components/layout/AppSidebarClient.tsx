@@ -46,24 +46,24 @@ export function AppSidebarClient({ user }: Props) {
     {
       label: "Mural",
       href: "/",
-      icon: <Home className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />,
+      icon: <Home className="h-5 w-5 flex-shrink-0 text-navy" />,
     },
     {
       label: "Comunidade",
       href: "/grupos",
-      icon: <Users className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />,
+      icon: <Users className="h-5 w-5 flex-shrink-0 text-navy" />,
     },
     ...(user
       ? [
           {
             label: "Novo Pedido",
             href: "/novo-pedido",
-            icon: <PlusCircle className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />,
+            icon: <PlusCircle className="h-5 w-5 flex-shrink-0 text-navy" />,
           },
           {
             label: "Meus Pedidos",
             href: "/meus-pedidos",
-            icon: <BookOpen className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />,
+            icon: <BookOpen className="h-5 w-5 flex-shrink-0 text-navy" />,
           },
         ]
       : []),
@@ -133,9 +133,9 @@ export function AppSidebarClient({ user }: Props) {
               {mounted && (
                 <>
                   {theme === "dark" ? (
-                    <Sun className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />
+                    <Sun className="h-5 w-5 flex-shrink-0 text-navy" />
                   ) : (
-                    <Moon className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />
+                    <Moon className="h-5 w-5 flex-shrink-0 text-navy" />
                   )}
                   <motion.span
                     animate={{
@@ -222,9 +222,9 @@ export function AppSidebarClient({ user }: Props) {
                 link={{
                   label: "Entrar",
                   href: "/login",
-                  icon: <LogIn className="h-5 w-5 flex-shrink-0 text-navy dark:text-cream" />,
+                  icon: <LogIn className="h-5 w-5 flex-shrink-0 text-navy" />,
                 }}
-                className="hover:bg-blue-soft dark:hover:bg-navy/40 text-navy dark:text-cream rounded-lg"
+                className="hover:bg-blue-soft dark:hover:bg-navy/40 text-navy rounded-lg"
               />
               <SidebarLink
                 link={{
