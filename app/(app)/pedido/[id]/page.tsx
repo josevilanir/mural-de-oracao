@@ -117,6 +117,10 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
             <ShareButton prayerId={prayer.id} title={prayer.title} />
           </div>
 
+          <div className="flex items-center gap-3 text-sm text-gray-text mb-3">
+            <ShareButton prayerId={prayer.id} title={prayer.title} />
+          </div>
+
           <div className="flex items-center gap-3 text-sm text-gray-text mb-4">
             <span>{formatRelativeDate(prayer.createdAt)}</span>
             <span>·</span>

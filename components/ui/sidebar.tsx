@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link, { LinkProps } from "next/link";
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, useRef, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
@@ -99,41 +99,66 @@ export const MobileSidebar = ({
   ...props
 }: React.ComponentProps<"div">) => {
   const { open, setOpen } = useSidebar();
+  const touchStartX = useRef<number>(0);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const deltaX = touchStartX.current - e.changedTouches[0].clientX;
+    if (deltaX > 60) setOpen(false);
+  }
+
   return (
     <>
-      <div
-        className={cn("h-12 px-4 flex flex-row md:hidden items-center justify-between w-full")}
-        {...props}
+      {/* FAB hamburger — fixed, takes no layout space */}
+      <button
+        className="fixed top-4 left-4 z-50 md:hidden p-2 rounded-lg bg-card border border-gray-med shadow-md"
+        onClick={() => setOpen(true)}
+        aria-label="Abrir menu"
       >
-        <div className="flex justify-start z-20">
-          <Menu
-            className="cursor-pointer"
-            onClick={() => setOpen(!open)}
-          />
-        </div>
-        <AnimatePresence>
-          {open && (
+        <Menu className="w-5 h-5 text-navy" />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* Backdrop */}
             <motion.div
-              initial={{ x: "-100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/50 z-[90] md:hidden"
+              onClick={() => setOpen(false)}
+            />
+
+            {/* Slide-in panel */}
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className={cn(
-                "fixed h-full w-full inset-0 p-10 z-[100] flex flex-col justify-between",
+                "fixed top-0 left-0 h-full w-[280px] z-[100] md:hidden flex flex-col justify-between",
                 className
               )}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
             >
-              <div
-                className="absolute right-10 top-10 z-50 cursor-pointer"
+              <button
+                className="absolute right-4 top-4 z-50 p-1 rounded-md hover:bg-gray-light"
                 onClick={() => setOpen(false)}
+                aria-label="Fechar menu"
               >
-                <X />
-              </div>
+                <X className="w-5 h-5 text-navy" />
+              </button>
               {children}
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };

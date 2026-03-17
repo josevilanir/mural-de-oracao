@@ -21,7 +21,7 @@ export async function createCommentAction(data: unknown) {
   // Verify prayer exists and allows comments
   const prayer = await prisma.prayer.findUnique({
     where: { id: prayerId },
-    select: { allowComments: true },
+    select: { allowComments: true, authorId: true, isAnonymous: true },
   });
 
   if (!prayer) return { success: false, error: "Pedido não encontrado." };
@@ -35,6 +35,19 @@ export async function createCommentAction(data: unknown) {
         authorId: session.user.id,
       },
     });
+
+    // Notify prayer author (if not self)
+    if (prayer.authorId !== session.user.id) {
+      await prisma.notification.create({
+        data: {
+          type: "COMMENT_ADDED",
+          recipientId: prayer.authorId,
+          actorId: prayer.isAnonymous ? null : session.user.id,
+          prayerId,
+          commentId: comment.id,
+        },
+      });
+    }
 
     revalidatePath(`/pedido/${prayerId}`);
     return { success: true, comment };

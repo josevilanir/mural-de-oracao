@@ -19,6 +19,30 @@ const CATEGORY_FILTERS = [
   { label: "Santidade", value: "HOLINESS" },
 ];
 
+function FilterButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap flex-shrink-0",
+        active
+          ? "bg-gold-warm text-white border-gold-warm"
+          : "bg-card border-gray-med text-navy hover:border-gold-warm"
+      )}
+    >
+      {label}
+    </button>
+  );
+}
+
 export default function FilterBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -29,7 +53,6 @@ export default function FilterBar() {
     const params = new URLSearchParams(searchParams.toString());
     const current = searchParams.get(key) ?? "";
 
-    // Clicar no filtro ativo desmarca (toggle); clicar em outro aplica.
     if (value && value === current) {
       params.delete(key);
     } else if (value) {
@@ -42,36 +65,55 @@ export default function FilterBar() {
   }
 
   return (
-    <div className="overflow-x-auto scrollbar-hide bg-card border-b border-gray-med">
-      <div className="flex justify-center gap-2 px-4 py-2 w-full min-w-max">
+    <div className="bg-card border-b border-gray-med">
+      {/* Mobile: two rows with gradient fade edges */}
+      <div className="md:hidden">
+        <div className="relative">
+          <div className="flex overflow-x-auto scrollbar-hide gap-2 px-4 pt-2 pb-1">
+            {STATUS_FILTERS.map((f) => (
+              <FilterButton
+                key={f.value}
+                label={f.label}
+                active={(f.value === "" && !currentStatus) || currentStatus === f.value}
+                onClick={() => setFilter("status", f.value)}
+              />
+            ))}
+          </div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent pointer-events-none" />
+        </div>
+        <div className="relative">
+          <div className="flex overflow-x-auto scrollbar-hide gap-2 px-4 pt-1 pb-2">
+            {CATEGORY_FILTERS.map((f) => (
+              <FilterButton
+                key={f.value}
+                label={f.label}
+                active={currentCategory === f.value}
+                onClick={() => setFilter("category", f.value)}
+              />
+            ))}
+          </div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card to-transparent pointer-events-none" />
+        </div>
+      </div>
+
+      {/* Desktop: single scrollable row */}
+      <div className="hidden md:flex overflow-x-auto scrollbar-hide justify-center gap-2 px-4 py-2 min-w-max">
         {STATUS_FILTERS.map((f) => (
-          <button
+          <FilterButton
             key={f.value}
+            label={f.label}
+            active={(f.value === "" && !currentStatus) || currentStatus === f.value}
             onClick={() => setFilter("status", f.value)}
-            className={cn(
-              "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap",
-              (f.value === "" && !currentStatus) || currentStatus === f.value
-                ? "bg-gold-warm text-white border-gold-warm"
-                : "bg-card border-gray-med text-navy hover:border-gold-warm"
-            )}
-          >
-            {f.label}
-          </button>
+          />
         ))}
         <div className="w-px bg-gray-med mx-1 self-stretch" />
         {CATEGORY_FILTERS.map((f) => (
-          <button
+          <FilterButton
             key={f.value}
+            label={f.label}
+            active={currentCategory === f.value}
             onClick={() => setFilter("category", f.value)}
-            className={cn(
-              "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap",
-              currentCategory === f.value
-                ? "bg-gold-warm text-white border-gold-warm"
-                : "bg-card border-gray-med text-navy hover:border-gold-warm"
-            )}
-          >
-            {f.label}
-          </button>
+          />
         ))}
       </div>
     </div>

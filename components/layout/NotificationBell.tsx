@@ -30,7 +30,7 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  // null = anchored to button; {x,y} = floating (after drag)
+  // null = anchored to button; {x,y} = floating (after drag) — desktop only
   const [floatPos, setFloatPos] = useState<{ x: number; y: number } | null>(null);
   const dragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -63,10 +63,10 @@ export function NotificationBell() {
     return () => clearInterval(interval);
   }, []);
 
-  // Close on outside click (only when anchored)
+  // Close on outside click (only when anchored, desktop only)
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (floatPos) return; // floating panels stay open until explicitly closed
+      if (floatPos) return;
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
       }
@@ -85,14 +85,13 @@ export function NotificationBell() {
     if (!open && unread > 0) markAllRead();
   }
 
-  // Drag: capture initial position on mousedown of the handle
+  // Drag: desktop only — capture initial position on mousedown of the handle
   function handleDragStart(e: React.MouseEvent) {
     if (!panelRef.current) return;
     const rect = panelRef.current.getBoundingClientRect();
     dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     dragging.current = true;
 
-    // If still anchored, snapshot current screen position and switch to floating
     setFloatPos({ x: rect.left, y: rect.top });
 
     function onMouseMove(ev: MouseEvent) {
@@ -148,91 +147,126 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div
-          ref={panelRef}
-          className={cn(
-            "notification-panel w-80 bg-card border border-gray-med rounded-xl shadow-lg z-50 overflow-hidden",
-            isFloating ? "fixed" : "absolute left-0 top-12"
-          )}
-          style={isFloating ? { left: floatPos.x, top: floatPos.y } : undefined}
-        >
-          {/* Drag handle — header */}
+        <>
+          {/* Mobile backdrop */}
           <div
-            onMouseDown={handleDragStart}
-            className="flex items-center justify-between px-4 py-3 border-b border-gray-med cursor-grab active:cursor-grabbing select-none"
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            onClick={() => setOpen(false)}
+          />
+
+          <div
+            ref={panelRef}
+            className={cn(
+              "notification-panel bg-card border border-gray-med shadow-lg z-50 overflow-hidden",
+              // Mobile: bottom sheet
+              "fixed bottom-0 inset-x-0 rounded-t-2xl max-h-[60vh]",
+              // Desktop: dropdown (anchored or floating)
+              isFloating
+                ? "md:fixed md:inset-x-auto md:bottom-auto md:rounded-xl md:w-80"
+                : "md:absolute md:inset-x-auto md:bottom-auto md:left-0 md:top-12 md:rounded-xl md:w-80"
+            )}
+            style={isFloating ? { left: floatPos.x, top: floatPos.y } : undefined}
           >
-            <div className="flex items-center gap-2">
-              <GripHorizontal className="w-4 h-4 text-gray-text opacity-50" />
-              <span className="font-semibold text-navy text-sm">Notificações</span>
+            {/* Desktop header — draggable */}
+            <div
+              onMouseDown={handleDragStart}
+              className="hidden md:flex items-center justify-between px-4 py-3 border-b border-gray-med cursor-grab active:cursor-grabbing select-none"
+            >
+              <div className="flex items-center gap-2">
+                <GripHorizontal className="w-4 h-4 text-gray-text opacity-50" />
+                <span className="font-semibold text-navy text-sm">Notificações</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {unread > 0 && (
+                  <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={markAllRead}
+                    className="text-xs text-blue-main hover:underline"
+                  >
+                    Marcar todas como lidas
+                  </button>
+                )}
+                {isFloating && (
+                  <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={() => setOpen(false)}
+                    className="text-xs text-gray-text hover:text-navy ml-1"
+                    aria-label="Fechar"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              {unread > 0 && (
+
+            {/* Mobile header — no drag */}
+            <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-gray-med">
+              <span className="font-semibold text-navy text-sm">Notificações</span>
+              <div className="flex items-center gap-3">
+                {unread > 0 && (
+                  <button
+                    onClick={markAllRead}
+                    className="text-xs text-blue-main hover:underline"
+                  >
+                    Marcar todas como lidas
+                  </button>
+                )}
                 <button
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onClick={markAllRead}
-                  className="text-xs text-blue-main hover:underline"
-                >
-                  Marcar todas como lidas
-                </button>
-              )}
-              {isFloating && (
-                <button
-                  onMouseDown={(e) => e.stopPropagation()}
                   onClick={() => setOpen(false)}
-                  className="text-xs text-gray-text hover:text-navy ml-1"
+                  className="text-sm text-gray-text hover:text-navy"
                   aria-label="Fechar"
                 >
                   ✕
                 </button>
+              </div>
+            </div>
+
+            <div className="overflow-y-auto max-h-72 md:max-h-72">
+              {loading && notifications.length === 0 && (
+                <p className="text-center text-sm text-gray-text py-6">Carregando...</p>
               )}
+              {!loading && notifications.length === 0 && (
+                <p className="text-center text-sm text-gray-text py-6">Nenhuma notificação ainda</p>
+              )}
+              {notifications.map((n) => (
+                <Link
+                  key={n.id}
+                  href={
+                    n.prayer ? `/pedido/${n.prayer.id}`
+                    : n.group ? `/grupos/${n.group.id}`
+                    : "#"
+                  }
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "flex items-start gap-3 px-4 py-3 hover:bg-gray-light transition-colors border-b border-gray-med/40 last:border-0",
+                    !n.isRead && "bg-blue-soft/40"
+                  )}
+                >
+                  <span className="mt-0.5 text-gray-text">
+                    {n.type === "PRAYER_CLICK" ? (
+                      <Heart className="w-4 h-4 text-gold-warm" />
+                    ) : n.type === "COMMENT_ADDED" ? (
+                      <MessageSquare className="w-4 h-4 text-blue-main" />
+                    ) : (
+                      <Users className="w-4 h-4 text-navy" />
+                    )}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-navy line-clamp-2">
+                      {getNotificationText(n)}
+                    </p>
+                    <p className="text-xs text-gray-text mt-0.5">
+                      {formatRelativeDate(n.createdAt)}
+                    </p>
+                  </div>
+                  {!n.isRead && (
+                    <span className="w-2 h-2 rounded-full bg-gold-warm mt-1.5 flex-shrink-0" />
+                  )}
+                </Link>
+              ))}
             </div>
           </div>
-
-          <div className="max-h-80 overflow-y-auto">
-            {loading && notifications.length === 0 && (
-              <p className="text-center text-sm text-gray-text py-6">Carregando...</p>
-            )}
-            {!loading && notifications.length === 0 && (
-              <p className="text-center text-sm text-gray-text py-6">Nenhuma notificação ainda</p>
-            )}
-            {notifications.map((n) => (
-              <Link
-                key={n.id}
-                href={
-                  n.prayer ? `/pedido/${n.prayer.id}`
-                  : n.group ? `/grupos/${n.group.id}`
-                  : "#"
-                }
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "flex items-start gap-3 px-4 py-3 hover:bg-gray-light transition-colors border-b border-gray-med/40 last:border-0",
-                  !n.isRead && "bg-blue-soft/40"
-                )}
-              >
-                <span className="mt-0.5 text-gray-text">
-                  {n.type === "PRAYER_CLICK" ? (
-                    <Heart className="w-4 h-4 text-gold-warm" />
-                  ) : n.type === "COMMENT_ADDED" ? (
-                    <MessageSquare className="w-4 h-4 text-blue-main" />
-                  ) : (
-                    <Users className="w-4 h-4 text-navy" />
-                  )}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-navy line-clamp-2">
-                    {getNotificationText(n)}
-                  </p>
-                  <p className="text-xs text-gray-text mt-0.5">
-                    {formatRelativeDate(n.createdAt)}
-                  </p>
-                </div>
-                {!n.isRead && (
-                  <span className="w-2 h-2 rounded-full bg-gold-warm mt-1.5 flex-shrink-0" />
-                )}
-              </Link>
-            ))}
-          </div>
-        </div>
+        </>
       )}
     </div>
   );
