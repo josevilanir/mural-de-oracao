@@ -13,7 +13,7 @@ export default async function MeusPedidosPage() {
 
   const userId = session.user.id;
 
-  const [prayers, totalPrayed, totalReceived] = await Promise.all([
+  const [prayers, totalPrayed, totalReceived, groupMemberships] = await Promise.all([
     prisma.prayer.findMany({
       where: { authorId: userId },
       include: {
@@ -24,6 +24,20 @@ export default async function MeusPedidosPage() {
     prisma.prayerAction.count({ where: { userId } }),
     prisma.prayerAction.count({
       where: { prayer: { authorId: userId } },
+    }),
+    prisma.groupMember.findMany({
+      where: { userId, status: "ACTIVE" },
+      include: {
+        group: {
+          include: {
+            prayers: {
+              where: { authorId: userId },
+              include: { _count: { select: { actions: true } } },
+              orderBy: { createdAt: "desc" },
+            },
+          },
+        },
+      },
     }),
   ]);
 
@@ -137,6 +151,59 @@ export default async function MeusPedidosPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Group prayers section */}
+        {groupMemberships.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-navy mb-4">Meus Pedidos nos Grupos</h2>
+            <div className="flex flex-col gap-6">
+              {groupMemberships.map((membership: any) => {
+                const group = membership.group;
+                if (group.prayers.length === 0) return null;
+                return (
+                  <div key={group.id}>
+                    <h3 className="font-medium text-navy mb-2 text-sm">
+                      📍 {group.name}
+                    </h3>
+                    <div className="flex flex-col gap-2">
+                      {group.prayers.map((prayer: any) => {
+                        const cat = CATEGORY_LABELS[prayer.category];
+                        return (
+                          <div
+                            key={prayer.id}
+                            className="bg-card rounded-lg p-3 border border-gray-med/40 shadow-sm"
+                          >
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs text-gray-text">{cat?.label}</span>
+                              <span className="font-medium text-navy text-sm">{prayer.title}</span>
+                              <span
+                                className={`ml-auto text-xs px-2 py-0.5 rounded-full font-medium ${
+                                  prayer.visibility === "GROUP_ONLY"
+                                    ? "bg-gold-light text-gold-warm"
+                                    : "bg-green-50 text-green-600"
+                                }`}
+                              >
+                                {prayer.visibility === "GROUP_ONLY" ? "Só pro grupo" : "Público"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-gray-text">
+                                {formatRelativeDate(prayer.createdAt)} · {prayer._count.actions} orações
+                              </span>
+                              <Button asChild variant="secondary" size="sm" className="ml-auto">
+                                <Link href={`/pedido/${prayer.id}`}>Ver</Link>
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </main>

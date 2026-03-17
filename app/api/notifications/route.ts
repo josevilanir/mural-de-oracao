@@ -7,12 +7,19 @@ export async function GET() {
   if (!session?.user?.id) return NextResponse.json([], { status: 401 });
 
   const notifications = await prisma.notification.findMany({
-    where: { recipientId: session.user.id },
+    where: {
+      recipientId: session.user.id,
+      OR: [
+        { prayerId: null },
+        { prayer: { isHidden: false } },
+      ],
+    },
     orderBy: { createdAt: "desc" },
     take: 20,
     include: {
       actor: { select: { name: true, image: true } },
       prayer: { select: { id: true, title: true } },
+      group: { select: { id: true, name: true } },
     },
   });
 

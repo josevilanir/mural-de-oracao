@@ -3,6 +3,8 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CreateCommentSchema } from "@/schemas/prayer";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { sendCommentNotificationEmail } from "@/lib/email";
 import { revalidatePath } from "next/cache";
 
 export async function createCommentAction(data: unknown) {
@@ -16,16 +18,34 @@ export async function createCommentAction(data: unknown) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
 
+  const rl = await checkRateLimit("comment", session.user.id);
+  if (!rl.success) return { success: false, error: rl.error };
+
   const { prayerId, text } = parsed.data;
 
   // Verify prayer exists and allows comments
   const prayer = await prisma.prayer.findUnique({
     where: { id: prayerId },
-    select: { allowComments: true, authorId: true, isAnonymous: true },
+    select: {
+      allowComments: true, authorId: true, isAnonymous: true,
+      visibility: true, groupId: true, isHidden: true, title: true,
+      author: { select: { name: true, email: true } },
+    },
   });
 
-  if (!prayer) return { success: false, error: "Pedido não encontrado." };
+  if (!prayer || prayer.isHidden) return { success: false, error: "Pedido não encontrado." };
   if (!prayer.allowComments) return { success: false, error: "Comentários estão desativados para este pedido." };
+
+  // GROUP_ONLY prayers require active membership
+  if (prayer.visibility === "GROUP_ONLY" && prayer.groupId) {
+    const membership = await prisma.groupMember.findUnique({
+      where: { userId_groupId: { userId: session.user.id, groupId: prayer.groupId } },
+      select: { status: true },
+    });
+    if (membership?.status !== "ACTIVE") {
+      return { success: false, error: "Acesso negado." };
+    }
+  }
 
   try {
     const comment = await prisma.comment.create({
@@ -47,6 +67,21 @@ export async function createCommentAction(data: unknown) {
           commentId: comment.id,
         },
       });
+
+      // Send email notification
+      if (prayer.author.email) {
+        const commenter = await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { name: true },
+        });
+        sendCommentNotificationEmail(
+          prayer.author.email,
+          prayer.author.name ?? "usuário",
+          commenter?.name ?? "Alguém",
+          prayer.title,
+          prayerId
+        ).catch((err) => console.error("[createCommentAction] email error:", err));
+      }
     }
 
     revalidatePath(`/pedido/${prayerId}`);
@@ -71,7 +106,7 @@ export async function deleteCommentAction(commentId: string) {
   if (!comment) return { success: false, error: "Comentário não encontrado." };
 
   const isAuthor = comment.authorId === session.user.id;
-  const isAdmin = (session.user as any).role === "ADMIN";
+  const isAdmin = session.user.role === "ADMIN";
 
   if (!isAuthor && !isAdmin) {
     return { success: false, error: "Acesso negado." };

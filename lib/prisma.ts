@@ -17,9 +17,9 @@ function createPrismaClient() {
 }
 
 // Singleton — nunca instanciar PrismaClient mais de uma vez por processo
-export const prisma: PrismaClient =
-  globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+// (aplica em dev e produção para evitar conexões duplicadas em hot-reload)
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = createPrismaClient();
 }
+
+export const prisma: PrismaClient = globalForPrisma.prisma;

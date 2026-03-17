@@ -11,13 +11,13 @@ const buttonVariants = cva(
         primary:
           "bg-gold-warm text-white hover:bg-[#b0742f] active:bg-[#9a652a]",
         secondary:
-          "bg-white border border-navy text-navy hover:bg-gray-light",
+          "bg-white dark:bg-navy/30 border border-navy dark:border-gray-med text-navy dark:text-cream hover:bg-gray-light dark:hover:bg-navy/50",
         ghost:
           "bg-transparent text-blue-main hover:underline",
         danger:
           "bg-red-500 text-white hover:bg-red-600",
         pray:
-          "bg-blue-soft text-navy border border-blue-200 hover:bg-blue-main hover:text-white",
+          "bg-blue-soft dark:bg-navy/40 text-navy dark:text-cream border border-blue-200 dark:border-navy hover:bg-blue-main hover:text-white dark:hover:bg-blue-main",
         "pray-done":
           "bg-blue-main text-white border border-blue-main cursor-not-allowed",
       },

@@ -26,7 +26,7 @@ export default function ShareButton({ title }: ShareButtonProps) {
 
   return (
     <Button
-      variant="outline"
+      variant="secondary"
       size="sm"
       onClick={handleShare}
       className="border-navy/20 text-navy hover:bg-navy/5"

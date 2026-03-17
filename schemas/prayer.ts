@@ -20,6 +20,8 @@ export const CreatePrayerSchema = z.object({
     .or(z.literal("")),
   isAnonymous: z.boolean(),
   allowComments: z.boolean(),
+  visibility: z.enum(["PUBLIC", "GROUP_ONLY"] as const).default("PUBLIC"),
+  groupId: z.string().optional(),
 });
 
 export type CreatePrayerInput = z.infer<typeof CreatePrayerSchema>;

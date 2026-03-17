@@ -9,7 +9,17 @@ import { CATEGORY_LABELS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-export default function NewPrayerForm() {
+interface Group {
+  id: string;
+  name: string;
+}
+
+interface Props {
+  groups?: Group[];
+  defaultGroupId?: string;
+}
+
+export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -17,14 +27,19 @@ export default function NewPrayerForm() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(CreatePrayerSchema),
     defaultValues: {
       isAnonymous: false,
       allowComments: true,
+      visibility: "PUBLIC" as const,
+      groupId: defaultGroupId ?? "",
     },
   });
+
+  const selectedGroupId = watch("groupId");
 
   const description = watch("description") ?? "";
 
@@ -86,7 +101,7 @@ export default function NewPrayerForm() {
           {...register("description")}
           rows={5}
           placeholder="Conte sua necessidade em detalhes. A comunidade está aqui para orar por você."
-          className="w-full px-3 py-2 rounded-md border border-gray-med bg-white text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none"
+          className="w-full px-3 py-2 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none"
         />
         <div className="text-right text-xs text-gray-text mt-1">
           {description.length} / 1000
@@ -108,6 +123,56 @@ export default function NewPrayerForm() {
           className="w-full h-10 px-3 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm"
         />
       </div>
+
+      {/* Group selector */}
+      {groups.length > 0 && (
+        <div className="border border-gray-med rounded-lg p-4 flex flex-col gap-3 bg-blue-soft/20">
+          <div>
+            <label className="block text-sm font-medium text-navy mb-1">
+              Publicar em um grupo <span className="text-xs text-gray-text">(opcional)</span>
+            </label>
+            <select
+              {...register("groupId")}
+              className="w-full h-10 px-3 rounded-md border border-gray-med bg-card text-sm text-navy focus:outline-none focus:ring-2 focus:ring-gold-warm"
+            >
+              <option value="">Mural geral (sem grupo)</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedGroupId && (
+            <div>
+              <label className="block text-sm font-medium text-navy mb-1">Visibilidade</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="PUBLIC"
+                    {...register("visibility")}
+                    className="accent-gold-warm"
+                  />
+                  <span className="text-sm text-navy">Público</span>
+                  <span className="text-xs text-gray-text">(aparece no mural geral e do grupo)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="GROUP_ONLY"
+                    {...register("visibility")}
+                    className="accent-gold-warm"
+                  />
+                  <span className="text-sm text-navy">Só pro grupo</span>
+                  <span className="text-xs text-gray-text">(apenas membros veem)</span>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Options */}
       <div className="flex flex-col gap-3">

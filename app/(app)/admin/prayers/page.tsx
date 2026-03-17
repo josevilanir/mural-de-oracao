@@ -9,7 +9,7 @@ export default async function AdminPrayersPage() {
   const session = await auth();
 
   if (!session?.user) redirect("/");
-  if ((session.user as any).role !== "ADMIN") redirect("/");
+  if (session.user.role !== "ADMIN") redirect("/");
 
   const prayers = await prisma.prayer.findMany({
     include: {
@@ -24,9 +24,17 @@ export default async function AdminPrayersPage() {
       {/* Admin Header */}
       <header className="bg-red-900 text-white px-6 py-4 flex items-center justify-between">
         <h1 className="text-lg font-bold">🛡️ Painel de Moderação — Mural de Oração</h1>
-        <Link href="/" className="text-sm text-red-200 hover:text-white">
-          ← Voltar ao site
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/admin/grupos" className="text-sm text-red-200 hover:text-white">
+            Grupos
+          </Link>
+          <Link href="/admin/remocoes" className="text-sm text-red-200 hover:text-white">
+            Remoções
+          </Link>
+          <Link href="/" className="text-sm text-red-200 hover:text-white">
+            ← Voltar ao site
+          </Link>
+        </div>
       </header>
 
       <main className="container mx-auto px-4 py-6">
