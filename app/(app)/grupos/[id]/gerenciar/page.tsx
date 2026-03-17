@@ -25,7 +25,7 @@ export default async function GerenciarGrupoPage({ params }: Props) {
 
   const [pendingMembers, groupPrayers] = await Promise.all([
     prisma.groupMember.findMany({
-      where: { groupId: params.id, status: "PENDING" },
+      where: { groupId: params.id, status: "PENDING", user: { isDeleted: false } },
       include: { user: { select: { id: true, name: true, image: true, email: true } } },
       orderBy: { createdAt: "asc" },
     }),

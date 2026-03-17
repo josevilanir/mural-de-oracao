@@ -14,7 +14,7 @@ interface Props {
 export default async function GroupDetailPage({ params, searchParams }: Props) {
   const session = await auth();
   const userId = session?.user?.id;
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isAdmin = session?.user?.role === "ADMIN";
 
   const membersPage = Math.max(1, parseInt(searchParams.membersPage ?? "1"));
   const membersLimit = 20;
@@ -41,13 +41,13 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
 
   const [members, totalMembers, rawPrayers] = await Promise.all([
     prisma.groupMember.findMany({
-      where: { groupId: params.id, status: "ACTIVE" },
+      where: { groupId: params.id, status: "ACTIVE", user: { isDeleted: false } },
       include: { user: { select: { id: true, name: true, image: true } } },
       skip: membersSkip,
       take: membersLimit,
       orderBy: { joinedAt: "asc" },
     }),
-    prisma.groupMember.count({ where: { groupId: params.id, status: "ACTIVE" } }),
+    prisma.groupMember.count({ where: { groupId: params.id, status: "ACTIVE", user: { isDeleted: false } } }),
     prisma.prayer.findMany({
       where: {
         groupId: params.id,
@@ -62,7 +62,7 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
     }),
   ]);
 
-  const prayers = sanitizePrayers(rawPrayers as any[]);
+  const prayers = sanitizePrayers(rawPrayers);
 
   let prayedIds = new Set<string>();
   if (userId) {
@@ -196,7 +196,7 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {prayers.map((prayer: any) => (
+              {prayers.map((prayer) => (
                 <PrayerCard
                   key={prayer.id}
                   prayer={prayer}
