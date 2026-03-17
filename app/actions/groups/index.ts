@@ -2,6 +2,8 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { sendGroupStatusEmail, sendJoinRequestStatusEmail } from "@/lib/email";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 
@@ -11,7 +13,7 @@ import { revalidatePath } from "next/cache";
 const RequestGroupSchema = z.object({
   name: z.string().min(2, "Nome precisa ter ao menos 2 caracteres").max(80),
   description: z.string().max(500).optional(),
-  image: z.string().regex(/^data:image\/(jpeg|jpg|png|webp|gif);base64,/, "Formato de imagem inválido").optional(),
+  image: z.string().url("URL de imagem inválida").optional(),
 });
 
 export async function requestGroupCreation(data: unknown) {
@@ -76,6 +78,7 @@ export async function approveGroup(groupId: string) {
   const group = await prisma.group.update({
     where: { id: groupId },
     data: { status: "ACTIVE" },
+    include: { leader: { select: { name: true, email: true } } },
   });
 
   // Adiciona o líder como membro ativo automaticamente
@@ -93,6 +96,11 @@ export async function approveGroup(groupId: string) {
     },
   });
 
+  if (group.leader.email) {
+    sendGroupStatusEmail(group.leader.email, group.leader.name ?? "líder", group.name, true)
+      .catch((err) => console.error("[approveGroup] email error:", err));
+  }
+
   revalidatePath("/admin");
   revalidatePath("/grupos");
   return { success: true };
@@ -109,6 +117,7 @@ export async function rejectGroup(groupId: string) {
   const group = await prisma.group.update({
     where: { id: groupId },
     data: { status: "ARCHIVED" },
+    include: { leader: { select: { name: true, email: true } } },
   });
 
   await prisma.notification.create({
@@ -118,6 +127,11 @@ export async function rejectGroup(groupId: string) {
       groupId: group.id,
     },
   });
+
+  if (group.leader.email) {
+    sendGroupStatusEmail(group.leader.email, group.leader.name ?? "líder", group.name, false)
+      .catch((err) => console.error("[rejectGroup] email error:", err));
+  }
 
   revalidatePath("/admin");
   return { success: true };
@@ -129,6 +143,9 @@ export async function rejectGroup(groupId: string) {
 export async function requestJoinGroup(groupId: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Você precisa estar logado." };
+
+  const rl = await checkRateLimit("join", session.user.id);
+  if (!rl.success) return { success: false, error: rl.error };
 
   const group = await prisma.group.findUnique({ where: { id: groupId } });
   if (!group || group.status !== "ACTIVE") {
@@ -172,7 +189,7 @@ export async function approveJoinRequest(memberId: string) {
 
   const member = await prisma.groupMember.findUnique({
     where: { id: memberId },
-    include: { group: true },
+    include: { group: true, user: { select: { name: true, email: true } } },
   });
   if (!member) return { success: false, error: "Solicitação não encontrada." };
   if (member.group.leaderId !== session.user.id) {
@@ -193,6 +210,11 @@ export async function approveJoinRequest(memberId: string) {
     },
   });
 
+  if (member.user.email) {
+    sendJoinRequestStatusEmail(member.user.email, member.user.name ?? "usuário", member.group.name, true)
+      .catch((err) => console.error("[approveJoinRequest] email error:", err));
+  }
+
   revalidatePath(`/grupos/${member.groupId}/gerenciar`);
   return { success: true };
 }
@@ -206,7 +228,7 @@ export async function rejectJoinRequest(memberId: string) {
 
   const member = await prisma.groupMember.findUnique({
     where: { id: memberId },
-    include: { group: true },
+    include: { group: true, user: { select: { name: true, email: true } } },
   });
   if (!member) return { success: false, error: "Solicitação não encontrada." };
   if (member.group.leaderId !== session.user.id) {
@@ -226,6 +248,11 @@ export async function rejectJoinRequest(memberId: string) {
       groupId: member.groupId,
     },
   });
+
+  if (member.user.email) {
+    sendJoinRequestStatusEmail(member.user.email, member.user.name ?? "usuário", member.group.name, false)
+      .catch((err) => console.error("[rejectJoinRequest] email error:", err));
+  }
 
   revalidatePath(`/grupos/${member.groupId}/gerenciar`);
   return { success: true };

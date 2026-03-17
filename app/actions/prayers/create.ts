@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CreatePrayerSchema } from "@/schemas/prayer";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { revalidatePath } from "next/cache";
 
 export async function createPrayerAction(data: unknown) {
@@ -10,6 +11,9 @@ export async function createPrayerAction(data: unknown) {
   if (!session?.user?.id) {
     return { success: false, error: "Você precisa estar logado." };
   }
+
+  const rl = await checkRateLimit("prayer", session.user.id);
+  if (!rl.success) return { success: false, error: rl.error };
 
   const parsed = CreatePrayerSchema.safeParse(data);
   if (!parsed.success) {

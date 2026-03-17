@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { RegisterSchema } from "@/schemas/user";
+import { sendVerificationEmailAction } from "@/app/actions/user/verify-email";
 import bcrypt from "bcryptjs";
 
 export async function registerAction(data: unknown) {
@@ -23,6 +24,12 @@ export async function registerAction(data: unknown) {
     await prisma.user.create({
       data: { name, email, password: hashed },
     });
+
+    // Enviar e-mail de verificação (não bloqueia o cadastro se falhar)
+    await sendVerificationEmailAction(email, name).catch((err) =>
+      console.error("[register] Falha ao enviar e-mail de verificação:", err)
+    );
+
     return { success: true };
   } catch (err) {
     console.error("[registerAction]", err);

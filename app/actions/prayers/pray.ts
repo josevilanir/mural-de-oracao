@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { revalidatePath } from "next/cache";
 
 export async function prayAction(prayerId: string) {
@@ -9,6 +10,9 @@ export async function prayAction(prayerId: string) {
   if (!session?.user?.id) {
     return { success: false, error: "Você precisa estar logado." };
   }
+
+  const rl = await checkRateLimit("pray", session.user.id);
+  if (!rl.success) return { success: false, error: rl.error };
 
   try {
     // Fetch prayer first to enforce visibility rules
