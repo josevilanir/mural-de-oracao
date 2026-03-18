@@ -134,13 +134,25 @@ export default function PrayerCard({
       <div className="px-4 pt-2 pb-3 border-t border-gray-med/50">
         <div className="flex items-center justify-between text-xs text-gray-text mb-2">
           <span>{formatRelativeDate(prayer.createdAt)}</span>
-          <span>
-            {prayer.isAnonymous ? (
-              <span>Anônimo</span>
-            ) : (
+          {prayer.isAnonymous ? (
+            <span>Anônimo</span>
+          ) : (
+            <span className="flex items-center gap-1.5">
+              {prayer.author?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={prayer.author.image}
+                  alt={prayer.author.name ?? ""}
+                  className="w-4 h-4 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <span className="w-4 h-4 rounded-full bg-gold-warm text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                  {(prayer.author?.name ?? "U").charAt(0).toUpperCase()}
+                </span>
+              )}
               <span>{prayer.author?.name ?? "Usuário"}</span>
-            )}
-          </span>
+            </span>
+          )}
         </div>
 
         <button
