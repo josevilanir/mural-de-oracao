@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { AutoRefresh } from "@/components/shared/AutoRefresh";
 import Link from "next/link";
 import { CATEGORY_LABELS, STATUS_LABELS, formatRelativeDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +50,7 @@ export default async function MeusPedidosPage() {
 
   return (
     <>
+      <AutoRefresh />
       <main className="container mx-auto max-w-3xl px-4 py-8">
         {/* Profile Header */}
         <div className="bg-card rounded-xl shadow-sm p-6 mb-6">

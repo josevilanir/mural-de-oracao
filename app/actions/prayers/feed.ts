@@ -13,12 +13,20 @@ interface FetchFeedInput {
   category?: string;
   /** "home" mostra apenas pedidos públicos/sem grupo; "mural" mostra todos não-ocultos */
   scope: "home" | "mural";
+  /** ISO timestamp — quando informado, retorna apenas pedidos criados APÓS essa data (polling de novos itens) */
+  newerThan?: string | null;
 }
 
-export async function fetchFeedAction({ cursor, status, category, scope }: FetchFeedInput) {
+export async function fetchFeedAction({ cursor, status, category, scope, newerThan }: FetchFeedInput) {
   const session = await auth();
   const userId = session?.user?.id;
   const isAdmin = session?.user?.role === "ADMIN";
+
+  const dateFilter = newerThan
+    ? { createdAt: { gt: new Date(newerThan) } }
+    : cursor
+    ? { createdAt: { lt: new Date(cursor) } }
+    : {};
 
   const prayers = await prisma.prayer.findMany({
     where: {
@@ -26,15 +34,30 @@ export async function fetchFeedAction({ cursor, status, category, scope }: Fetch
       ...(scope === "home" ? { OR: [{ groupId: null }, { visibility: "PUBLIC" }] } : {}),
       ...(status ? { status: status as PrayerStatus } : {}),
       ...(category ? { category: category as Category } : {}),
-      ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {}),
+      ...dateFilter,
     },
     include: {
       author: { select: { name: true, image: true } },
       _count: { select: { actions: true, comments: true } },
     },
     orderBy: { createdAt: "desc" },
-    take: FEED_PAGE_SIZE + 1, // +1 para detectar se há próxima página
+    // Quando buscando itens mais novos, limite generoso mas sem paginação extra
+    take: newerThan ? 50 : FEED_PAGE_SIZE + 1,
   });
+
+  // Quando buscando novos itens (newerThan), retorna sem lógica de paginação
+  if (newerThan) {
+    const sanitized = sanitizePrayers(prayers);
+    let prayedIds: string[] = [];
+    if (userId && prayers.length > 0) {
+      const prayedActions = await prisma.prayerAction.findMany({
+        where: { userId, prayerId: { in: prayers.map((p) => p.id) } },
+        select: { prayerId: true },
+      });
+      prayedIds = prayedActions.map((a) => a.prayerId);
+    }
+    return { prayers: sanitized, prayedIds, nextCursor: null, hasMore: false, currentUserId: userId ?? null, isAdmin };
+  }
 
   const hasMore = prayers.length > FEED_PAGE_SIZE;
   const items = hasMore ? prayers.slice(0, FEED_PAGE_SIZE) : prayers;

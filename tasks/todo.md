@@ -40,6 +40,15 @@
 - [ ] Verificar layout mobile em 375px (CA08)
 - [ ] Deploy na Vercel
 
+## ✅ Recém Concluído
+- [x] Reatividade em tempo real (polling + banner de novos pedidos)
+  - [x] `feed.ts` — parâmetro `newerThan` para buscar itens mais recentes
+  - [x] `FeedLoadMore.tsx` — polling 30s + banner "X novos pedidos"
+  - [x] `AutoRefresh.tsx` — componente client genérico com visibility check
+  - [x] `NotificationBell.tsx` — visibility check + intervalo 15s
+  - [x] `grupos/page.tsx` — AutoRefresh
+  - [x] `meus-pedidos/page.tsx` — AutoRefresh
+
 ## Critérios de Aceitação MVP
 Referência: PRD v1.1 Seção 7
 - [ ] CA01 — Google OAuth funciona em aba anônima

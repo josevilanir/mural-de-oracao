@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import GroupCard from "@/components/groups/GroupCard";
+import { AutoRefresh } from "@/components/shared/AutoRefresh";
 
 export default async function GruposPage() {
   const session = await auth();
@@ -28,6 +29,7 @@ export default async function GruposPage() {
 
   return (
     <main className="container mx-auto max-w-4xl px-4 py-8">
+      <AutoRefresh />
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-navy">Comunidade</h1>
