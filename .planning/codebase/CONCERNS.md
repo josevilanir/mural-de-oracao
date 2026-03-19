@@ -16,12 +16,6 @@
 - Impact: Type errors can reach production silently; refactors become unsafe.
 - Fix approach: Replace `any` with narrow union types or `unknown` with runtime narrowing. Enforce `@typescript-eslint/no-explicit-any` in ESLint config.
 
-**Rate Limiting Silently Disabled Without Redis:**
-- Issue: Rate-limiting middleware checks for a Redis connection at startup and degrades to a no-op when Redis is unavailable, with no alerting or hard failure.
-- Files: `src/lib/rate-limit.ts`
-- Impact: In any environment without Redis (local dev, staging, a Redis outage), all endpoints are completely unprotected from abuse. The silent fallback makes this invisible.
-- Fix approach: In production (`NODE_ENV === 'production'`), throw on missing Redis rather than silently skipping. In development, log a loud warning on every rate-limit bypass.
-
 **Fragile Group Deletion Logic:**
 - Issue: Group deletion cascades are handled in application code rather than relying on database-level `ON DELETE CASCADE` constraints. Steps are executed sequentially with no transaction wrapping the full operation.
 - Files: `src/app/actions/group.ts`, `src/lib/db/queries/groups.ts`
@@ -38,12 +32,6 @@
 
 ## Known Bugs
 
-**`unprayAction` Lacks Access Check:**
-- Symptoms: A user can call `unprayAction` with any `prayerId` value, including prayers they never prayed. The action deletes a row without verifying the authenticated user owns the pray record.
-- Files: `src/app/actions/prayer.ts` (`unprayAction`)
-- Trigger: Authenticated user submits a direct POST with an arbitrary `prayerId`.
-- Workaround: None currently. The delete silently succeeds or silently fails (no-op) depending on whether a matching row exists.
-
 **Unbounded Admin Queries:**
 - Symptoms: Admin dashboard data-fetch functions return all rows from `prayers`, `users`, and `groups` tables with no `LIMIT` clause.
 - Files: `src/lib/db/queries/admin.ts`, `src/app/admin/` route handlers
@@ -53,12 +41,6 @@
 ---
 
 ## Security Issues
-
-**Rate Limiting Silently Disabled Without Redis:**
-- Risk: All endpoints become unprotected from brute-force and spam attacks when Redis is unavailable.
-- Files: `src/lib/rate-limit.ts`
-- Current mitigation: None — the fallback is a no-op.
-- Recommendations: Hard-fail in production when Redis is missing; add monitoring alerts for Redis connectivity.
 
 **Presigned Upload URL With No File Size Limit:**
 - Risk: The R2 presigned URL generation endpoint does not enforce a maximum file size. An authenticated user can upload arbitrarily large files, exhausting storage budget or triggering egress costs.
@@ -179,22 +161,10 @@
 - Risk: A query refactor silently breaks privacy guarantees.
 - Priority: High
 
-**`unprayAction` Authorization (High Priority):**
-- What's not tested: That a user cannot unpray a prayer record belonging to another user.
-- Files: `src/app/actions/prayer.ts`
-- Risk: The known bug described above goes undetected by CI.
-- Priority: High
-
 **Group Deletion Atomicity (Medium Priority):**
 - What's not tested: That partial failures during group deletion leave the database in a consistent state.
 - Files: `src/app/actions/group.ts`
 - Risk: Orphaned records accumulate silently after any mid-sequence failure.
-- Priority: Medium
-
-**Rate Limit Enforcement (Medium Priority):**
-- What's not tested: That rate limiting actually rejects excess requests; that the Redis-absent fallback triggers an appropriate error in production mode.
-- Files: `src/lib/rate-limit.ts`
-- Risk: Rate limiting is believed to be active but may be silently bypassed.
 - Priority: Medium
 
 **Sanitization Coverage (Medium Priority):**
@@ -205,4 +175,4 @@
 
 ---
 
-*Concerns audit: 2026-03-19*
+*Concerns audit: 2026-03-19 — updated 2026-03-19 (fixed: rate-limit silent bypass, unprayAction ownership non-issue)*

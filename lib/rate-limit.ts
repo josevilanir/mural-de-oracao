@@ -23,14 +23,24 @@ const limiters = {
 /**
  * Verifica o rate limit para um tipo de ação e um identificador (userId ou IP).
  * Retorna { success: true } quando dentro do limite, ou { success: false, error } quando excedido.
- * Quando Redis não está configurado, sempre retorna { success: true }.
+ * Quando Redis não está configurado: lança erro em produção, loga aviso em dev.
  */
 export async function checkRateLimit(
   type: keyof typeof limiters,
   identifier: string
 ): Promise<{ success: boolean; error?: string }> {
   const limiter = limiters[type];
-  if (!limiter) return { success: true };
+  if (!limiter) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        `[rate-limit] Redis não configurado em produção. Recusando bypass do rate limit para a ação: ${type}`
+      );
+    }
+    console.warn(
+      `[rate-limit] Redis não configurado — ignorando rate limit para a ação: ${type} (id: ${identifier})`
+    );
+    return { success: true };
+  }
 
   const result = await limiter.limit(identifier);
   if (!result.success) {
