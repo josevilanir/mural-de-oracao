@@ -9,8 +9,33 @@ const AUTH_ONLY_PUBLIC = ["/welcome", "/login", "/register"];
 const { auth } = NextAuth(authConfig);
 
 export default auth((req: any) => {
-  const { nextUrl, auth: session } = req;
+  const { nextUrl, auth: session, method, headers } = req;
   const pathname = nextUrl.pathname;
+
+  // CSRF Protection for mutations
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    // Exempt NextAuth routes (OAuth needs some cross-origin or special handling)
+    if (!pathname.startsWith("/api/auth")) {
+      const origin = headers.get("origin");
+      const host = headers.get("host");
+      const forwardedHost = headers.get("x-forwarded-host");
+      const expectedHost = forwardedHost || host;
+
+      if (origin) {
+        try {
+          const originHost = new URL(origin).host;
+          if (originHost !== expectedHost) {
+            console.error(
+              `CSRF Origin Mismatch: Origin=${originHost}, Expected=${expectedHost}`
+            );
+            return new NextResponse("Invalid Origin", { status: 403 });
+          }
+        } catch (e) {
+          return new NextResponse("Invalid Origin Format", { status: 400 });
+        }
+      }
+    }
+  }
 
   const isPrivate = PRIVATE_ROUTES.some((route) => pathname.startsWith(route));
   const isAdmin = ADMIN_ROUTES.some((route) => pathname.startsWith(route));
@@ -41,7 +66,5 @@ export default auth((req: any) => {
 });
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|public).*)"],
 };
