@@ -12,17 +12,17 @@
 
 ### Email Security
 
-- [ ] **EMAIL-01**: All user-supplied strings (prayer titles, group names, usernames) are HTML-escaped before interpolation into email templates
-- [ ] **EMAIL-02**: Escaping is applied consistently across all template files in `src/lib/email/templates/`
+- [x] **EMAIL-01**: All user-supplied strings (prayer titles, group names, usernames) are HTML-escaped before interpolation into email templates
+- [x] **EMAIL-02**: Escaping is applied consistently across all template files in `src/lib/email/templates/`
 
 ### CSRF Protection
 
-- [ ] **CSRF-01**: Server actions and API mutation routes are protected against cross-site request forgery beyond the current SameSite=Lax default
-- [ ] **CSRF-02**: Protection mechanism is verified to not break legitimate app flows (Google OAuth, credentials login, all mutation actions)
+- [x] **CSRF-01**: Server actions and API mutation routes are protected against cross-site request forgery beyond the current SameSite=Lax default
+- [x] **CSRF-02**: Protection mechanism is verified to not break legitimate app flows (Google OAuth, credentials login, all mutation actions)
 
 ### Cleanup
 
-- [ ] **CLEAN-01**: Each security issue is removed from `.planning/codebase/CONCERNS.md` after its fix is verified
+- [x] **CLEAN-01**: Each security issue is removed from `.planning/codebase/CONCERNS.md` after its fix is verified
 
 ## v2 Requirements
 
@@ -44,11 +44,11 @@
 |-------------|-------|--------|
 | UPLOAD-01 | Phase 1 | Complete |
 | UPLOAD-02 | Phase 1 | Complete |
-| EMAIL-01 | Phase 2 | Pending |
-| EMAIL-02 | Phase 2 | Pending |
-| CSRF-01 | Phase 3 | Pending |
-| CSRF-02 | Phase 3 | Pending |
-| CLEAN-01 | Phase 3 | Pending |
+| EMAIL-01 | Phase 2 | Complete |
+| EMAIL-02 | Phase 2 | Complete |
+| CSRF-01 | Phase 3 | Complete |
+| CSRF-02 | Phase 3 | Complete |
+| CLEAN-01 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 7 total
