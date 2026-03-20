@@ -12,6 +12,7 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ### Validated
 
+- ✓ Presigned upload URL enforces 5MB maximum file size (ContentLengthRange policy + server-side Content-Length validation) — Phase 1
 - ✓ Authentication via Google OAuth and email/password — existing
 - ✓ Prayer creation, editing, deletion — existing
 - ✓ Group creation and membership — existing
@@ -23,7 +24,6 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ### Active
 
-- [ ] Presigned upload URL enforces maximum file size (ContentLengthRange + server-side Content-Length validation)
 - [ ] User-supplied strings in email templates are HTML-escaped before interpolation
 - [ ] CSRF protection hardened beyond SameSite=Lax (Origin/Host header validation in middleware or equivalent)
 
@@ -56,4 +56,4 @@ User-submitted content and uploaded files must not be weaponizable against the p
 | CSRF approach: research-first | Next.js server actions have nuanced CSRF exposure; let planner determine best fit for current auth setup | — Pending |
 
 ---
-*Last updated: 2026-03-20 after initialization*
+*Last updated: 2026-03-20 after Phase 1 (Upload Size Enforcement)*
