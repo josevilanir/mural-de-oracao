@@ -42,12 +42,6 @@
 
 ## Security Issues
 
-**Presigned Upload URL With No File Size Limit:**
-- Risk: The R2 presigned URL generation endpoint does not enforce a maximum file size. An authenticated user can upload arbitrarily large files, exhausting storage budget or triggering egress costs.
-- Files: `src/app/api/upload/route.ts`
-- Current mitigation: None.
-- Recommendations: Add `ContentLengthRange` condition to the presigned URL policy, and validate the `Content-Length` header server-side before issuing the URL.
-
 **HTML Injection in Email Templates:**
 - Risk: User-supplied strings (prayer titles, group names) are interpolated directly into HTML email templates without escaping, enabling stored HTML injection in email clients.
 - Files: `src/lib/email/templates/` (all template files)
@@ -175,4 +169,4 @@
 
 ---
 
-*Concerns audit: 2026-03-19 — updated 2026-03-19 (fixed: rate-limit silent bypass, unprayAction ownership non-issue)*
+*Concerns audit: 2026-03-19 — updated 2026-03-20 (fixed: rate-limit silent bypass, unprayAction ownership non-issue, presigned upload URL file size limit)*
