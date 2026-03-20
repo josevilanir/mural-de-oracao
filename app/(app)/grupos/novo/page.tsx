@@ -55,18 +55,23 @@ export default function NovoGrupoPage() {
       const blob = await compressImage(file);
 
       // 2. Obter presigned URL
-      const res = await fetch(`/api/upload?contentType=${encodeURIComponent(blob.type)}`);
+      const res = await fetch(`/api/upload?contentType=${encodeURIComponent(blob.type)}&contentLength=${blob.size}`);
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error ?? "Erro ao obter URL de upload.");
       }
-      const { presignedUrl, publicUrl } = await res.json();
+      const { url, fields, publicUrl } = await res.json();
 
-      // 3. Upload direto para o R2
-      const uploadRes = await fetch(presignedUrl, {
-        method: "PUT",
-        body: blob,
-        headers: { "Content-Type": blob.type },
+      // 3. Upload direto para o R2 via presigned POST
+      const formData = new FormData();
+      Object.entries(fields as Record<string, string>).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append("file", blob);
+
+      const uploadRes = await fetch(url, {
+        method: "POST",
+        body: formData,
       });
       if (!uploadRes.ok) throw new Error("Erro ao enviar imagem.");
 
