@@ -1,11 +1,12 @@
 import { escape } from 'html-escaper';
 
-const API_KEY = process.env.BREVO_API_KEY;
-const FROM_EMAIL = process.env.BREVO_FROM_EMAIL ?? "prayme356@gmail.com";
-const FROM_NAME = process.env.BREVO_FROM_NAME ?? "Mural de Oração";
 const BASE_URL = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
 async function send(to: string, subject: string, html: string) {
+  const API_KEY = process.env.BREVO_API_KEY;
+  const FROM_EMAIL = process.env.BREVO_FROM_EMAIL ?? "prayme356@gmail.com";
+  const FROM_NAME = process.env.BREVO_FROM_NAME ?? "Mural de Oração";
+
   if (!API_KEY) {
     console.log("[email] BREVO_API_KEY não configurado — email não enviado:", subject, "→", to);
     return;

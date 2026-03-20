@@ -1,4 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import {
+  sendVerificationEmail,
+  sendCommentNotificationEmail,
+  sendGroupStatusEmail,
+  sendJoinRequestStatusEmail,
+} from './email';
 
 // Helper to mock fetch and capture outgoing Brevo API calls
 function setupFetchMock() {
@@ -9,32 +15,15 @@ function setupFetchMock() {
     return { ok: true } as Response;
   });
   vi.stubGlobal('fetch', mockFetch);
+  // Also stub BREVO_API_KEY so send() does not short-circuit
+  vi.stubEnv('BREVO_API_KEY', 'test-api-key');
   return calls;
 }
-
-// Load the module once with env vars pre-set.
-// We do this via dynamic import inside a setup block that runs before tests.
-let sendVerificationEmail: (email: string, name: string, token: string) => Promise<void>;
-let sendCommentNotificationEmail: (to: string, authorName: string, commenterName: string, prayerTitle: string, prayerId: string) => Promise<void>;
-let sendGroupStatusEmail: (to: string, name: string, groupName: string, approved: boolean) => Promise<void>;
-let sendJoinRequestStatusEmail: (to: string, name: string, groupName: string, approved: boolean) => Promise<void>;
-
-// vi.hoisted ensures this runs before imports are processed
-vi.hoisted(() => {
-  process.env.BREVO_API_KEY = 'test-api-key';
-  process.env.NEXTAUTH_URL = 'https://example.com';
-});
-
-// Import AFTER env vars are set via hoisted setup
-const emailModule = await import('./email');
-sendVerificationEmail = emailModule.sendVerificationEmail;
-sendCommentNotificationEmail = emailModule.sendCommentNotificationEmail;
-sendGroupStatusEmail = emailModule.sendGroupStatusEmail;
-sendJoinRequestStatusEmail = emailModule.sendJoinRequestStatusEmail;
 
 describe('Email HTML escaping', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   it('sendVerificationEmail: escapes <script> in name', async () => {
