@@ -42,17 +42,7 @@
 
 ## Security Issues
 
-**HTML Injection in Email Templates:**
-- Risk: User-supplied strings (prayer titles, group names) are interpolated directly into HTML email templates without escaping, enabling stored HTML injection in email clients.
-- Files: `src/lib/email/templates/` (all template files)
-- Current mitigation: None detected.
-- Recommendations: Escape all user content with an HTML entity encoder before interpolation, or use a templating engine with auto-escaping (e.g., replace manual string concatenation with a library like `html-escaper`).
-
-**No CSRF Protection on Server Actions:**
-- Risk: Next.js server actions use the `POST` method. Without explicit CSRF tokens or `SameSite=Strict` cookies, cross-site form submissions are possible in some browser configurations.
-- Files: All `src/app/actions/` files
-- Current mitigation: `SameSite=Lax` is the Next.js default for cookies, which mitigates most but not all cross-site POST scenarios.
-- Recommendations: Confirm `SameSite=Strict` on session cookies, or add `Origin` header validation in a middleware layer.
+**None currently identified.**
 
 ---
 
@@ -169,4 +159,4 @@
 
 ---
 
-*Concerns audit: 2026-03-19 — updated 2026-03-20 (fixed: rate-limit silent bypass, unprayAction ownership non-issue, presigned upload URL file size limit)*
+*Concerns audit: 2026-03-19 — updated 2026-03-20 (Fixed: HTML injection in email templates, CSRF on server actions, rate-limit silent bypass, unprayAction ownership non-issue, presigned upload URL file size limit)*

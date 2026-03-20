@@ -13,8 +13,8 @@ Three confirmed security vulnerabilities are closed in sequence: unbounded file 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Upload Size Enforcement** - Presigned URL endpoint enforces a hard file-size ceiling server-side and in the S3 policy (completed 2026-03-20)
-- [ ] **Phase 2: Email HTML Escaping** - All user-supplied strings are HTML-escaped before interpolation into every email template
-- [ ] **Phase 3: CSRF Hardening + Cleanup** - Server actions and API mutations are protected beyond SameSite=Lax; all CONCERNS.md security entries removed
+- [x] **Phase 2: Email HTML Escaping** - All user-supplied strings are HTML-escaped before interpolation into every email template (completed 2026-03-20)
+- [x] **Phase 3: CSRF Hardening + Cleanup** - Server actions and API mutations are protected beyond SameSite=Lax; all CONCERNS.md security entries removed (completed 2026-03-20)
 
 ## Phase Details
 
@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 01-01-PLAN.md — Enforce 5MB file-size ceiling via createPresignedPost content-length-range and server-side contentLength validation
+- [x] 01-01-PLAN.md — Enforce 5MB file-size ceiling via createPresignedPost content-length-range and server-side contentLength validation
 
 ### Phase 2: Email HTML Escaping
 **Goal**: User-supplied strings cannot inject HTML into outbound email
@@ -42,7 +42,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Install html-escaper, TDD escape coverage for all user-controlled interpolations, grep audit for EMAIL-02
+- [x] 02-01-PLAN.md — Install html-escaper, TDD escape coverage for all user-controlled interpolations, grep audit for EMAIL-02
 
 ### Phase 3: CSRF Hardening + Cleanup
 **Goal**: Cross-site requests cannot trigger mutations; all confirmed security issues are cleared from CONCERNS.md
@@ -52,11 +52,11 @@ Plans:
   1. A cross-origin POST to a server action or API mutation route is rejected (Origin/Host mismatch causes 403 or equivalent)
   2. Google OAuth callback, credentials login, and all in-app mutation flows complete successfully with protection active
   3. All three security issue entries (upload, email, CSRF) are absent from `.planning/codebase/CONCERNS.md`
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Implement Origin/Host validation in middleware for mutation routes and verify all legitimate flows pass
-- [ ] 03-02: Remove resolved security entries from CONCERNS.md after verification
+- [x] 03-01-PLAN.md — Implement Origin/Host validation in middleware for mutation routes and verify all legitimate flows pass
+- [x] 03-02-PLAN.md — Documentation Cleanup & Final Audit
 
 ## Progress
 
@@ -66,5 +66,5 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Upload Size Enforcement | 1/1 | Complete    | 2026-03-20 |
-| 2. Email HTML Escaping | 0/1 | Not started | - |
-| 3. CSRF Hardening + Cleanup | 0/2 | Not started | - |
+| 2. Email HTML Escaping | 1/1 | Complete | 2026-03-20 |
+| 3. CSRF Hardening + Cleanup | 2/2 | Complete | 2026-03-20 |
