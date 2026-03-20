@@ -4,12 +4,6 @@
 
 ## Tech Debt
 
-**Orphaned TypeScript Types:**
-- Issue: Type definitions exist that are no longer consumed by any feature, creating maintenance noise and false confidence in type coverage.
-- Files: `src/types/` (general)
-- Impact: Future developers may trust stale types, leading to runtime mismatches.
-- Fix approach: Run a dead-code analysis (e.g., `ts-prune`) and remove unused exports.
-
 **Pervasive `any` Annotations:**
 - Issue: Multiple server actions and API route handlers use `any` as parameter or return types, bypassing TypeScript's safety guarantees.
 - Files: `src/app/actions/prayer.ts`, `src/app/actions/group.ts`, `src/lib/db/queries/` (various)
@@ -22,21 +16,11 @@
 - Impact: A failure mid-sequence leaves orphaned records (members, prayers, invites) in the database.
 - Fix approach: Wrap the full deletion sequence in a single `db.transaction()` call, or move cascade rules to the schema DDL.
 
-**Missing Rate Limits on Mutation Endpoints:**
-- Issue: Beyond the disabled Redis issue above, several high-impact mutation server actions (prayer creation, group join, image upload initiation) have no per-user rate limiting even when Redis is present.
-- Files: `src/app/actions/prayer.ts`, `src/app/actions/group.ts`, `src/app/api/upload/route.ts`
-- Impact: Authenticated users can flood the database or storage bucket without restriction.
-- Fix approach: Apply the existing `rateLimit()` helper uniformly to all mutation actions.
-
 ---
 
 ## Known Bugs
 
-**Unbounded Admin Queries:**
-- Symptoms: Admin dashboard data-fetch functions return all rows from `prayers`, `users`, and `groups` tables with no `LIMIT` clause.
-- Files: `src/lib/db/queries/admin.ts`, `src/app/admin/` route handlers
-- Trigger: As the database grows, these queries will cause slow page loads and eventually timeouts or OOM errors on the database server.
-- Workaround: None in place. Currently masked by low data volume.
+None currently identified.
 
 ---
 
@@ -75,18 +59,6 @@
 - Why fragile: Sanitization of prayer content is not enforced at a framework or middleware level. Each server action must explicitly call `sanitizePrayer()`. Any new action that forgets this call will pass raw user input to the database.
 - Safe modification: Do not add new prayer mutation actions without calling `sanitizePrayer()` on content fields. Consider wrapping all prayer writes in a single repository function that applies sanitization unconditionally.
 - Test coverage: No test verifies that a new code path without sanitization would be caught.
-
-**Privacy Requirement Has No Test Coverage:**
-- Files: `src/lib/db/queries/prayers.ts`, `src/app/actions/prayer.ts`
-- Why fragile: The rule that private prayers are only visible to their owner is enforced via a `WHERE` clause condition in the query layer. There is no automated test that asserts a user cannot see another user's private prayer.
-- Safe modification: Any change to prayer query logic risks breaking the privacy guarantee silently.
-- Test coverage: Add an integration test that creates a private prayer as User A, then asserts User B's prayer fetch returns zero results for that prayer.
-
-**Group Membership Check Before Prayer Access:**
-- Files: `src/lib/db/queries/prayers.ts`
-- Why fragile: Group-scoped prayer visibility depends on a join against the `groupMembers` table. If that table's schema or membership logic changes, visibility could silently break in either direction (over-exposing or under-exposing prayers).
-- Safe modification: Treat the membership join as load-bearing; any schema migration touching `groupMembers` must be accompanied by an access-control regression test.
-- Test coverage: Gap — no existing test covers the "non-member cannot see group prayer" case.
 
 ---
 
@@ -139,12 +111,6 @@
 
 ## Test Coverage Gaps
 
-**Privacy and Access Control (High Priority):**
-- What's not tested: That private prayers are invisible to other users; that non-members cannot access group prayers.
-- Files: `src/lib/db/queries/prayers.ts`, `src/app/actions/prayer.ts`
-- Risk: A query refactor silently breaks privacy guarantees.
-- Priority: High
-
 **Group Deletion Atomicity (Medium Priority):**
 - What's not tested: That partial failures during group deletion leave the database in a consistent state.
 - Files: `src/app/actions/group.ts`
@@ -159,4 +125,4 @@
 
 ---
 
-*Concerns audit: 2026-03-19 — updated 2026-03-20 (Fixed: HTML injection in email templates, CSRF on server actions, rate-limit silent bypass, unprayAction ownership non-issue, presigned upload URL file size limit)*
+*Concerns audit: 2026-03-19 — updated 2026-03-20 (Fixed: HTML injection in email templates, CSRF on server actions, rate-limit silent bypass, unprayAction ownership non-issue, presigned upload URL file size limit, unbounded admin queries, missing rate limits on group/register/forgotPassword/removal mutations, IDOR/privacy leak on prayer detail page and mural feed, missing access-control test coverage)*
