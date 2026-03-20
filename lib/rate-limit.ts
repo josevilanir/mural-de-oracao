@@ -32,9 +32,10 @@ export async function checkRateLimit(
   const limiter = limiters[type];
   if (!limiter) {
     if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        `[rate-limit] Redis não configurado em produção. Recusando bypass do rate limit para a ação: ${type}`
+      console.error(
+        `[rate-limit] ERRO: Redis não configurado em produção. Ação bloqueada: ${type} (id: ${identifier})`
       );
+      return { success: false, error: "Serviço temporariamente indisponível. Tente novamente em instantes." };
     }
     console.warn(
       `[rate-limit] Redis não configurado — ignorando rate limit para a ação: ${type} (id: ${identifier})`
