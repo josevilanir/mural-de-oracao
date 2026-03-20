@@ -1,70 +1,26 @@
 # Roadmap: Mural de Oração — Security Remediation
 
-## Overview
+## Milestones
 
-Three confirmed security vulnerabilities are closed in sequence: unbounded file uploads, HTML injection via email templates, and CSRF exposure beyond SameSite=Lax. Each phase is independently verifiable. The final phase confirms all CONCERNS.md entries are cleared.
+- ✅ **v1.0 Security Remediation** — Phases 1-4 (shipped 2026-03-20)
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+<details>
+<summary>✅ v1.0 Security Remediation (Phases 1-4) — SHIPPED 2026-03-20</summary>
 
-Decimal phases appear between their surrounding integers in numeric order.
+- [x] Phase 1: Upload Size Enforcement (1/1 plans) — completed 2026-03-20
+- [x] Phase 2: Email HTML Escaping (1/1 plans) — completed 2026-03-20
+- [x] Phase 3: CSRF Hardening + Cleanup (2/2 plans) — completed 2026-03-20
+- [x] Phase 4: Remove orphaned TypeScript types in types/prisma.ts (1/1 plans) — completed 2026-03-20
 
-- [x] **Phase 1: Upload Size Enforcement** - Presigned URL endpoint enforces a hard file-size ceiling server-side and in the S3 policy (completed 2026-03-20)
-- [x] **Phase 2: Email HTML Escaping** - All user-supplied strings are HTML-escaped before interpolation into every email template (completed 2026-03-20)
-- [x] **Phase 3: CSRF Hardening + Cleanup** - Server actions and API mutations are protected beyond SameSite=Lax; all CONCERNS.md security entries removed (completed 2026-03-20)
-
-## Phase Details
-
-### Phase 1: Upload Size Enforcement
-**Goal**: Uploaded files cannot exceed the enforced size limit regardless of client behavior
-**Depends on**: Nothing (first phase)
-**Requirements**: UPLOAD-01, UPLOAD-02
-**Success Criteria** (what must be TRUE):
-  1. A request to the presigned URL endpoint with a `Content-Length` exceeding the limit is rejected before a URL is issued
-  2. The S3 presigned policy includes a `ContentLengthRange` condition that R2 enforces directly
-  3. A legitimate upload within the size limit succeeds end-to-end without error
-**Plans**: 1 plan
-
-Plans:
-- [x] 01-01-PLAN.md — Enforce 5MB file-size ceiling via createPresignedPost content-length-range and server-side contentLength validation
-
-### Phase 2: Email HTML Escaping
-**Goal**: User-supplied strings cannot inject HTML into outbound email
-**Depends on**: Phase 1
-**Requirements**: EMAIL-01, EMAIL-02
-**Success Criteria** (what must be TRUE):
-  1. A prayer title containing `<script>alert(1)</script>` renders as literal escaped text in the sent email, not as markup
-  2. Every template file in `src/lib/email/templates/` passes a grep audit showing no unescaped interpolation of user-supplied values
-  3. Existing transactional emails (invites, password reset) send correctly with normal inputs
-**Plans**: 1 plan
-
-Plans:
-- [x] 02-01-PLAN.md — Install html-escaper, TDD escape coverage for all user-controlled interpolations, grep audit for EMAIL-02
-
-### Phase 3: CSRF Hardening + Cleanup
-**Goal**: Cross-site requests cannot trigger mutations; all confirmed security issues are cleared from CONCERNS.md
-**Depends on**: Phase 2
-**Requirements**: CSRF-01, CSRF-02, CLEAN-01
-**Success Criteria** (what must be TRUE):
-  1. A cross-origin POST to a server action or API mutation route is rejected (Origin/Host mismatch causes 403 or equivalent)
-  2. Google OAuth callback, credentials login, and all in-app mutation flows complete successfully with protection active
-  3. All three security issue entries (upload, email, CSRF) are absent from `.planning/codebase/CONCERNS.md`
-**Plans**: 2 plans
-
-Plans:
-- [x] 03-01-PLAN.md — Implement Origin/Host validation in middleware for mutation routes and verify all legitimate flows pass
-- [x] 03-02-PLAN.md — Documentation Cleanup & Final Audit
+</details>
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Upload Size Enforcement | 1/1 | Complete    | 2026-03-20 |
-| 2. Email HTML Escaping | 1/1 | Complete | 2026-03-20 |
-| 3. CSRF Hardening + Cleanup | 2/2 | Complete | 2026-03-20 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Upload Size Enforcement | v1.0 | 1/1 | Complete | 2026-03-20 |
+| 2. Email HTML Escaping | v1.0 | 1/1 | Complete | 2026-03-20 |
+| 3. CSRF Hardening + Cleanup | v1.0 | 2/2 | Complete | 2026-03-20 |
+| 4. Remove orphaned TypeScript types | v1.0 | 1/1 | Complete | 2026-03-20 |
