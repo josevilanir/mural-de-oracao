@@ -39,10 +39,10 @@ Plans:
   1. A prayer title containing `<script>alert(1)</script>` renders as literal escaped text in the sent email, not as markup
   2. Every template file in `src/lib/email/templates/` passes a grep audit showing no unescaped interpolation of user-supplied values
   3. Existing transactional emails (invites, password reset) send correctly with normal inputs
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01: Implement HTML escape utility and apply it across all email template interpolation points
+- [ ] 02-01-PLAN.md — Install html-escaper, TDD escape coverage for all user-controlled interpolations, grep audit for EMAIL-02
 
 ### Phase 3: CSRF Hardening + Cleanup
 **Goal**: Cross-site requests cannot trigger mutations; all confirmed security issues are cleared from CONCERNS.md
