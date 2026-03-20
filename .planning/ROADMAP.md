@@ -26,10 +26,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. A request to the presigned URL endpoint with a `Content-Length` exceeding the limit is rejected before a URL is issued
   2. The S3 presigned policy includes a `ContentLengthRange` condition that R2 enforces directly
   3. A legitimate upload within the size limit succeeds end-to-end without error
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: Add ContentLengthRange to presigned URL policy and server-side Content-Length validation in upload route
+- [ ] 01-01-PLAN.md — Enforce 5MB file-size ceiling via createPresignedPost content-length-range and server-side contentLength validation
 
 ### Phase 2: Email HTML Escaping
 **Goal**: User-supplied strings cannot inject HTML into outbound email
@@ -61,7 +61,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
