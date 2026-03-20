@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { AutoRefresh } from "@/components/shared/AutoRefresh";
 import Link from "next/link";
 import { CATEGORY_LABELS, STATUS_LABELS, formatRelativeDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +49,6 @@ export default async function MeusPedidosPage() {
 
   return (
     <>
-      <AutoRefresh />
       <main className="container mx-auto max-w-3xl px-4 py-8">
         {/* Profile Header */}
         <div className="bg-card rounded-xl shadow-sm p-6 mb-6">
@@ -109,7 +107,7 @@ export default async function MeusPedidosPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {prayers.map((prayer: any) => {
+            {prayers.map((prayer) => {
               const cat = CATEGORY_LABELS[prayer.category];
               const status = STATUS_LABELS[prayer.status];
               return (
@@ -161,7 +159,7 @@ export default async function MeusPedidosPage() {
           <div className="mt-8">
             <h2 className="text-lg font-semibold text-navy mb-4">Meus Pedidos nos Grupos</h2>
             <div className="flex flex-col gap-6">
-              {groupMemberships.map((membership: any) => {
+              {groupMemberships.map((membership) => {
                 const group = membership.group;
                 if (group.prayers.length === 0) return null;
                 return (
@@ -170,7 +168,7 @@ export default async function MeusPedidosPage() {
                       📍 {group.name}
                     </h3>
                     <div className="flex flex-col gap-2">
-                      {group.prayers.map((prayer: any) => {
+                      {group.prayers.map((prayer) => {
                         const cat = CATEGORY_LABELS[prayer.category];
                         return (
                           <div

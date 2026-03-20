@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface Props {
-  /** Intervalo em ms. Padrão: 30 segundos. */
+  /** Intervalo em ms. Padrão: 60 segundos. */
   interval?: number;
 }
 
@@ -13,7 +13,7 @@ interface Props {
  * pausando automaticamente quando a aba está oculta.
  * Adicione a qualquer página SSR para mantê-la atualizada.
  */
-export function AutoRefresh({ interval = 30_000 }: Props) {
+export function AutoRefresh({ interval = 60_000 }: Props) {
   const router = useRouter();
 
   useEffect(() => {

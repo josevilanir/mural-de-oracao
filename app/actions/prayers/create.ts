@@ -4,6 +4,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CreatePrayerSchema } from "@/schemas/prayer";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sanitizePrayer } from "@/lib/utils";
+import { sanitizeUserInput } from "@/lib/sanitize";
 import { revalidatePath } from "next/cache";
 
 export async function createPrayerAction(data: unknown) {
@@ -39,7 +41,9 @@ export async function createPrayerAction(data: unknown) {
     const prayer = await prisma.prayer.create({
       data: {
         ...parsed.data,
-        verseReference: parsed.data.verseReference || null,
+        title: sanitizeUserInput(parsed.data.title),
+        description: sanitizeUserInput(parsed.data.description),
+        verseReference: parsed.data.verseReference ? sanitizeUserInput(parsed.data.verseReference) : null,
         groupId: groupId || null,
         authorId: session.user.id,
       },
@@ -47,7 +51,7 @@ export async function createPrayerAction(data: unknown) {
 
     revalidatePath("/");
     if (groupId) revalidatePath(`/grupos/${groupId}`);
-    return { success: true, prayer };
+    return { success: true, prayer: sanitizePrayer(prayer) };
   } catch (err) {
     console.error("[createPrayerAction]", err);
     return { success: false, error: "Algo deu errado. Tente novamente." };

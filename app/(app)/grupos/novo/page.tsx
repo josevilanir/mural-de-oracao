@@ -77,8 +77,8 @@ export default function NovoGrupoPage() {
 
       imageUrlRef.current = publicUrl;
       setPreview(URL.createObjectURL(blob));
-    } catch (err: any) {
-      setError(err.message ?? "Erro ao processar imagem.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erro ao processar imagem.");
     } finally {
       setImageUploading(false);
     }

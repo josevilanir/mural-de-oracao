@@ -3,8 +3,9 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import type { Session } from "next-auth";
 
-function requireAdmin(session: any) {
+function requireAdmin(session: Session | null) {
   if (!session?.user?.id) throw new Error("Não autenticado.");
   if (session.user.role !== "ADMIN") throw new Error("Acesso negado.");
 }
@@ -13,8 +14,9 @@ export async function toggleHiddenAction(prayerId: string, isHidden: boolean) {
   const session = await auth();
   try {
     requireAdmin(session);
-  } catch (err: any) {
-    return { success: false, error: err.message };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Acesso negado.";
+    return { success: false, error: message };
   }
 
   try {

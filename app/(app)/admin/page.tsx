@@ -20,6 +20,7 @@ export default async function AdminPage() {
         _count: { select: { reports: true } },
       },
       orderBy: { createdAt: "desc" },
+      take: 200,
     }),
     prisma.group.findMany({
       where: { status: "PENDING" },
@@ -200,7 +201,7 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {prayers.map((prayer: any) => {
+                {prayers.map((prayer) => {
                   const cat = CATEGORY_LABELS[prayer.category];
                   const status = STATUS_LABELS[prayer.status];
                   return (

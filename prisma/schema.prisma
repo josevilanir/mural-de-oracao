@@ -154,6 +154,9 @@ model Prayer {
   notifications   Notification[]
   reports         Report[]
   removalRequests PrayerRemovalRequest[]
+
+  @@index([groupId, createdAt])
+  @@index([authorId, createdAt])
 }
 
 model PrayerAction {
@@ -167,6 +170,7 @@ model PrayerAction {
   prayer Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
 
   @@unique([userId, prayerId]) // RF10 — unicidade da oração
+  @@index([prayerId, userId])
 }
 
 model Comment {

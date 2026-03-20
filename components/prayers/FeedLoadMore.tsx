@@ -7,7 +7,7 @@ import { fetchFeedAction } from "@/app/actions/prayers/feed";
 import { Button } from "@/components/ui/button";
 import type { Category, PrayerStatus } from "@/types/prisma";
 
-type PrayerItem = {
+export type PrayerItem = {
   id: string;
   title: string;
   description: string;

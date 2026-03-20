@@ -4,17 +4,13 @@
 
 ## Tech Debt
 
-**Pervasive `any` Annotations:**
-- Issue: Multiple server actions and API route handlers use `any` as parameter or return types, bypassing TypeScript's safety guarantees.
-- Files: `src/app/actions/prayer.ts`, `src/app/actions/group.ts`, `src/lib/db/queries/` (various)
-- Impact: Type errors can reach production silently; refactors become unsafe.
-- Fix approach: Replace `any` with narrow union types or `unknown` with runtime narrowing. Enforce `@typescript-eslint/no-explicit-any` in ESLint config.
+**Pervasive `any` Annotations: [Fixed 2026-03-20]**
+- All explicit `any` annotations removed from server actions, page components, and client forms.
+- `@typescript-eslint/no-explicit-any: "error"` added to `eslint.config.mjs` to prevent regressions.
 
-**Fragile Group Deletion Logic:**
-- Issue: Group deletion cascades are handled in application code rather than relying on database-level `ON DELETE CASCADE` constraints. Steps are executed sequentially with no transaction wrapping the full operation.
-- Files: `src/app/actions/group.ts`, `src/lib/db/queries/groups.ts`
-- Impact: A failure mid-sequence leaves orphaned records (members, prayers, invites) in the database.
-- Fix approach: Wrap the full deletion sequence in a single `db.transaction()` call, or move cascade rules to the schema DDL.
+**Fragile Group Deletion Logic: [Fixed 2026-03-20]**
+- `deleteGroup` now wraps `prayer.deleteMany` + `group.delete` in a single `prisma.$transaction([...])`.
+- Mid-sequence failures will no longer leave orphaned prayers.
 
 ---
 
@@ -32,33 +28,29 @@ None currently identified.
 
 ## Performance Bottlenecks
 
-**Polling Redundancy With AutoRefresh Component:**
-- Problem: The `AutoRefresh` component (`src/components/AutoRefresh.tsx`) triggers router refreshes on a fixed interval. Pages that already receive real-time updates via another mechanism (e.g., optimistic UI, revalidation) will double-fetch data unnecessarily.
-- Files: `src/components/AutoRefresh.tsx`, pages that mount it
-- Cause: The component does not check whether fresh data has already arrived before re-polling.
-- Improvement path: Replace fixed-interval polling with event-driven revalidation (`router.refresh()` only on user interactions or websocket events), or remove `AutoRefresh` from pages that already have live update mechanisms.
+**Polling Redundancy With AutoRefresh Component: [Fixed 2026-03-20]**
+- Default interval increased from 30 s to 60 s to halve polling frequency.
+- Component still skips refresh when the tab is hidden.
 
-**Unbounded Database Queries:**
-- Problem: Several feed and admin queries fetch entire table result sets. The prayer feed query in particular returns all visible prayers before the application layer applies pagination logic.
-- Files: `src/lib/db/queries/prayers.ts`, `src/lib/db/queries/admin.ts`
-- Cause: `LIMIT`/`OFFSET` or cursor-based pagination is not applied at the query level.
-- Improvement path: Push `LIMIT` and cursor conditions into the SQL query itself; add database indexes on `created_at` and `group_id` columns used in `ORDER BY` and `WHERE` clauses.
+**Unbounded Database Queries: [Fixed 2026-03-20]**
+- Admin prayer pages (`/admin/page.tsx`, `/admin/prayers/page.tsx`) now have `take: 200` guard.
+- Feed queries were already cursor-paginated (`FEED_PAGE_SIZE = 12`).
 
-**Missing Database Indexes on Hot Query Paths:**
-- Problem: Queries filtering by `userId`, `groupId`, and `createdAt` on the `prayers` and `prayerLikes` tables do not have corresponding composite indexes in the schema.
-- Files: `src/lib/db/schema.ts` (Drizzle schema definitions)
-- Cause: Indexes were not added when the tables were defined.
-- Improvement path: Add `index()` definitions in the Drizzle schema for `(groupId, createdAt)` and `(userId, createdAt)` on the prayers table, and `(prayerId, userId)` on the likes table.
+**Missing Database Indexes on Hot Query Paths: [Fixed 2026-03-20]**
+- `prisma/schema.prisma` — added `@@index([groupId, createdAt])` and `@@index([authorId, createdAt])` on `Prayer`.
+- Added `@@index([prayerId, userId])` on `PrayerAction`.
+- Run `npx prisma migrate dev` to apply indexes to the database.
 
 ---
 
 ## Fragile Areas
 
-**`sanitizePrayer` Manual Opt-In:**
-- Files: `src/lib/sanitize.ts`, `src/app/actions/prayer.ts`, `src/app/actions/group.ts`
-- Why fragile: Sanitization of prayer content is not enforced at a framework or middleware level. Each server action must explicitly call `sanitizePrayer()`. Any new action that forgets this call will pass raw user input to the database.
-- Safe modification: Do not add new prayer mutation actions without calling `sanitizePrayer()` on content fields. Consider wrapping all prayer writes in a single repository function that applies sanitization unconditionally.
-- Test coverage: No test verifies that a new code path without sanitization would be caught.
+**`sanitizePrayer` Manual Opt-In: [Resolvido — write path agora sanitiza via lib/sanitize.ts]**
+- `lib/sanitize.ts` criado com `sanitizeUserInput()` que escapa `&`, `<`, `>`, `"`, `'`.
+- `createPrayerAction` aplica em `title`, `description` e `verseReference` antes do `prisma.prayer.create`.
+- `resolveTestimonyAction` aplica em `testimony` antes do `prisma.prayer.update`.
+- `createCommentAction` aplica em `text` antes do `prisma.comment.create`.
+- `createPrayerAction` também chama `sanitizePrayer()` (anonymity mask) no objeto retornado ao cliente.
 
 ---
 
@@ -125,4 +117,4 @@ None currently identified.
 
 ---
 
-*Concerns audit: 2026-03-19 — updated 2026-03-20 (Fixed: HTML injection in email templates, CSRF on server actions, rate-limit silent bypass, unprayAction ownership non-issue, presigned upload URL file size limit, unbounded admin queries, missing rate limits on group/register/forgotPassword/removal mutations, IDOR/privacy leak on prayer detail page and mural feed, missing access-control test coverage)*
+*Concerns audit: 2026-03-19 — updated 2026-03-20 (Fixed: HTML injection in email templates, CSRF on server actions, rate-limit silent bypass, unprayAction ownership non-issue, presigned upload URL file size limit, unbounded admin queries, missing rate limits on group/register/forgotPassword/removal mutations, IDOR/privacy leak on prayer detail page and mural feed, missing access-control test coverage, pervasive any annotations (tech debt), fragile group deletion logic (wrapped in transaction), missing DB indexes (schema.prisma), AutoRefresh interval increased, AutoRefresh removed from pages with revalidatePath, write path sanitization via lib/sanitize.ts, duplicate ESLint config removed)*

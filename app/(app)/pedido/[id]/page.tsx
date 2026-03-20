@@ -185,7 +185,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
               </p>
             ) : (
               <div className="flex flex-col gap-4">
-                {prayer.comments.map((comment: any) => {
+                {prayer.comments.map((comment) => {
                   const canDeleteComment = userId && (comment.author.id === userId || isAdmin);
                   return (
                     <div key={comment.id} className="flex gap-3">

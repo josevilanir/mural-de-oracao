@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CreateCommentSchema } from "@/schemas/prayer";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sanitizeUserInput } from "@/lib/sanitize";
 import { sendCommentNotificationEmail } from "@/lib/email";
 import { revalidatePath } from "next/cache";
 
@@ -50,7 +51,7 @@ export async function createCommentAction(data: unknown) {
   try {
     const comment = await prisma.comment.create({
       data: {
-        text,
+        text: sanitizeUserInput(text),
         prayerId,
         authorId: session.user.id,
       },

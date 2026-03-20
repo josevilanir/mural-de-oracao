@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ResolveTestimonySchema } from "@/schemas/prayer";
+import { sanitizeUserInput } from "@/lib/sanitize";
 import { revalidatePath } from "next/cache";
 
 export async function resolveTestimonyAction(data: unknown) {
@@ -32,7 +33,7 @@ export async function resolveTestimonyAction(data: unknown) {
   try {
     await prisma.prayer.update({
       where: { id: prayerId },
-      data: { status: "ANSWERED", testimony },
+      data: { status: "ANSWERED", testimony: testimony ? sanitizeUserInput(testimony) : testimony },
     });
 
     revalidatePath("/");

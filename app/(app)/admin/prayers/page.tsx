@@ -17,6 +17,7 @@ export default async function AdminPrayersPage() {
       _count: { select: { reports: true } },
     },
     orderBy: { createdAt: "desc" },
+    take: 200,
   });
 
   return (
@@ -57,7 +58,7 @@ export default async function AdminPrayersPage() {
               </tr>
             </thead>
             <tbody>
-              {prayers.map((prayer: any) => {
+              {prayers.map((prayer) => {
                 const cat = CATEGORY_LABELS[prayer.category];
                 const status = STATUS_LABELS[prayer.status];
                 return (

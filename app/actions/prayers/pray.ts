@@ -57,8 +57,8 @@ export async function prayAction(prayerId: string) {
     revalidatePath("/");
     revalidatePath(`/pedido/${prayerId}`);
     return { success: true };
-  } catch (err: any) {
-    if (err?.code === "P2002") {
+  } catch (err: unknown) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "P2002") {
       return { success: false, error: "Você já orou por este pedido.", code: 409 };
     }
     console.error("[prayAction]", err);

@@ -59,8 +59,10 @@ export async function deleteGroup(groupId: string) {
     return { success: false, error: "Sem permissão para apagar este grupo." };
   }
 
-  await prisma.prayer.deleteMany({ where: { groupId } });
-  await prisma.group.delete({ where: { id: groupId } });
+  await prisma.$transaction([
+    prisma.prayer.deleteMany({ where: { groupId } }),
+    prisma.group.delete({ where: { id: groupId } }),
+  ]);
 
   revalidatePath("/admin");
   revalidatePath("/grupos");
@@ -159,8 +161,8 @@ export async function requestJoinGroup(groupId: string) {
         groupId,
       },
     });
-  } catch (err: any) {
-    if (err?.code === "P2002") {
+  } catch (err: unknown) {
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "P2002") {
       return { success: false, error: "Você já solicitou participação." };
     }
     console.error("[requestJoinGroup]", err);

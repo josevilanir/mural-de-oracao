@@ -43,7 +43,7 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
 
   const description = watch("description") ?? "";
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: CreatePrayerInput) {
     setServerError(null);
     const result = await createPrayerAction(data);
     if (result.success) {

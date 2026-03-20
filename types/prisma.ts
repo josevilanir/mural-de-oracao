@@ -15,6 +15,3 @@ export type Category =
 
 export type PrayerStatus = "ACTIVE" | "CHRONIC" | "ANSWERED";
 
-export type Role = "USER" | "ADMIN";
-
-export type NotificationType = "PRAYER_CLICK" | "COMMENT_ADDED";
