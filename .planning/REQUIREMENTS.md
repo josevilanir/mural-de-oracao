@@ -48,7 +48,7 @@
 | EMAIL-02 | Phase 2 | Pending |
 | CSRF-01 | Phase 3 | Pending |
 | CSRF-02 | Phase 3 | Pending |
-| CLEAN-01 | Each phase | Pending |
+| CLEAN-01 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 7 total
@@ -57,4 +57,4 @@
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-20 after initial definition*
+*Last updated: 2026-03-20 after roadmap creation*
