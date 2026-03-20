@@ -12,7 +12,7 @@ Three confirmed security vulnerabilities are closed in sequence: unbounded file 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Upload Size Enforcement** - Presigned URL endpoint enforces a hard file-size ceiling server-side and in the S3 policy
+- [x] **Phase 1: Upload Size Enforcement** - Presigned URL endpoint enforces a hard file-size ceiling server-side and in the S3 policy (completed 2026-03-20)
 - [ ] **Phase 2: Email HTML Escaping** - All user-supplied strings are HTML-escaped before interpolation into every email template
 - [ ] **Phase 3: CSRF Hardening + Cleanup** - Server actions and API mutations are protected beyond SameSite=Lax; all CONCERNS.md security entries removed
 
@@ -65,6 +65,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Upload Size Enforcement | 0/1 | Not started | - |
+| 1. Upload Size Enforcement | 1/1 | Complete   | 2026-03-20 |
 | 2. Email HTML Escaping | 0/1 | Not started | - |
 | 3. CSRF Hardening + Cleanup | 0/2 | Not started | - |

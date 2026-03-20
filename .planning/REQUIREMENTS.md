@@ -7,8 +7,8 @@
 
 ### Upload Security
 
-- [ ] **UPLOAD-01**: Presigned URL endpoint enforces a maximum file size via `ContentLengthRange` condition in the S3 policy
-- [ ] **UPLOAD-02**: Presigned URL endpoint validates `Content-Length` header server-side before issuing the URL and rejects requests exceeding the limit
+- [x] **UPLOAD-01**: Presigned URL endpoint enforces a maximum file size via `ContentLengthRange` condition in the S3 policy
+- [x] **UPLOAD-02**: Presigned URL endpoint validates `Content-Length` header server-side before issuing the URL and rejects requests exceeding the limit
 
 ### Email Security
 
@@ -42,8 +42,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UPLOAD-01 | Phase 1 | Pending |
-| UPLOAD-02 | Phase 1 | Pending |
+| UPLOAD-01 | Phase 1 | Complete |
+| UPLOAD-02 | Phase 1 | Complete |
 | EMAIL-01 | Phase 2 | Pending |
 | EMAIL-02 | Phase 2 | Pending |
 | CSRF-01 | Phase 3 | Pending |
