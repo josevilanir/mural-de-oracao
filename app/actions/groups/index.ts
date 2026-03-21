@@ -38,6 +38,14 @@ export async function requestGroupCreation(data: unknown) {
     },
   });
 
+  await prisma.auditLog.create({
+    data: {
+      action: "GROUP_CREATED",
+      actorId: session.user.id,
+      targetId: group.id,
+    },
+  });
+
   revalidatePath("/grupos");
   return { success: true, group };
 }
@@ -62,6 +70,13 @@ export async function deleteGroup(groupId: string) {
   await prisma.$transaction([
     prisma.prayer.deleteMany({ where: { groupId } }),
     prisma.group.delete({ where: { id: groupId } }),
+    prisma.auditLog.create({
+      data: {
+        action: "GROUP_DELETED",
+        actorId: session.user.id,
+        targetId: groupId,
+      },
+    }),
   ]);
 
   revalidatePath("/admin");
@@ -81,6 +96,14 @@ export async function approveGroup(groupId: string) {
     where: { id: groupId },
     data: { status: "ACTIVE" },
     include: { leader: { select: { name: true, email: true } } },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      action: "GROUP_APPROVED",
+      actorId: session.user.id,
+      targetId: groupId,
+    },
   });
 
   // Adiciona o líder como membro ativo automaticamente
@@ -120,6 +143,14 @@ export async function rejectGroup(groupId: string) {
     where: { id: groupId },
     data: { status: "ARCHIVED" },
     include: { leader: { select: { name: true, email: true } } },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      action: "GROUP_REJECTED",
+      actorId: session.user.id,
+      targetId: groupId,
+    },
   });
 
   await prisma.notification.create({
@@ -169,6 +200,14 @@ export async function requestJoinGroup(groupId: string) {
     return { success: false, error: "Algo deu errado. Tente novamente." };
   }
 
+  await prisma.auditLog.create({
+    data: {
+      action: "JOIN_REQUEST_SUBMITTED",
+      actorId: session.user.id,
+      targetId: groupId,
+    },
+  });
+
   await prisma.notification.create({
     data: {
       type: "GROUP_JOIN_REQUEST",
@@ -201,6 +240,14 @@ export async function approveJoinRequest(memberId: string) {
   await prisma.groupMember.update({
     where: { id: memberId },
     data: { status: "ACTIVE", joinedAt: new Date() },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      action: "JOIN_REQUEST_APPROVED",
+      actorId: session.user.id,
+      targetId: memberId,
+    },
   });
 
   await prisma.notification.create({
@@ -240,6 +287,14 @@ export async function rejectJoinRequest(memberId: string) {
   await prisma.groupMember.update({
     where: { id: memberId },
     data: { status: "REJECTED" },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      action: "JOIN_REQUEST_REJECTED",
+      actorId: session.user.id,
+      targetId: memberId,
+    },
   });
 
   await prisma.notification.create({
@@ -323,6 +378,13 @@ export async function resolvePrayerRemoval(removalRequestId: string, approve: bo
         where: { id: removalRequestId },
         data: { resolved: true },
       }),
+      prisma.auditLog.create({
+        data: {
+          action: "PRAYER_REMOVAL_APPROVED",
+          actorId: session.user.id,
+          targetId: request.prayerId,
+        },
+      }),
     ]);
   } else {
     await prisma.$transaction([
@@ -333,6 +395,13 @@ export async function resolvePrayerRemoval(removalRequestId: string, approve: bo
       prisma.prayerRemovalRequest.update({
         where: { id: removalRequestId },
         data: { resolved: true },
+      }),
+      prisma.auditLog.create({
+        data: {
+          action: "PRAYER_REMOVAL_REJECTED",
+          actorId: session.user.id,
+          targetId: request.prayerId,
+        },
       }),
     ]);
   }

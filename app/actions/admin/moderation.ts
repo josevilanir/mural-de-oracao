@@ -24,6 +24,13 @@ export async function toggleHiddenAction(prayerId: string, isHidden: boolean) {
       where: { id: prayerId },
       data: { isHidden },
     });
+    await prisma.auditLog.create({
+      data: {
+        action: isHidden ? "PRAYER_HIDDEN" : "PRAYER_APPROVED",
+        actorId: session!.user!.id,
+        targetId: prayerId,
+      },
+    });
     revalidatePath("/admin/prayers");
     revalidatePath("/");
     return { success: true };
