@@ -68,7 +68,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Add AuditLog Prisma model, migration, and write audit entries for moderation and group management actions
+- [x] 02-01-PLAN.md — Add AuditLog Prisma model, migration, and write audit entries for moderation and group management actions
 
 ### Phase 3: Test Coverage
 **Goal**: Server actions, API routes, auth flows, and group management have automated tests that run in CI, with no untyped `as any` casts in test files
@@ -83,7 +83,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Typed mock factories + prayer and group server action tests
+- [x] 03-01-PLAN.md — Typed mock factories + prayer and group server action tests
 - [ ] 03-02-PLAN.md — API route tests and auth flow tests
 - [ ] 03-03-PLAN.md — Replace `as any` casts with typed mock factories in existing tests
 
@@ -98,5 +98,5 @@ Plans:
 | 1. Fix concerns from CONCERNS.md | v1.1 | 1/1 | Complete | 2026-03-20 |
 | 1. NextAuth v5 Beta Stability | v1.2 | 1/1 | Complete | 2026-03-20 |
 | 1. Quick Fixes & Observability | v1.3 | 2/2 | Complete | 2026-03-21 |
-| 2. Audit Logging | v1.3 | 0/1 | Not started | - |
-| 3. Test Coverage | v1.3 | 0/3 | Not started | - |
+| 2. Audit Logging | v1.3 | 1/1 | Complete | 2026-03-21 |
+| 3. Test Coverage | v1.3 | 1/3 | In progress | - |
