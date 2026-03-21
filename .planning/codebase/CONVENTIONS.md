@@ -1,152 +1,95 @@
-# Coding Conventions
+# Conventions
 
-**Analysis Date:** 2026-03-19
+## Code Style & Formatting
+- **Prettier** (`^3.8.1`) — code formatting
+- **ESLint** (`^8`) — `eslint-config-next` + `eslint-config-prettier`
+  - Custom rule: `@typescript-eslint/no-explicit-any: error` (enforced in `.eslintrc.json`)
+  - ESLint errors ignored during build (`next.config.mjs`: `ignoreDuringBuilds: true`)
+- **TypeScript** — `strict: true` in `tsconfig.json`
+  - Type errors ignored during build (`next.config.mjs`: `ignoreBuildErrors: true`)
 
-## Naming Patterns
+## Naming Conventions
 
-**Files:**
-- React components: PascalCase, `.tsx` extension — e.g., `PrayerCard.tsx`, `FeedLoadMore.tsx`
-- Server actions: camelCase file and function names — e.g., `create.ts` exports `createPrayerAction`
-- Utility/lib modules: camelCase — e.g., `rate-limit.ts`, `auth.config.ts`
-- API routes: `route.ts` inside Next.js App Router directories
-- Types/schemas: camelCase filenames, PascalCase type names — e.g., `schemas/prayer.ts` exports `CreatePrayerSchema`
+### Files
+- **Components:** PascalCase — `PrayerCard.tsx`, `AppSidebar.tsx`, `ThemeProvider.tsx`
+- **Server Actions:** camelCase — `create.ts`, `deleteAccount.ts`, `password-reset.ts`
+- **Utilities:** camelCase — `rate-limit.ts`, `sanitize.ts`, `utils.ts`
+- **Schemas:** camelCase — `prayer.ts`, `user.ts`
+- **Type declarations:** camelCase with `.d.ts` suffix — `next-auth.d.ts`
 
-**Functions:**
-- Server actions: suffix `Action` on the function name — e.g., `createPrayerAction`, `fetchFeedAction`, `registerAction`
-- Event handlers in components: prefix `handle` — e.g., `handlePray`, `handleDelete`
-- React components: PascalCase — e.g., `NewPrayerForm`, `PrayerCard`, `AppSidebarClient`
-- Utility functions: camelCase descriptive — e.g., `sanitizePrayer`, `formatRelativeDate`, `checkRateLimit`
+### Code
+- **React components:** PascalCase exports — `export default function PrayerCard()`
+- **Utility functions:** camelCase exports — `export function cn()`, `export function sanitizePrayer()`
+- **Constants:** SCREAMING_SNAKE_CASE — `CATEGORY_LABELS`, `STATUS_LABELS`, `R2_BUCKET`
+- **Prisma models:** PascalCase — `User`, `Prayer`, `GroupMember`
+- **Prisma enums:** SCREAMING_SNAKE_CASE — `HEALTH`, `ACTIVE`, `PRAYER_CLICK`
+- **Zod schemas:** PascalCase — `CreatePrayerSchema`, `RegisterSchema`
 
-**Variables:**
-- camelCase throughout
-- Booleans: `is`/`has` prefix — e.g., `isAdmin`, `hasPrayed`, `isDeleted`, `isMember`
-- Pending/loading states: `isPending`, `isSubmitting`, `isDeletePending`
-- Constants (module-level): SCREAMING_SNAKE_CASE — e.g., `FEED_PAGE_SIZE`, `POLL_INTERVAL`, `CATEGORY_LABELS`
+### Imports
+- Path alias: `@/*` maps to project root — `import { prisma } from "@/lib/prisma"`
+- Relative imports for sibling files within the same directory
 
-**Types/Interfaces:**
-- Interface names: PascalCase, no `I` prefix — e.g., `PrayerCardProps`, `FetchFeedInput`, `Props` (local-only)
-- Zod schemas: PascalCase + `Schema` suffix — e.g., `CreatePrayerSchema`, `RegisterSchema`
-- Inferred types from Zod: PascalCase + `Input` suffix — e.g., `CreatePrayerInput`, `UpdatePrayerInput`
-- Enum-equivalent string unions: defined in `types/prisma.ts` as plain string union types
+## Language
+- **UI text:** Portuguese (pt-BR) — all user-facing strings, error messages, and labels are in Brazilian Portuguese
+- **Code:** English — variable names, function names, comments are mixed (English code, Portuguese inline comments)
+- **Documentation:** Portuguese (README, LOCAL_DEV_GUIDE)
 
-## Code Style
+## Component Patterns
 
-**Formatting:**
-- Prettier is installed (`prettier ^3.5.1` in devDependencies)
-- `eslint-config-prettier` is present — Prettier rules override ESLint formatting
-- No `.prettierrc` file committed; project relies on Prettier defaults (2-space indent inferred from source)
+### Server vs Client Components
+- **Default:** Server Components (no directive)
+- **Client:** Explicitly marked with `"use client"` directive at top of file
+- **Pattern:** Server Component fetches data, passes to Client Component for interactivity
+  - Example: `AppSidebar.tsx` (server) → `AppSidebarClient.tsx` (client)
 
-**Linting:**
-- ESLint via `next/core-web-vitals` + `eslint-config-next/typescript`
-- Minimal custom rules; relies on Next.js defaults
-- `eslint-disable` comments are used sparingly and inline only — e.g., `// eslint-disable-next-line @next/next/no-img-element`
+### Shadcn UI Components (`components/ui/`)
+- Radix primitive wrapped with Tailwind styling
+- CVA (`class-variance-authority`) for variants
+- `cn()` utility for conditional class merging
 
-**TypeScript:**
-- `strict: true` in `tsconfig.json`
-- `noEmit: true`, `isolatedModules: true`
-- Avoid `any` in types; use it only when bridging server action data to client (e.g., `initialPrayers as any[]` in feed)
-
-## Import Organization
-
-**Order (observed pattern):**
-1. React and Next.js built-ins (`"use client"` / `"use server"` directive at top, then `react`, `next/*`)
-2. Third-party packages (lucide-react, framer-motion, next-auth, react-hook-form, zod)
-3. Internal path-aliased imports (`@/lib/*`, `@/components/*`, `@/app/actions/*`, `@/schemas/*`, `@/types/*`)
-
-**Path Aliases:**
-- `@/*` maps to the project root — configured in `tsconfig.json`
-- Use `@/` for all cross-directory imports; never use relative `../../` imports
-
-**Directive placement:**
-- `"use server"` or `"use client"` must be the first line of the file, before all imports
-
-## Action Return Shape
-
-All server actions return a discriminated union:
+### Form Pattern
 ```typescript
-// Success
-{ success: true, [data]?: ... }
-
-// Failure
-{ success: false, error: string }
+// Client Component
+"use client"
+const form = useForm<CreatePrayerInput>({
+  resolver: zodResolver(CreatePrayerSchema),
+  defaultValues: { ... }
+});
+// Submit calls Server Action directly
 ```
 
-First validation error is extracted via `parsed.error.issues[0]?.message ?? "Dados inválidos."`. Generic fallback is always `"Algo deu errado. Tente novamente."`.
+## Data Mutation Pattern (Server Actions)
+Standard pattern across all Server Actions:
+
+```typescript
+"use server"
+export async function createPrayer(data: CreatePrayerInput) {
+  // 1. Authenticate — const session = await auth()
+  // 2. Validate — CreatePrayerSchema.parse(data)
+  // 3. Rate limit — checkRateLimit("prayer", session.user.id)
+  // 4. Sanitize — sanitizeUserInput(data.title)
+  // 5. Persist — prisma.prayer.create(...)
+  // 6. Revalidate — revalidatePath("/mural")
+  // 7. Return result or redirect
+}
+```
 
 ## Error Handling
+- **Server Actions:** Return discriminated results (success/error objects) rather than throwing
+- **Error boundaries:** `global-error.tsx` (root), `error.tsx` (route-level)
+- **Auth errors:** Redirected to `/login` via `auth.config.ts` pages config
+- **Rate limit failures:** Return user-facing error message in Portuguese
+- **Email failures:** Caught and logged to console, never throw to user
 
-**Server Actions:**
-- Check auth first; return early with `{ success: false, error: "..." }` if unauthenticated
-- Run rate limit check immediately after auth
-- Validate with Zod `safeParse`; return first issue message on failure
-- Wrap database writes in `try/catch`; log with context tag then return generic error
-- Non-critical side effects (email sends) use `.catch((err) => console.error("[tag] ...", err))` to avoid blocking
+## Privacy & Security Conventions
+- **Anonymous prayers:** Server-side sanitization via `sanitizePrayer()` in `lib/utils.ts` — strips `authorId` and `author` data before sending to client
+- **XSS prevention:** `sanitizeUserInput()` in `lib/sanitize.ts` escapes HTML entities before database persistence
+- **CSRF:** Middleware validates `origin` header on mutation requests
+- **Soft delete:** `User.isDeleted` flag for LGPD compliance (account anonymization)
 
-**API Routes:**
-- Use `NextResponse.json({ error: "..." }, { status: 404 })` for not-found
-- No try/catch in simple read-only routes — let Next.js handle uncaught errors
-
-**Client Components:**
-- Use `useTransition` for async server action calls
-- Track optimistic state locally (`useState`) and roll back on failure by not updating state
-- Display server errors via `serverError` state rendered inline in the form
-
-**Error Boundaries:**
-- `app/global-error.tsx` — root-level catch-all, logs to console, renders reset button
-- `app/(app)/error.tsx` — scoped to the `(app)` route group, uses styled UI components
-
-## Logging
-
-**Framework:** `console.error` only — no logging library
-
-**Patterns:**
-- Log prefix format: `[functionName]` — e.g., `console.error("[createPrayerAction]", err)`
-- Log only on unexpected errors (caught `catch` blocks) and non-critical side effect failures
-- Never log sensitive data (passwords, tokens)
-- Client error boundaries also use `console.error("[GlobalError]", error)`
-
-## Comments
-
-**When to Comment:**
-- JSDoc-style single-line comments for utility functions with a non-obvious contract — e.g., `/** Merge Tailwind classes safely. */`
-- Multi-line JSDoc for security-critical functions — e.g., `sanitizePrayer` has a `MUST` warning
-- Inline comments to explain business rule context — e.g., `// Enviar e-mail de verificação (não bloqueia o cadastro se falhar)`
-- Section dividers in long action files using `// ─────────...` ASCII lines with section label
-
-**JSDoc/TSDoc:**
-- Used selectively on exported utilities and critical security functions
-- Not used on React component props interfaces (those use TypeScript directly)
-
-## Function Design
-
-**Size:** Functions are generally short and single-purpose; server actions are the longest (~50-80 lines) and each handles one domain operation
-
-**Parameters:**
-- Server actions accept a single `data: unknown` parameter and validate internally with Zod
-- Component functions use typed props interfaces; `Props` is used for single-component local interfaces
-- Optional props use `?` with default values in destructuring — e.g., `isOwner = false`
-
-**Return Values:**
-- Server actions always return plain objects (not thrown errors)
-- Components return JSX or `null` for conditionally hidden elements (e.g., `if (isDeleted) return null`)
-
-## Module Design
-
-**Exports:**
-- Server action files: named exports per function — e.g., `export async function createPrayerAction`
-- Components: default export for page/component, named export for utility components (e.g., `export function AppSidebarClient`, `export function AutoRefresh`)
-- UI primitives: named exports — e.g., `export { Button, buttonVariants }`
-
-**Barrel Files:**
-- Not used; imports go directly to the file — e.g., `@/app/actions/prayers/create`
-
-## Tailwind Usage
-
-- Use `cn()` from `@/lib/utils` for all conditional class merging — never template literals for class conditions
-- Tailwind classes are inlined directly on JSX elements; no CSS modules or styled-components
-- Custom design tokens used: `text-navy`, `bg-gold-warm`, `text-gray-text`, `border-gray-med`, `bg-blue-soft`, `bg-card`
-- Responsive prefixes follow mobile-first: `sm:`, `md:`, `lg:`
-
----
-
-*Convention analysis: 2026-03-19*
+## Design System
+- **Design tokens:** CSS custom properties in `app/globals.css` using RGB channel format for Tailwind opacity support
+- **Color naming:** Semantic names — `cream`, `navy`, `gold-warm`, `status-blue`, etc.
+- **Dark mode:** `.dark` class strategy, automatic via `next-themes` system preference
+- **Custom shadows:** `sm`, `md`, `lg` with specific rgba values
+- **Custom border-radius:** `sm` (4px) through `2xl` (20px)

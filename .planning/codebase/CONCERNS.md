@@ -1,50 +1,62 @@
-# Codebase Concerns
+# Concerns
 
-**Analysis Date:** 2026-03-19 — updated 2026-03-20
+## 1. NextAuth v5 Beta Stability
+- **Risk:** `next-auth@5.0.0-beta.30` is a pre-release. API surface may change, and undocumented edge cases exist, especially around Edge Runtime compatibility.
+- **Evidence:** The codebase already splits auth config into `auth.ts` (Node) and `auth.config.ts` (Edge-safe) to work around Edge limitations.
+- **Recommendation:** Pin version strictly. Monitor Auth.js changelog for breaking changes. Plan migration to stable v5 when released.
 
----
+## 2. Build-Time Type & Lint Checking Disabled
+- **Risk:** `next.config.mjs` sets `ignoreBuildErrors: true` (TypeScript) and `ignoreDuringBuilds: true` (ESLint). This means type errors and lint violations in production code go undetected during deployment.
+- **Impact:** Potential runtime errors from unnoticed type mismatches making it to production.
+- **Recommendation:** Enable build checks or add a CI step that runs `tsc --noEmit` and `eslint` before deployment.
 
-## Scaling Limits
+## 3. Resend vs Brevo Mismatch
+- **Issue:** `resend ^6.9.4` is listed in `package.json` dependencies, but the actual email implementation in `lib/email.ts` uses Brevo (Sendinblue) API via raw `fetch()`. The `.env.example` references `RESEND_API_KEY` as a future integration.
+- **Impact:** Dead dependency adding unnecessary bundle weight. Confusion for future developers.
+- **Recommendation:** Remove `resend` from `package.json` if it's not used, or migrate email to Resend if planned.
 
-**R2 Storage Without Lifecycle Policies:**
-- Current capacity: Unlimited (pay-per-use), but no cleanup of orphaned uploads.
-- Limit: Objects uploaded but never attached to a prayer record accumulate indefinitely (e.g., user uploads image, then abandons the form).
-- Scaling path: Implement an R2 lifecycle rule to delete objects older than 24 hours that are not referenced in the `prayers.imageUrl` column, or run a scheduled cleanup job.
+## 4. Limited Test Coverage
+- **Issue:** Only 2 test files exist (`tests/prayer-access-control.test.ts`, `lib/email.test.ts`). Major functionality is untested:
+  - Server Actions (create, delete, moderation)
+  - Middleware (CSRF, route protection)
+  - Rate limiting logic
+  - Registration and authentication flows
+- **Impact:** Regressions can go unnoticed. Refactoring is risky.
+- **Recommendation:** Prioritize testing Server Actions and middleware logic.
 
-**Single-Region Database:**
-- Current capacity: Sufficient for current user volume.
-- Limit: Neon Postgres is provisioned in a single region. As global user base grows, read latency increases for distant users.
-- Scaling path: Enable Neon read replicas in additional regions, or introduce a read-through cache layer (Redis) for the public prayer feed.
+## 5. No Explicit CI/CD Pipeline
+- **Issue:** No GitHub Actions, CircleCI, or equivalent CI config found. The project relies solely on Vercel build.
+- **Impact:** With type/lint checks disabled in build, there's effectively no automated quality gate.
+- **Recommendation:** Add a CI pipeline that runs: `tsc --noEmit`, `eslint .`, and `vitest run` before merging.
 
----
+## 6. Cloudflare R2 Env Vars Not in .env.example
+- **Issue:** `lib/r2.ts` requires `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`, but `.env.example` does not list these variables.
+- **Impact:** New developers won't know R2 configuration is needed, leading to runtime crashes.
+- **Recommendation:** Update `.env.example` to include all R2 and Brevo environment variables.
 
-## Dependencies at Risk
+## 7. Brevo Email Env Vars Not in .env.example
+- **Issue:** `lib/email.ts` uses `BREVO_API_KEY`, `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME` but `.env.example` only references the commented-out `RESEND_API_KEY`.
+- **Impact:** Same as above — new developers miss required configuration.
+- **Recommendation:** Replace `RESEND_API_KEY` reference in `.env.example` with actual Brevo env vars.
 
-**Neon Serverless Driver Compatibility:**
-- Risk: The codebase uses `@neondatabase/serverless` which requires a WebSocket proxy for non-edge runtimes. If Neon changes its connection protocol or deprecates the serverless driver, connection handling breaks.
-- Impact: Complete database connectivity loss.
-- Migration plan: The Drizzle ORM layer abstracts the driver; switching to the standard `pg` driver requires only updating the Drizzle connection config in `src/lib/db/index.ts`.
+## 8. Upstash Env Vars Not in .env.example
+- **Issue:** `lib/rate-limit.ts` uses `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`, not documented in `.env.example`.
+- **Impact:** Rate limiting silently disabled in dev; could fail in production if not configured.
+- **Recommendation:** Add Upstash vars to `.env.example` with comments.
 
-**Resend Email SDK:**
-- Risk: Resend is an early-stage provider. API changes or service discontinuation would break all transactional email.
-- Impact: No password reset, no invite emails, no notifications.
-- Migration plan: Email sending is isolated to `src/lib/email/`. Swapping to SendGrid or Postmark requires replacing the Resend client call in that module only.
+## 9. `any` Type in Middleware
+- **Issue:** `middleware.ts` line 11 uses `(req: any)` despite the ESLint rule `@typescript-eslint/no-explicit-any: error` being configured. This suggests ESLint may not be running consistently.
+- **Impact:** Loss of type safety in the most critical security layer (route protection + CSRF).
+- **Recommendation:** Type `req` as `NextAuthRequest` or the appropriate Auth.js type.
 
----
+## 10. Duplicate Sanitization Logic
+- **Issue:** Two separate sanitization mechanisms exist:
+  - `lib/sanitize.ts` — manual HTML entity escaping for database input
+  - `html-escaper` package — used in `lib/email.ts` for email template user data
+- **Impact:** Inconsistency risk — developers may use one and forget the other.
+- **Recommendation:** Consolidate to a single sanitization approach or clearly document when each is used.
 
-## Missing Critical Features
-
-**Email Verification Not Enforced:**
-- Problem: The authentication flow (NextAuth + Resend) sends a verification email but does not block access to the application for unverified accounts. Users can interact with all features using an unverified email address.
-- Blocks: Trustworthy user identity, spam prevention, account recovery reliability.
-- Files: `src/app/api/auth/` route handlers, `src/lib/auth.ts`
-
-**No Report UI Despite Database Schema:**
-- Problem: The database schema includes a `reports` table (for reporting inappropriate prayers or users), but no UI, server action, or admin review workflow exists for this feature.
-- Blocks: Community moderation; the schema investment is currently wasted.
-- Files: `src/lib/db/schema.ts` (`reports` table definition), `src/app/admin/` (no reports section)
-
-**No Notification System:**
-- Problem: There is no mechanism to notify a prayer poster when someone prays for their request. The `AutoRefresh` component provides data freshness, but no push or in-app notification surface exists.
-- Blocks: Engagement loop; users have no reason to return after posting.
-- Files: No notification-related files exist.
+## 11. Mock Data in Production Bundle
+- **Issue:** `lib/mock-prayer-requests.ts` exists in `lib/` alongside production code.
+- **Impact:** Could be accidentally imported in production, or cause confusion.
+- **Recommendation:** Move to `tests/` or a `__mocks__/` directory.

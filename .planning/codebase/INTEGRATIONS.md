@@ -1,121 +1,64 @@
-# External Integrations
+# Integrations
 
-**Analysis Date:** 2026-03-19
+## Database — Neon Serverless PostgreSQL
+- **Connection:** `DATABASE_URL` env var pointing to `ep-xxx.neon.tech`
+- **Driver:** `@neondatabase/serverless` WebSocket-based driver (edge-compatible)
+- **Adapter:** `@prisma/adapter-neon` wraps the Neon driver for Prisma Client
+- **Client:** Singleton pattern in `lib/prisma.ts`, reused across hot-reloads via `globalThis`
+- **Logging:** `query`, `error`, `warn` in development; `error` only in production
 
-## APIs & External Services
+## Authentication — Google OAuth 2.0
+- **Provider:** `next-auth/providers/google` configured in `lib/auth.ts`
+- **Env vars:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- **DB mapping:** `PrismaAdapter` from `@auth/prisma-adapter` maps OAuth accounts to `User` + `Account` models
+- **Remote images:** `lh3.googleusercontent.com` allowed in `next.config.mjs` for Google profile avatars
 
-**Email:**
-- Brevo (formerly Sendinblue) - Transactional email delivery
-  - SDK/Client: Raw `fetch` to `https://api.brevo.com/v3/smtp/email`
-  - Implementation: `lib/email.ts`
-  - Auth: `BREVO_API_KEY` header
-  - Sends: password reset, email verification, comment notifications, group status updates, join request status updates
-  - Graceful degradation: when `BREVO_API_KEY` is absent, emails are skipped (dev-friendly)
+## Authentication — Credentials
+- **Provider:** `next-auth/providers/credentials` in `lib/auth.ts`
+- **Password hashing:** bcryptjs (`bcrypt.compare` on login)
+- **Flow:** User registers via Server Action (`app/actions/user/register.ts`), logs in via credentials provider
+- **Email verification:** Token-based (`EmailVerificationToken` model), verified at `/verify-email`
 
-**Note:** `resend` package ^6.9.4 is installed as a dependency but email sending is implemented via Brevo. `resend` appears to be unused or leftover.
+## Session Management
+- **Strategy:** JWT (stateless), configured in `lib/auth.config.ts`
+- **Max age:** 30 days
+- **Custom claims:** JWT token includes `id` and `role` via callbacks
+- **Edge compatibility:** `auth.config.ts` has no Prisma imports, safe for Edge Middleware
 
-## Data Storage
+## Email — Brevo (Sendinblue)
+- **API endpoint:** `https://api.brevo.com/v3/smtp/email`
+- **Env vars:** `BREVO_API_KEY`, `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME`
+- **Implementation:** `lib/email.ts` — raw `fetch()` call (no SDK)
+- **Templates (HTML inline):**
+  - `sendPasswordResetEmail()` — password reset link (1h expiry)
+  - `sendVerificationEmail()` — email confirmation link (24h expiry)
+  - `sendCommentNotificationEmail()` — comment notification
+  - `sendGroupStatusEmail()` — group creation approved/rejected
+  - `sendJoinRequestStatusEmail()` — group join request approved/rejected
+- **Graceful degradation:** Logs to console when `BREVO_API_KEY` is not set
 
-**Databases:**
-- Neon PostgreSQL (serverless)
-  - Connection: `DATABASE_URL` env var (`postgresql://...neon.tech/...`)
-  - Client: Prisma 7.x with `PrismaNeon` adapter (`@prisma/adapter-neon`) for serverless HTTP connections
-  - Singleton instantiation: `lib/prisma.ts` (guards against hot-reload duplication)
-  - Schema: `prisma/schema.prisma`
-  - Migrations: `prisma/migrations/`
+## Object Storage — Cloudflare R2
+- **Client:** `lib/r2.ts` — S3-compatible client using `@aws-sdk/client-s3`
+- **Endpoint:** `https://{CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+- **Env vars:** `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`
+- **Upload strategy:** Presigned URLs via `@aws-sdk/s3-presigned-post` — clients upload directly to R2 without proxying through Vercel functions
+- **Upload route:** `app/api/upload/`
 
-**File Storage:**
-- Cloudflare R2 (S3-compatible object storage)
-  - Client: AWS SDK v3 `@aws-sdk/client-s3` configured with R2 endpoint
-  - Implementation: `lib/r2.ts`
-  - Upload flow: presigned PUT URL generated server-side at `app/api/upload/route.ts`, client uploads directly to R2
-  - Credentials: `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`
-  - Config: `CLOUDFLARE_R2_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`
-  - Allowed types: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
-  - Presigned URL TTL: 300 seconds (5 minutes)
-  - Key pattern: `grupos/<uuid>.<ext>`
+## Caching & Rate Limiting — Upstash Redis
+- **Client:** `Redis.fromEnv()` via `@upstash/redis`
+- **Env vars:** `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
+- **Rate limiters** (sliding window, defined in `lib/rate-limit.ts`):
+  | Action    | Limit       |
+  |-----------|-------------|
+  | `pray`    | 20 / 1 min  |
+  | `comment` | 10 / 1 min  |
+  | `prayer`  | 5 / 1 hour  |
+  | `join`    | 10 / 1 min  |
+- **Dev mode:** Gracefully skips rate limiting when Redis env vars are absent
+- **Prod mode:** Blocks actions with error message when Redis is not configured
 
-**Caching:**
-- Upstash Redis (serverless Redis over HTTP)
-  - Client: `@upstash/redis` via `Redis.fromEnv()` (reads `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`)
-  - Implementation: `lib/rate-limit.ts`
-  - Purpose: rate limiting only (no general caching)
-  - Graceful degradation: when env vars absent, all rate limit checks return `success: true`
-
-## Authentication & Identity
-
-**Auth Provider:**
-- NextAuth v5 (beta) with dual-strategy auth
-  - Implementation: `lib/auth.ts` (Node.js), `lib/auth.config.ts` (Edge-compatible)
-  - Adapter: `PrismaAdapter` from `@auth/prisma-adapter` — stores sessions/accounts in Postgres
-  - Session strategy: JWT, 30-day expiry
-  - Custom pages: sign-in at `/login`, error at `/login`
-
-**OAuth Providers:**
-- Google OAuth 2.0
-  - SDK: `next-auth/providers/google`
-  - Credentials: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-  - User avatars served from `lh3.googleusercontent.com` (allowed in `next.config.mjs` `remotePatterns`)
-
-**Credentials Auth:**
-- Email + password (custom)
-  - Password hashing: `bcryptjs`
-  - Email verification flow: tokens stored in `EmailVerificationToken` Prisma model
-  - Password reset flow: tokens stored in `PasswordResetToken` Prisma model; email sent via Brevo
-
-**Middleware:**
-- `middleware.ts` — Edge-runtime auth guard protecting private routes (`/meus-pedidos`, `/novo-pedido`, `/grupos/novo`) and admin routes (`/admin`)
-
-## Monitoring & Observability
-
-**Error Tracking:**
-- Not detected — no Sentry, Datadog, or equivalent configured
-
-**Logs:**
-- `console.log` / `console.error` used throughout (e.g., `lib/email.ts`, `lib/prisma.ts`)
-- Prisma query logging enabled in development (`"query"`, `"error"`, `"warn"`), errors only in production
-
-## CI/CD & Deployment
-
-**Hosting:**
-- Not explicitly configured — likely Vercel (Next.js 14 App Router + serverless Neon Postgres + Cloudflare R2 is standard Vercel stack)
-
-**CI Pipeline:**
-- Not detected — no `.github/workflows`, `.gitlab-ci.yml`, or equivalent
-
-## Environment Configuration
-
-**Required env vars:**
-- `DATABASE_URL` - Neon Postgres connection string
-- `AUTH_SECRET` - NextAuth JWT signing secret
-- `NEXTAUTH_URL` - Canonical app URL
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google OAuth app credentials
-- `CLOUDFLARE_R2_ACCOUNT_ID` / `CLOUDFLARE_R2_ACCESS_KEY_ID` / `CLOUDFLARE_R2_SECRET_ACCESS_KEY` - R2 storage credentials
-- `CLOUDFLARE_R2_BUCKET_NAME` / `CLOUDFLARE_R2_PUBLIC_URL` - R2 bucket config
-- `BREVO_API_KEY` / `BREVO_FROM_EMAIL` / `BREVO_FROM_NAME` - Email delivery
-
-**Optional env vars (graceful degradation when absent):**
-- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` - Rate limiting (disabled without these)
-
-**Secrets location:**
-- `.env` and `.env.local` (both gitignored); `.env.example` committed as template
-
-## Webhooks & Callbacks
-
-**Incoming:**
-- `/api/auth/[...nextauth]` - NextAuth OAuth callback handler (`app/api/auth/[...nextauth]/route.ts`)
-
-**Outgoing:**
-- None detected
-
-## Internal API Routes
-
-- `GET /api/upload` - Generate R2 presigned upload URL (`app/api/upload/route.ts`)
-- `GET/POST /api/groups` - Group listing and creation (`app/api/groups/route.ts`)
-- `GET/PATCH/DELETE /api/groups/[id]` - Group detail operations (`app/api/groups/[id]/route.ts`)
-- `GET /api/groups/[id]/pending-members` - Pending membership list (`app/api/groups/[id]/pending-members/route.ts`)
-- `GET/PATCH /api/notifications` - Notification list and mark-read (`app/api/notifications/route.ts`)
-
----
-
-*Integration audit: 2026-03-19*
+## Hosting — Vercel
+- **Deploy trigger:** Push to `master` branch
+- **Functions:** Serverless Functions (Server Actions, API Routes)
+- **Edge:** Middleware runs on Edge Runtime
+- **Env vars to configure:** `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, plus Brevo, R2, and Upstash vars

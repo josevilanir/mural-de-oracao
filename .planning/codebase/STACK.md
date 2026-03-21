@@ -1,99 +1,90 @@
-# Technology Stack
+# Stack
 
-**Analysis Date:** 2026-03-19
+## Language & Runtime
+- **TypeScript** (`^5`) — strict mode enabled in `tsconfig.json`
+- **Node.js** 18+ (runtime for dev server and Server Actions)
+- **Edge Runtime** — used by `middleware.ts` for route protection (no Node.js APIs)
 
-## Languages
+## Framework
+- **Next.js 14.2.29** — App Router (`app/` directory)
+  - Server Components by default
+  - Server Actions in `app/actions/`
+  - Route Handlers in `app/api/`
+  - Edge Middleware in `middleware.ts`
+  - Config: `next.config.mjs` (ESLint and TypeScript errors ignored during build)
 
-**Primary:**
-- TypeScript 5.x - All application code (`.ts`, `.tsx`)
+## Styling
+- **Tailwind CSS** `^3.4.1` with **PostCSS**
+  - Dark mode: `class` strategy via `next-themes`
+  - Custom design tokens defined as CSS variables in `app/globals.css` (RGB channels)
+  - Custom color palette: `cream`, `navy`, `blue-main`, `gold-warm`, etc.
+  - Custom fonts: `Lora` (display/serif), `Nunito Sans` (body/sans), `JetBrains Mono` (mono) — loaded from Google Fonts
+  - Configured in `tailwind.config.ts`
 
-**Secondary:**
-- CSS (Tailwind utility classes via `globals.css` and component class strings)
+## UI Components
+- **Shadcn UI** pattern — components in `components/ui/` using Radix Primitives
+  - `@radix-ui/react-avatar`, `react-checkbox`, `react-dialog`, `react-dropdown-menu`, `react-select`, `react-slot`, `react-switch`, `react-tooltip`
+- **Framer Motion** `^12.36.0` — animations
+- **Lucide React** `^0.577.0` — icons
+- **class-variance-authority** `^0.7.1`, **clsx** `^2.1.1`, **tailwind-merge** `^3.5.0` — class utilities
 
-## Runtime
+## Database
+- **PostgreSQL** via **Neon Serverless** (`@neondatabase/serverless ^1.0.2`)
+- **Prisma** `^7.5.0` — ORM, uses Neon adapter (`@prisma/adapter-neon ^7.5.0`)
+  - `prisma.config.ts` defines schema path and datasource URL
+  - `postinstall` script runs `prisma generate`
+  - Singleton client in `lib/prisma.ts` (dev logging: query, error, warn)
 
-**Environment:**
-- Node.js v22.16.0
+## Authentication
+- **Auth.js / NextAuth v5** (`next-auth ^5.0.0-beta.30`)
+  - Providers: Google OAuth 2.0, Credentials (email/password)
+  - `@auth/prisma-adapter ^2.11.1` for DB mapping
+  - **bcryptjs** `^3.0.3` — password hashing
+  - **jose** `^6.2.1` — JWT operations
+  - JWT strategy, 30-day session max age
 
-**Package Manager:**
-- npm (v10.x implied by Node 22)
-- Lockfile: `package-lock.json` present
+## Forms & Validation
+- **React Hook Form** `^7.71.2` + **@hookform/resolvers** `^5.2.2`
+- **Zod** `^4.3.6` — schema validation (shared between client and server)
 
-## Frameworks
+## Email
+- **Brevo API** (SMTP via `https://api.brevo.com/v3/smtp/email`) — transactional emails
+  - `resend ^6.9.4` in `package.json` but actual implementation in `lib/email.ts` uses Brevo
+  - Templates: password reset, email verification, comment notifications, group status emails
 
-**Core:**
-- Next.js 14.2.29 - Full-stack React framework (App Router)
-- React 18.x - UI rendering
-- React DOM 18.x - DOM bindings
+## Object Storage
+- **Cloudflare R2** — uses AWS S3-compatible SDK
+  - `@aws-sdk/client-s3 ^3.1010.0`, `@aws-sdk/s3-presigned-post ^3.1013.0`, `@aws-sdk/s3-request-presigner ^3.1010.0`
+  - Client configured in `lib/r2.ts`
 
-**Animation:**
-- Framer Motion 12.x - UI animations and transitions
+## Caching & Rate Limiting
+- **Upstash Redis** (`@upstash/redis ^1.37.0`)
+- **Upstash Rate Limit** (`@upstash/ratelimit ^2.0.8`)
+  - Sliding window limiters per action type: pray (20/min), comment (10/min), prayer (5/hr), join (10/min)
+  - Gracefully disabled in dev when Redis env vars are absent
 
-**Testing:**
-- Not detected — no test framework installed or configured
+## Date/Time
+- **date-fns** `^4.1.0` — `formatDistanceToNow` with `ptBR` locale
 
-**Build/Dev:**
-- Next.js built-in compiler (SWC) - TypeScript/JSX transpilation
-- PostCSS 8.x - CSS processing (`postcss.config.mjs`)
-- ESLint 8.x - Linting (`eslint.config.mjs` using `eslint-config-next`)
-- Prettier 3.8.1 - Code formatting (no `.prettierrc` config file detected; installed as devDep with `eslint-config-prettier`)
-- `dotenv-cli` 11.x - Env injection for scripts
+## Security
+- **html-escaper** `^3.0.3` — escaping user input in email templates
+- Custom `sanitizeUserInput()` in `lib/sanitize.ts` for stored XSS prevention
 
-## Key Dependencies
+## Theme
+- **next-themes** `^0.4.6` — system/light/dark toggle wrapped in `ThemeProvider`
 
-**Critical:**
-- `next-auth` ^5.0.0-beta.30 (`@auth/prisma-adapter` ^2.11.1) - Authentication, session management
-- `@prisma/client` ^7.5.0 / `prisma` ^7.5.0 - ORM and database access
-- `@neondatabase/serverless` ^1.0.2 / `@prisma/adapter-neon` ^7.5.0 - Neon serverless Postgres driver
-- `zod` ^4.3.6 - Schema validation (forms and server actions)
-- `react-hook-form` ^7.71.2 + `@hookform/resolvers` ^5.2.2 - Form state and validation integration
+## Testing
+- **Vitest** `^4.1.0` — test runner, `vitest.config.ts` resolves `@/` alias
 
-**Infrastructure:**
-- `@aws-sdk/client-s3` ^3.1010.0 + `@aws-sdk/s3-request-presigner` ^3.1010.0 - S3-compatible API for Cloudflare R2 uploads
-- `@upstash/redis` ^1.37.0 + `@upstash/ratelimit` ^2.0.8 - Redis-backed rate limiting
-- `bcryptjs` ^3.0.3 - Password hashing for credentials auth
-- `jose` ^6.2.1 - JWT utilities (used in edge-compatible auth paths)
+## Dev Tooling
+- **ESLint** `^8` with `eslint-config-next 14.2.29` + `eslint-config-prettier ^10.1.8`
+  - Rule: `@typescript-eslint/no-explicit-any: error`
+- **Prettier** `^3.8.1`
+- **dotenv-cli** `^11.0.0` — for loading env in scripts
 
-**UI Component Library:**
-- `@radix-ui/react-avatar`, `react-checkbox`, `react-dialog`, `react-dropdown-menu`, `react-select`, `react-slot`, `react-switch`, `react-tooltip` - Headless UI primitives
-- `lucide-react` ^0.577.0 - Icon set
-- `class-variance-authority` ^0.7.1 - Component variant utilities
-- `clsx` ^2.1.1 + `tailwind-merge` ^3.5.0 - Conditional className utilities
+## Path Aliases
+- `@/*` → project root (configured in `tsconfig.json` `paths`)
 
-**Utilities:**
-- `date-fns` ^4.1.0 - Date formatting
-- `next-themes` ^0.4.6 - Dark/light theme switching
-- `resend` ^6.9.4 - Email SDK (installed but email sending uses Brevo REST API directly; `resend` may be unused or planned)
-
-## Configuration
-
-**Environment:**
-- Variables loaded from `.env` and `.env.local`
-- Template documented in `.env.example`
-- Key required vars: `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`, `BREVO_API_KEY`, `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
-
-**Build:**
-- `next.config.mjs` - Next.js config (ESLint and TypeScript errors ignored during builds)
-- `tsconfig.json` - TypeScript config with `@/*` path alias mapping to project root
-- `tailwind.config.ts` - Custom design tokens (colors, fonts, shadows, radii)
-- `prisma.config.ts` - Prisma datasource config
-- `prisma/schema.prisma` - Database schema
-
-**Path Aliases:**
-- `@/*` resolves to project root (e.g., `@/lib/prisma` → `./lib/prisma`)
-
-## Platform Requirements
-
-**Development:**
-- Node.js 22.x
-- PostgreSQL-compatible database (Neon serverless recommended)
-- Optional: Upstash Redis for rate limiting (gracefully disabled without env vars)
-
-**Production:**
-- Deployment target: Vercel or any Node.js-compatible platform
-- Next.js middleware runs on Edge Runtime (auth config split for edge compatibility: `lib/auth.config.ts` is edge-safe, `lib/auth.ts` is Node.js only)
-- Prisma uses `PrismaNeon` adapter (serverless-compatible HTTP-based Postgres driver)
-
----
-
-*Stack analysis: 2026-03-19*
+## Deployment
+- **Vercel** — automatic deploys on `master` branch push
+  - Remote images allowed from `lh3.googleusercontent.com` (Google profile avatars)

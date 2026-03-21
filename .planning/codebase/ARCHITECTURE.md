@@ -1,202 +1,107 @@
 # Architecture
 
-**Analysis Date:** 2026-03-19
-
-## Pattern Overview
-
-**Overall:** Next.js App Router — server-first full-stack application
-
-**Key Characteristics:**
-- Server Components fetch data directly (no separate API layer for reads)
-- Server Actions handle all writes and mutations (`"use server"` directive)
-- Route Groups (`(app)`) provide layout scoping and authentication context
-- Thin API routes exist only for stateful client-side polling (notifications, upload presigning)
-- Middleware enforces auth and role gating at the edge before pages render
+## High-Level Pattern
+Mural de Oração follows a **server-first Next.js App Router architecture**. React Server Components (RSC) handle data fetching and rendering by default. Client Components are used selectively for interactivity (forms, animations, dropdowns). Data mutations flow through Next.js Server Actions.
 
 ## Layers
 
-**Middleware (Edge):**
-- Purpose: Route-level authentication and role-based access control
-- Location: `middleware.ts`
-- Contains: Auth checks, redirects for unauthenticated/unauthorized users
-- Depends on: `lib/auth.config.ts` (edge-compatible auth config, no Prisma)
-- Used by: Every page request that matches the matcher pattern
+### 1. Presentation Layer
+- **Server Components** — pages (`page.tsx`) and layouts (`layout.tsx`) fetch data directly from Prisma and render HTML on the server
+- **Client Components** — explicitly marked with `"use client"`, used for:
+  - Form interactions (`NewPrayerForm.tsx`, `CommentForm.tsx`)
+  - Animations (`framer-motion`)
+  - UI state (sidebars, dropdowns, theme toggle)
+  - Real-time interactions (`PrayButtonClient.tsx`, `NotificationBell.tsx`)
+- **UI primitives** — Shadcn UI pattern: unstyled Radix components wrapped with Tailwind in `components/ui/`
 
-**Pages (App Router):**
-- Purpose: Server-rendered UI; fetch initial data via Server Actions or direct DB calls
-- Location: `app/(app)/` for authenticated app pages, `app/` root for auth pages
-- Contains: `page.tsx`, `layout.tsx`, `error.tsx`, `loading.tsx`
-- Depends on: Server Actions, `lib/auth.ts`, components
-- Used by: Next.js router
+### 2. Application Logic Layer
+- **Server Actions** (`app/actions/`) — entry point for all data mutations
+  - `prayers/` — `create.ts`, `delete.ts`, `feed.ts`, `pray.ts`, `resolve.ts`, `comment.ts`
+  - `user/` — `register.ts`, `deleteAccount.ts`, `password-reset.ts`, `verify-email.ts`
+  - `admin/` — `moderation.ts`
+  - `groups/` — `index.ts` (group CRUD, join requests, member management)
+- **Services** (`lib/services/`) — reusable business logic
+  - `prayer-access.ts` — access control for GROUP_ONLY vs PUBLIC prayers
+- **Schemas** (`schemas/`) — Zod validation schemas shared between client forms and server actions
+  - `prayer.ts` — `CreatePrayerSchema`, `UpdatePrayerSchema`, `ResolveTestimonySchema`, `CreateCommentSchema`
+  - `user.ts` — `RegisterSchema`, `LoginSchema`
 
-**Server Actions:**
-- Purpose: All data mutations and paginated feed reads
-- Location: `app/actions/prayers/`, `app/actions/groups/`, `app/actions/admin/`, `app/actions/user/`
-- Contains: `"use server"` functions that auth-check, validate, rate-limit, then call Prisma
-- Depends on: `lib/auth.ts`, `lib/prisma.ts`, `lib/rate-limit.ts`, `schemas/`
-- Used by: Both Server Components (reads) and Client Components (mutations via form actions)
+### 3. Edge & Middleware Layer
+- **`middleware.ts`** — runs on Vercel Edge Runtime
+  - **CSRF protection:** Validates `origin` header against `host` for mutation HTTP methods
+  - **Route protection:** Redirects unauthenticated users from private routes to `/login`
+  - **Admin enforcement:** Redirects non-ADMIN users from `/admin/*` to `/`
+  - **Auth-only public:** Redirects authenticated users away from `/welcome`, `/login`, `/register`
+  - Uses `auth.config.ts` (edge-safe, no Prisma imports)
 
-**API Routes:**
-- Purpose: Client-driven endpoints not suitable for Server Actions (polling, presigned URLs)
-- Location: `app/api/`
-- Contains:
-  - `app/api/auth/[...nextauth]/route.ts` — NextAuth handler
-  - `app/api/notifications/route.ts` — GET (fetch) + POST (mark read)
-  - `app/api/upload/route.ts` — R2 presigned URL generation
-  - `app/api/groups/[id]/route.ts` and `app/api/groups/[id]/pending-members/route.ts`
-- Depends on: `lib/auth.ts`, `lib/prisma.ts`, `lib/r2.ts`
-- Used by: Client Components via fetch
+### 4. Data Layer
+- **Prisma ORM** — 14 models defined in `prisma/schema.prisma`
 
-**Components:**
-- Purpose: Reusable UI; split between Server and Client components
-- Location: `components/`
-- Contains: Domain components (`prayers/`, `groups/`, `admin/`), layout components (`layout/`), shared utilities (`shared/`), UI primitives (`ui/`)
-- Depends on: Server Actions (called from Client Components), `lib/utils.ts`
-- Used by: Pages
+  **Core domain:**
+  | Model | Purpose |
+  |-------|---------|
+  | `User` | Users with roles (USER/ADMIN), soft-delete (LGPD) |
+  | `Prayer` | Prayer requests with category, status, visibility, anonymity |
+  | `PrayerAction` | "I'm praying for you" click (unique per user+prayer) |
+  | `Comment` | Encouragement comments on prayers |
+  | `Notification` | In-app notification system with types |
+  | `Report` | User reports on inappropriate prayers |
+  | `Group` | Prayer groups with leader + members + approval flow |
+  | `GroupMember` | Group membership with PENDING/ACTIVE/REJECTED status |
+  | `PrayerRemovalRequest` | Group leader requests to remove a prayer |
 
-**Library / Infrastructure:**
-- Purpose: Singleton clients and cross-cutting utilities
-- Location: `lib/`
-- Contains:
-  - `lib/prisma.ts` — Singleton PrismaClient with Neon adapter
-  - `lib/auth.ts` — NextAuth config with Google + Credentials providers and PrismaAdapter
-  - `lib/auth.config.ts` — Edge-safe auth config (no Prisma, used by middleware)
-  - `lib/r2.ts` — Cloudflare R2 S3 client
-  - `lib/rate-limit.ts` — Upstash Redis sliding-window rate limiter
-  - `lib/email.ts` — Email sending utility
-  - `lib/utils.ts` — `cn()`, `sanitizePrayers()`, `formatRelativeDate()`, label maps
-- Depends on: Environment variables
-- Used by: All other layers
+  **Auth/Infra:**
+  | Model | Purpose |
+  |-------|---------|
+  | `Account` | OAuth provider accounts (NextAuth) |
+  | `Session` | Session tokens (NextAuth) |
+  | `VerificationToken` | NextAuth verification |
+  | `PasswordResetToken` | Password reset flow |
+  | `EmailVerificationToken` | Email verification flow |
 
-**Schemas:**
-- Purpose: Zod validation for form inputs and Server Action arguments
-- Location: `schemas/`
-- Contains: `schemas/prayer.ts`, `schemas/user.ts`
-- Depends on: `zod`
-- Used by: Server Actions
+  **Enums:** `Role`, `Category`, `PrayerStatus`, `NotificationType`, `GroupStatus`, `GroupMemberStatus`, `PrayerVisibility`
 
-**Types:**
-- Purpose: TypeScript type definitions
-- Location: `types/`
-- Contains: `types/prisma.ts` (local enum mirrors), `types/prayer.ts`, `types/next-auth.d.ts` (session augmentation)
+  **Indexes:** `Prayer(groupId, createdAt)`, `Prayer(authorId, createdAt)`, `PrayerAction(prayerId, userId)`
 
-## Data Flow
+## Data Flow Examples
 
-**Feed Read (Server-rendered):**
+### Creating a Prayer Request
+```
+Client (NewPrayerForm.tsx)
+  → Zod validation (CreatePrayerSchema)
+  → Server Action (app/actions/prayers/create.ts)
+    → Session check (auth())
+    → Server-side Zod re-validation
+    → Rate limit check (lib/rate-limit.ts → Upstash Redis)
+    → Input sanitization (lib/sanitize.ts)
+    → Prisma create (insert into Prayer table)
+    → revalidatePath('/mural')
+  → Client receives result
+```
 
-1. User navigates to `/` or `/mural`
-2. `app/(app)/page.tsx` (Server Component) calls `fetchFeedAction()` directly
-3. `fetchFeedAction` checks auth, queries Prisma, sanitizes anonymity, returns paginated result
-4. `FeedLoadMore` Client Component receives initial data as props
-5. On "Load more" click: Client Component calls `fetchFeedAction()` via Server Action to append items
-6. On poll interval (30s): Client Component calls `fetchFeedAction({ newerThan })` to detect new prayers and shows banner
+### Authentication Flow (Google)
+```
+User clicks "Login com Google"
+  → NextAuth Google provider redirect
+  → Google OAuth consent screen
+  → Callback to /api/auth/callback/google
+  → PrismaAdapter creates/updates User + Account
+  → JWT token generated with id + role
+  → Middleware verifies JWT on subsequent requests
+```
 
-**Mutation (e.g., create prayer):**
+### Group Visibility Access
+```
+User requests /pedido/[id]
+  → Server Component fetches prayer
+  → canAccessPrayer(userId, prayer) (lib/services/prayer-access.ts)
+    → Hidden prayers → always denied
+    → PUBLIC → always allowed
+    → GROUP_ONLY → check GroupMember.status === ACTIVE
+```
 
-1. User submits form in `NewPrayerForm` (Client Component)
-2. Client Component calls `createPrayerAction(data)` — a Server Action
-3. Server Action: auth check → rate limit check → Zod validation → Prisma write
-4. On success: `revalidatePath()` invalidates affected pages, Server Component re-renders on next visit
-5. Returns `{ success: boolean, error?: string }` to Client Component for UI feedback
-
-**Image Upload:**
-
-1. Client Component requests presigned URL via `GET /api/upload?contentType=image/...`
-2. API route validates auth and content type, calls R2 to generate presigned URL
-3. Client uploads directly to R2 using presigned URL
-4. Client stores returned `publicUrl` in form state, submits it as part of group creation
-
-**Notifications:**
-
-1. `NotificationBell` Client Component polls `GET /api/notifications` on mount
-2. On bell click: marks all read via `POST /api/notifications`
-3. Admin/leader actions create `Notification` records in Prisma during Server Action execution
-
-## Key Abstractions
-
-**sanitizePrayers (RF05 — anonymity):**
-- Purpose: Strip author identity from anonymous prayer requests server-side
-- Location: `lib/utils.ts`
-- Pattern: Called in every Server Action / API route that returns Prayer data before sending to client. The client NEVER receives real author data for anonymous prayers.
-
-**checkRateLimit:**
-- Purpose: Sliding-window rate limiting backed by Upstash Redis
-- Location: `lib/rate-limit.ts`
-- Pattern: Called at the top of mutation Server Actions. Gracefully no-ops when Redis env vars are absent (safe for local dev).
-
-**Server Action pattern:**
-- Purpose: All mutations follow a consistent shape
-- Pattern:
-  ```typescript
-  "use server";
-  export async function someAction(data: unknown) {
-    const session = await auth();
-    if (!session?.user?.id) return { success: false, error: "..." };
-    // rate limit check (for user-facing actions)
-    const parsed = Schema.safeParse(data);
-    if (!parsed.success) return { success: false, error: "..." };
-    // Prisma write
-    revalidatePath("/affected-path");
-    return { success: true };
-  }
-  ```
-
-**Route Group `(app)`:**
-- Purpose: Applies the authenticated app layout (sidebar + main) to all protected pages
-- Location: `app/(app)/layout.tsx`
-- Pattern: All pages under `(app)/` share `AppSidebar`. Auth pages (`/login`, `/register`, etc.) are outside this group and render without the sidebar.
-
-**AutoRefresh:**
-- Purpose: Keep SSR pages fresh without full page reload
-- Location: `components/shared/AutoRefresh.tsx`
-- Pattern: Client Component that calls `router.refresh()` on an interval, pausing when tab is hidden. Added to SSR pages that should stay current.
-
-## Entry Points
-
-**Root Layout:**
-- Location: `app/layout.tsx`
-- Responsibilities: HTML shell, ThemeProvider, global CSS
-
-**App Layout:**
-- Location: `app/(app)/layout.tsx`
-- Responsibilities: AppSidebar + main content area for all authenticated pages
-
-**Middleware:**
-- Location: `middleware.ts`
-- Triggers: Every request matching `/((?!api|_next/static|_next/image|favicon.ico|public).*)`
-- Responsibilities: Auth check, role guard, redirect unauthenticated to login
-
-**Home Page:**
-- Location: `app/(app)/page.tsx`
-- Responsibilities: Shows landing/marketing section to guests, prayer feed to authenticated users
-
-**NextAuth Handler:**
-- Location: `app/api/auth/[...nextauth]/route.ts`
-- Responsibilities: Handles all OAuth and credentials auth flows
-
-## Error Handling
-
-**Strategy:** Two-tier boundary system with console logging
-
-**Patterns:**
-- `app/global-error.tsx` — catches errors in the root layout (full-page recovery UI)
-- `app/(app)/error.tsx` — catches errors within the app route group (inline recovery with back-to-home button)
-- Server Actions return `{ success: false, error: string }` instead of throwing — errors are surfaced in UI
-- Prisma unique constraint violations caught by error code `P2002` in Server Actions
-- Fire-and-forget email sending: `sendEmail().catch(err => console.error(...))` — failures do not block the user action
-
-## Cross-Cutting Concerns
-
-**Logging:** `console.error` with bracketed action name prefix (e.g., `[createPrayerAction]`). No structured logging library.
-
-**Validation:** Zod schemas in `schemas/` used in Server Actions. Middleware uses NextAuth session shape. No client-side validation separate from native form constraints.
-
-**Authentication:** `auth()` from `lib/auth.ts` called at the top of every Server Action and API route. Middleware handles page-level enforcement. Two auth methods: Google OAuth and email/password with bcrypt.
-
-**Rate Limiting:** `checkRateLimit(type, userId)` from `lib/rate-limit.ts`. Applied to: prayer creation (5/hour), comments (10/min), pray actions (20/min), join requests (10/min).
-
-**Data Sanitization:** `sanitizePrayers()` from `lib/utils.ts` must be called on all prayer queries before returning to client.
-
----
-
-*Architecture analysis: 2026-03-19*
+## API Routes
+- `/api/auth/[...nextauth]/` — NextAuth handlers (Google OAuth callbacks, session endpoints)
+- `/api/notifications/` — Notification data endpoint
+- `/api/groups/` — Group-related API routes
+- `/api/upload/` — Presigned URL generation for R2 uploads

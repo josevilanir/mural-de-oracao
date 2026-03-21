@@ -1,88 +1,41 @@
-# Testing Patterns
+# Testing
 
-**Analysis Date:** 2026-03-19
+## Framework
+- **Vitest** `^4.1.0` — test runner
+- Configuration: `vitest.config.ts`
+  - Environment: `node`
+  - Path alias: `@/` → project root (mirrors `tsconfig.json`)
 
-## Test Framework
+## Test Location
+- **Primary directory:** `tests/` at project root
+- **Co-located tests:** Some `.test.ts` files alongside source (e.g., `lib/email.test.ts`)
 
-**Runner:** None configured
+## Existing Test Coverage
 
-No test runner (Jest, Vitest, Playwright, Cypress) is present in `package.json` dependencies or devDependencies. No test config files exist (`jest.config.*`, `vitest.config.*`, `playwright.config.*` are all absent).
+### `tests/prayer-access-control.test.ts` (6066 bytes)
+- Tests for `lib/services/prayer-access.ts` — the `canAccessPrayer()` function
+- Covers: hidden prayers, public prayers, group-only prayer access with active/pending/no membership
 
-**Assertion Library:** None
+### `lib/email.test.ts` (3910 bytes)
+- Tests for `lib/email.ts` — email sending functions
+- Likely tests template generation and Brevo API call behavior
 
-**Run Commands:**
+## Running Tests
 ```bash
-# No test script defined in package.json
-npm run lint   # Only quality check available
+npx vitest          # Run all tests
+npx vitest run      # Run once (CI mode)
+npx vitest --watch  # Watch mode
 ```
 
-## Test File Organization
+## Testing Patterns
+- **Unit tests** for pure business logic and utility functions
+- **Mocking:** Prisma client likely mocked for service layer tests
+- **No E2E tests** currently — no Playwright/Cypress configuration found
+- **No CI pipeline** explicitly configured (relies on Vercel build)
 
-**Location:** No test files exist in the repository
-
-**Naming:** No established pattern — no `*.test.*` or `*.spec.*` files found
-
-**Structure:** Not applicable
-
-## Test Structure
-
-No tests are written. The codebase has no test infrastructure at all.
-
-## Mocking
-
-**Framework:** None
-
-No mocking utilities are installed or configured.
-
-## Fixtures and Factories
-
-**Test Data:**
-- `lib/mock-prayer-requests.ts` exists — contains static mock data used for UI development/seeding, not test fixtures
-
-**Location:**
-- `lib/mock-prayer-requests.ts` — mock prayer request objects for development use only
-
-## Coverage
-
-**Requirements:** None enforced
-
-No coverage tooling is configured. The `package.json` scripts section contains only `dev`, `build`, `start`, `lint`, and `postinstall`.
-
-## Test Types
-
-**Unit Tests:** Not present
-
-**Integration Tests:** Not present
-
-**E2E Tests:** Not present
-
-## What Exists Instead
-
-The codebase relies on:
-
-1. **TypeScript strict mode** (`strict: true` in `tsconfig.json`) for compile-time correctness
-2. **Zod schema validation** at runtime — all form inputs and server action inputs are validated via `safeParse` in `schemas/prayer.ts` and `schemas/user.ts`
-3. **ESLint** (`next/core-web-vitals` + `typescript`) for static analysis
-4. **Manual testing** implied by the development workflow
-
-## Recommendations for Adding Tests
-
-**Suggested framework stack:**
-```bash
-npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/user-event
-```
-
-**Where to place tests (proposed):**
-- Unit tests co-located: `app/actions/prayers/create.test.ts` beside `create.ts`
-- Component tests co-located: `components/prayers/PrayerCard.test.tsx` beside `PrayerCard.tsx`
-- Integration tests: `tests/` directory at root
-
-**High-priority test targets:**
-- `lib/utils.ts` — `sanitizePrayer` and `sanitizePrayers` (security-critical, pure functions, easy to test)
-- `app/actions/prayers/create.ts` — auth guard, rate limit, Zod validation, group membership check
-- `app/actions/user/register.ts` — duplicate email guard, password hashing, email send failure tolerance
-- `schemas/prayer.ts` and `schemas/user.ts` — Zod schema edge cases
-
----
-
-*Testing analysis: 2026-03-19*
+## Test Gaps
+- No explicit frontend component tests (React Testing Library not installed)
+- No integration tests for Server Actions
+- No E2E or smoke tests
+- Rate limiting logic (`lib/rate-limit.ts`) untested
+- Middleware CSRF + route protection logic untested
