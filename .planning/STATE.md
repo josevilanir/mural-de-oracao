@@ -4,7 +4,7 @@ milestone: v1.3
 milestone_name: Quality & Observability
 status: unknown
 stopped_at: Completed 02-01-PLAN.md (AuditLog model and audit writes for all moderation and group actions)
-last_updated: "2026-03-21T13:05:46.926Z"
+last_updated: "2026-03-21T13:07:45.566Z"
 progress:
   total_phases: 3
   completed_phases: 2
