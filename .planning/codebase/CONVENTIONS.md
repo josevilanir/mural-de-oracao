@@ -1,95 +1,117 @@
-# Conventions
+# CONVENTIONS.md — Code Style & Patterns
 
-## Code Style & Formatting
-- **Prettier** (`^3.8.1`) — code formatting
-- **ESLint** (`^8`) — `eslint-config-next` + `eslint-config-prettier`
-  - Custom rule: `@typescript-eslint/no-explicit-any: error` (enforced in `.eslintrc.json`)
-  - ESLint errors ignored during build (`next.config.mjs`: `ignoreDuringBuilds: true`)
-- **TypeScript** — `strict: true` in `tsconfig.json`
-  - Type errors ignored during build (`next.config.mjs`: `ignoreBuildErrors: true`)
+## Language & Formatting
+
+- **TypeScript strict mode** — no explicit `any` (ESLint `no-explicit-any` enabled)
+- **Prettier** — code formatting enforced via `eslint-config-prettier`
+- **ESLint** — `eslint-config-next` + Prettier, runs during build (not skipped)
+- **Path alias:** `@/` maps to project root (e.g. `@/lib/prisma`, `@/components/prayers/...`)
 
 ## Naming Conventions
 
-### Files
-- **Components:** PascalCase — `PrayerCard.tsx`, `AppSidebar.tsx`, `ThemeProvider.tsx`
-- **Server Actions:** camelCase — `create.ts`, `deleteAccount.ts`, `password-reset.ts`
-- **Utilities:** camelCase — `rate-limit.ts`, `sanitize.ts`, `utils.ts`
-- **Schemas:** camelCase — `prayer.ts`, `user.ts`
-- **Type declarations:** camelCase with `.d.ts` suffix — `next-auth.d.ts`
+| Construct | Convention | Example |
+|-----------|-----------|---------|
+| Functions/vars | camelCase | `fetchFeedAction`, `checkRateLimit` |
+| Types/interfaces/components | PascalCase | `PrayerCard`, `FetchFeedInput` |
+| Enum members | UPPER_SNAKE_CASE | `PRAYER_CLICK`, `GROUP_ONLY` |
+| Files — components | PascalCase | `PrayerCard.tsx`, `NewPrayerForm.tsx` |
+| Files — lib/utils | camelCase | `rate-limit.ts`, `email.ts` |
+| Server actions | `*Action` suffix | `createPrayerAction`, `fetchFeedAction` |
 
-### Code
-- **React components:** PascalCase exports — `export default function PrayerCard()`
-- **Utility functions:** camelCase exports — `export function cn()`, `export function sanitizePrayer()`
-- **Constants:** SCREAMING_SNAKE_CASE — `CATEGORY_LABELS`, `STATUS_LABELS`, `R2_BUCKET`
-- **Prisma models:** PascalCase — `User`, `Prayer`, `GroupMember`
-- **Prisma enums:** SCREAMING_SNAKE_CASE — `HEALTH`, `ACTIVE`, `PRAYER_CLICK`
-- **Zod schemas:** PascalCase — `CreatePrayerSchema`, `RegisterSchema`
+## File Organization
 
-### Imports
-- Path alias: `@/*` maps to project root — `import { prisma } from "@/lib/prisma"`
-- Relative imports for sibling files within the same directory
+- **`app/`** — Next.js App Router pages and server actions
+- **`app/actions/`** — Server actions grouped by domain (`prayers/`, `groups/`, `user/`, `admin/`)
+- **`components/`** — React components grouped by domain (`prayers/`, `groups/`, `layout/`, `ui/`, `shared/`)
+- **`lib/`** — Shared utilities and service initializations
+- **`lib/services/`** — Domain service logic (e.g. `prayer-access.ts`)
+- **`schemas/`** — Zod validation schemas
+- **`types/`** — TypeScript type definitions
+- **`tests/`** — Test files and mocks
+- **`prisma/`** — Database schema and migrations
 
-## Language
-- **UI text:** Portuguese (pt-BR) — all user-facing strings, error messages, and labels are in Brazilian Portuguese
-- **Code:** English — variable names, function names, comments are mixed (English code, Portuguese inline comments)
-- **Documentation:** Portuguese (README, LOCAL_DEV_GUIDE)
+## Server Actions Pattern
 
-## Component Patterns
+All server actions follow this structure:
 
-### Server vs Client Components
-- **Default:** Server Components (no directive)
-- **Client:** Explicitly marked with `"use client"` directive at top of file
-- **Pattern:** Server Component fetches data, passes to Client Component for interactivity
-  - Example: `AppSidebar.tsx` (server) → `AppSidebarClient.tsx` (client)
+```ts
+"use server";
 
-### Shadcn UI Components (`components/ui/`)
-- Radix primitive wrapped with Tailwind styling
-- CVA (`class-variance-authority`) for variants
-- `cn()` utility for conditional class merging
+export async function doSomethingAction(data: unknown) {
+  // 1. Auth check
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: "..." };
 
-### Form Pattern
-```typescript
-// Client Component
-"use client"
-const form = useForm<CreatePrayerInput>({
-  resolver: zodResolver(CreatePrayerSchema),
-  defaultValues: { ... }
-});
-// Submit calls Server Action directly
-```
+  // 2. Rate limit (where applicable)
+  const rl = await checkRateLimit("type", session.user.id);
+  if (!rl.success) return { success: false, error: rl.error };
 
-## Data Mutation Pattern (Server Actions)
-Standard pattern across all Server Actions:
+  // 3. Zod validation (accepts `unknown`)
+  const parsed = SomeSchema.safeParse(data);
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message };
 
-```typescript
-"use server"
-export async function createPrayer(data: CreatePrayerInput) {
-  // 1. Authenticate — const session = await auth()
-  // 2. Validate — CreatePrayerSchema.parse(data)
-  // 3. Rate limit — checkRateLimit("prayer", session.user.id)
-  // 4. Sanitize — sanitizeUserInput(data.title)
-  // 5. Persist — prisma.prayer.create(...)
-  // 6. Revalidate — revalidatePath("/mural")
-  // 7. Return result or redirect
+  // 4. Business logic + DB
+  try {
+    const result = await prisma.entity.create({ data: { ...parsed.data } });
+    revalidatePath("/relevant-path");
+    return { success: true, result };
+  } catch (err) {
+    console.error("[actionName]", err);
+    return { success: false, error: "Algo deu errado. Tente novamente." };
+  }
 }
 ```
 
+**Return pattern:** Always `{ success: boolean, error?: string, data?: T }` — never throw from server actions.
+
+## Input Sanitization
+
+User-supplied text is sanitized via `lib/sanitize.ts:sanitizeUserInput()` before DB persistence:
+
+```ts
+// lib/sanitize.ts
+export function sanitizeUserInput(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+```
+
+Applied in: `app/actions/prayers/create.ts`, `app/actions/prayers/resolve.ts`, and email templates via `lib/email.ts`.
+
 ## Error Handling
-- **Server Actions:** Return discriminated results (success/error objects) rather than throwing
-- **Error boundaries:** `global-error.tsx` (root), `error.tsx` (route-level)
-- **Auth errors:** Redirected to `/login` via `auth.config.ts` pages config
-- **Rate limit failures:** Return user-facing error message in Portuguese
-- **Email failures:** Caught and logged to console, never throw to user
 
-## Privacy & Security Conventions
-- **Anonymous prayers:** Server-side sanitization via `sanitizePrayer()` in `lib/utils.ts` — strips `authorId` and `author` data before sending to client
-- **XSS prevention:** `sanitizeUserInput()` in `lib/sanitize.ts` escapes HTML entities before database persistence
-- **CSRF:** Middleware validates `origin` header on mutation requests
-- **Soft delete:** `User.isDeleted` flag for LGPD compliance (account anonymization)
+- **Server actions:** return `{ success: false, error: string }` — no throws
+- **API routes:** return JSON with HTTP status codes
+- **Logging:** `console.error("[context]", err)` prefix pattern for server-side errors
+- **Rate limiting:** graceful fallback — blocks in production if Redis unavailable, warns in dev
 
-## Design System
-- **Design tokens:** CSS custom properties in `app/globals.css` using RGB channel format for Tailwind opacity support
-- **Color naming:** Semantic names — `cream`, `navy`, `gold-warm`, `status-blue`, etc.
-- **Dark mode:** `.dark` class strategy, automatic via `next-themes` system preference
-- **Custom shadows:** `sm`, `md`, `lg` with specific rgba values
-- **Custom border-radius:** `sm` (4px) through `2xl` (20px)
+## Authentication
+
+- Auth checked at top of every server action via `const session = await auth()`
+- Middleware handles route-level protection for private/admin routes (`middleware.ts`)
+- CSRF protection in middleware for POST/PUT/PATCH/DELETE via Origin header validation
+
+## Data Fetching
+
+- **Server Components** fetch data directly from DB via Prisma (no API layer)
+- **Client Components** call server actions or fetch API routes
+- **Pagination:** cursor-based using `createdAt` timestamp as cursor
+
+## Comments & Docs
+
+- Minimal inline comments — code should be self-explanatory
+- JSDoc only for complex public functions in `lib/`
+- Section separators use `// ─────...─────` pattern in Prisma schema and complex files
+- Portuguese used for user-facing strings; English for code and comments
+
+## UI Patterns
+
+- **Radix UI** primitives + **Tailwind CSS** for all UI components
+- **`cn()` utility** via `clsx` + `tailwind-merge` for conditional classes
+- **Loading states:** skeleton components (`PrayerCardSkeleton.tsx`)
+- **Empty states:** `EmptyState` shared component
+- **Theme:** `next-themes` with `ThemeProvider` wrapping app layout

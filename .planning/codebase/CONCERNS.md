@@ -1,62 +1,119 @@
-# Concerns
+# CONCERNS.md — Technical Debt & Issues
 
-## [FIXED] 1. NextAuth v5 Beta Stability
-- **Risk:** `next-auth@5.0.0-beta.30` is a pre-release. API surface may change, and undocumented edge cases exist, especially around Edge Runtime compatibility.
-- **Evidence:** The codebase already splits auth config into `auth.ts` (Node) and `auth.config.ts` (Edge-safe) to work around Edge limitations.
-- **Recommendation:** Pin version strictly. Monitor Auth.js changelog for breaking changes. Plan migration to stable v5 when released.
+## Recently Resolved (Phase 1)
 
-## [FIXED] 2. Build-Time Type & Lint Checking Disabled
-- **Risk:** `next.config.mjs` sets `ignoreBuildErrors: true` (TypeScript) and `ignoreDuringBuilds: true` (ESLint). This means type errors and lint violations in production code go undetected during deployment.
-- **Impact:** Potential runtime errors from unnoticed type mismatches making it to production.
-- **Recommendation:** Enable build checks or add a CI step that runs `tsc --noEmit` and `eslint` before deployment.
+The following issues were identified and fixed in Phase 1 (commit `607dd8b`):
 
-## [FIXED] 3. Resend vs Brevo Mismatch
-- **Issue:** `resend ^6.9.4` is listed in `package.json` dependencies, but the actual email implementation in `lib/email.ts` uses Brevo (Sendinblue) API via raw `fetch()`. The `.env.example` references `RESEND_API_KEY` as a future integration.
-- **Impact:** Dead dependency adding unnecessary bundle weight. Confusion for future developers.
-- **Recommendation:** Remove `resend` from `package.json` if it's not used, or migrate email to Resend if planned.
+- [FIXED] Unused dependencies removed (`resend`, `html-escaper`)
+- [FIXED] Build-time checks enabled (no longer ignoring ESLint/TS errors during `next build`)
+- [FIXED] Mock data moved out of `lib/` into `tests/__mocks__/`
+- [FIXED] Email HTML escaping implemented in `lib/email.ts` via `sanitizeUserInput()`
+- [FIXED] CI pipeline established (`.github/workflows/ci.yml`)
 
-## [FIXED] 4. Limited Test Coverage
-- **Issue:** Only 2 test files exist (`tests/prayer-access-control.test.ts`, `lib/email.test.ts`). Major functionality is untested:
-  - Server Actions (create, delete, moderation)
-  - Middleware (CSRF, route protection)
-  - Rate limiting logic
-  - Registration and authentication flows
-- **Impact:** Regressions can go unnoticed. Refactoring is risky.
-- **Recommendation:** Prioritize testing Server Actions and middleware logic.
+---
 
-## [FIXED] 5. No Explicit CI/CD Pipeline
-- **Issue:** No GitHub Actions, CircleCI, or equivalent CI config found. The project relies solely on Vercel build.
-- **Impact:** With type/lint checks disabled in build, there's effectively no automated quality gate.
-- **Recommendation:** Add a CI pipeline that runs: `tsc --noEmit`, `eslint .`, and `vitest run` before merging.
+## Active Concerns
 
-## [FIXED] 6. Cloudflare R2 Env Vars Not in .env.example
-- **Issue:** `lib/r2.ts` requires `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`, but `.env.example` does not list these variables.
-- **Impact:** New developers won't know R2 configuration is needed, leading to runtime crashes.
-- **Recommendation:** Update `.env.example` to include all R2 and Brevo environment variables.
+### 1. NextAuth v5 Beta Stability
 
-## [FIXED] 7. Brevo Email Env Vars Not in .env.example
-- **Issue:** `lib/email.ts` uses `BREVO_API_KEY`, `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME` but `.env.example` only references the commented-out `RESEND_API_KEY`.
-- **Impact:** Same as above — new developers miss required configuration.
-- **Recommendation:** Replace `RESEND_API_KEY` reference in `.env.example` with actual Brevo env vars.
+**Severity:** Medium
+**File:** `package.json`
 
-## [FIXED] 8. Upstash Env Vars Not in .env.example
-- **Issue:** `lib/rate-limit.ts` uses `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`, not documented in `.env.example`.
-- **Impact:** Rate limiting silently disabled in dev; could fail in production if not configured.
-- **Recommendation:** Add Upstash vars to `.env.example` with comments.
+`next-auth` is pinned at `5.0.0-beta.30` — a pre-release version. The Auth.js v5 API (callbacks, session shape, adapter interface) may have breaking changes in future betas or the stable release.
 
-## [FIXED] 9. `any` Type in Middleware
-- **Issue:** `middleware.ts` line 11 uses `(req: any)` despite the ESLint rule `@typescript-eslint/no-explicit-any: error` being configured. This suggests ESLint may not be running consistently.
-- **Impact:** Loss of type safety in the most critical security layer (route protection + CSRF).
-- **Recommendation:** Type `req` as `NextAuthRequest` or the appropriate Auth.js type.
+**Risk:** Auth flows break on dependency update; upstream API changes require migration.
+**Mitigation:** Version is strictly pinned (no `^`/`~`). Monitor Auth.js changelog before any updates.
 
-## [FIXED] 10. Duplicate Sanitization Logic
-- **Issue:** Two separate sanitization mechanisms exist:
-  - `lib/sanitize.ts` — manual HTML entity escaping for database input
-  - `html-escaper` package — used in `lib/email.ts` for email template user data
-- **Impact:** Inconsistency risk — developers may use one and forget the other.
-- **Recommendation:** Consolidate to a single sanitization approach or clearly document when each is used.
+---
 
-## [FIXED] 11. Mock Data in Production Bundle
-- **Issue:** `lib/mock-prayer-requests.ts` exists in `lib/` alongside production code.
-- **Impact:** Could be accidentally imported in production, or cause confusion.
-- **Recommendation:** Move to `tests/` or a `__mocks__/` directory.
+### 2. Test Coverage Gaps
+
+**Severity:** Medium
+**Affected areas:** `app/actions/`, `app/api/`, all React components
+
+Only 2 test files exist covering email XSS escaping and prayer access control. Entirely untested:
+- Server actions (create, delete, comment, resolve prayer, group management)
+- API routes (`/api/upload`, `/api/notifications`, `/api/groups`)
+- Auth flows (registration, login, password reset, email verification)
+- React components
+- Utility functions in `lib/utils.ts`
+
+**Risk:** Regressions go undetected. Security-sensitive flows (auth, moderation) have no automated verification.
+
+---
+
+### 3. No Error Tracking / Observability
+
+**Severity:** Medium
+**Files:** All server actions, API routes
+
+Errors are logged via `console.error("[context]", err)` only. No external error tracking (Sentry, etc.) is configured. Production errors are invisible unless logs are actively monitored.
+
+**Risk:** Silent failures in production go unnoticed.
+
+---
+
+### 4. No Audit Logging
+
+**Severity:** Low-Medium
+**Affected:** Admin moderation actions, group management
+
+Admin actions (hiding prayers, approving groups) have no audit trail in the database. If a moderation decision is disputed, there's no record of who did what and when.
+
+**Risk:** Accountability gap in moderation workflow.
+
+---
+
+### 5. Email Template Maintenance Fragility
+
+**Severity:** Low
+**File:** `lib/email.ts`
+
+Email templates are built as raw HTML strings in TypeScript. No templating engine, no component system. As emails grow more complex, maintaining consistent styling and escaping across all templates becomes error-prone.
+
+**Risk:** New email types may accidentally skip sanitization; templates drift in style.
+
+---
+
+### 6. Feed `scope: 'mural'` Doesn't Filter by `visibility: PUBLIC`
+
+**Severity:** Low (by design — but worth documenting)
+**File:** `app/actions/prayers/feed.ts`
+
+The `mural` scope shows all non-hidden prayers regardless of visibility. GROUP_ONLY prayers are visible on the mural if not hidden. This appears intentional but is subtle — the `home` scope has an explicit OR clause to exclude GROUP_ONLY group prayers; `mural` has no such filter.
+
+**Recommendation:** Confirm this is intentional and add a comment clarifying the design decision.
+
+---
+
+### 7. Database Connection — Edge Compatibility Only
+
+**Severity:** Low
+**File:** `lib/prisma.ts`
+
+The app uses `@prisma/adapter-neon` + `@neondatabase/serverless` (WebSocket-based). This is optimized for Vercel Edge/serverless but adds a layer of complexity vs. standard Prisma TCP connections. If the deployment target changes (e.g., traditional Node.js server), the DB setup would need adjustment.
+
+---
+
+### 8. `as any` Casts in Tests
+
+**Severity:** Low
+**Files:** `tests/prayer-access-control.test.ts`
+
+Test mocks use `as any` to satisfy Prisma's complex return types (e.g., `{ status: 'ACTIVE' } as any`). Not a production concern, but indicates missing typed mock factories.
+
+---
+
+## Security Posture Summary
+
+| Area | Status |
+|------|--------|
+| XSS — stored input | Mitigated via `sanitizeUserInput()` in all write actions |
+| CSRF | Mitigated via Origin header check in `middleware.ts` |
+| Auth route protection | Handled in `middleware.ts` + server action auth checks |
+| Rate limiting | Implemented via Upstash Redis; blocks in production if Redis missing |
+| SQL injection | Not applicable — Prisma parameterized queries |
+| Password storage | bcryptjs hashing |
+| Email injection | Sanitized in email templates |
+| Audit logging | Missing |
+| Error tracking | Missing |

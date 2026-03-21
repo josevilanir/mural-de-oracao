@@ -1,64 +1,68 @@
-# Integrations
+# INTEGRATIONS.md — External Services & APIs
 
-## Database — Neon Serverless PostgreSQL
-- **Connection:** `DATABASE_URL` env var pointing to `ep-xxx.neon.tech`
-- **Driver:** `@neondatabase/serverless` WebSocket-based driver (edge-compatible)
-- **Adapter:** `@prisma/adapter-neon` wraps the Neon driver for Prisma Client
-- **Client:** Singleton pattern in `lib/prisma.ts`, reused across hot-reloads via `globalThis`
-- **Logging:** `query`, `error`, `warn` in development; `error` only in production
+## Database — Neon PostgreSQL
 
-## Authentication — Google OAuth 2.0
-- **Provider:** `next-auth/providers/google` configured in `lib/auth.ts`
-- **Env vars:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-- **DB mapping:** `PrismaAdapter` from `@auth/prisma-adapter` maps OAuth accounts to `User` + `Account` models
-- **Remote images:** `lh3.googleusercontent.com` allowed in `next.config.mjs` for Google profile avatars
+- **Service:** Neon (serverless PostgreSQL)
+- **Driver:** `@neondatabase/serverless` + `@prisma/adapter-neon`
+- **Connection:** WebSocket-based serverless adapter for edge compatibility
+- **Env vars:**
+  - `DATABASE_URL` — Full connection string (`postgresql://...neon.tech/neondb?sslmode=require`)
+- **Usage:** All persistent data (users, prayers, groups, comments, notifications)
+- **ORM:** Prisma 7.5 with generated client (`postinstall` hook runs `prisma generate`)
 
-## Authentication — Credentials
-- **Provider:** `next-auth/providers/credentials` in `lib/auth.ts`
-- **Password hashing:** bcryptjs (`bcrypt.compare` on login)
-- **Flow:** User registers via Server Action (`app/actions/user/register.ts`), logs in via credentials provider
-- **Email verification:** Token-based (`EmailVerificationToken` model), verified at `/verify-email`
+## Authentication — NextAuth v5 (Auth.js)
 
-## Session Management
-- **Strategy:** JWT (stateless), configured in `lib/auth.config.ts`
-- **Max age:** 30 days
-- **Custom claims:** JWT token includes `id` and `role` via callbacks
-- **Edge compatibility:** `auth.config.ts` has no Prisma imports, safe for Edge Middleware
+- **Service:** Auth.js v5 beta with Google OAuth + Credentials provider
+- **Adapter:** `@auth/prisma-adapter` — stores sessions/accounts in Neon DB
+- **Providers:**
+  - **Google OAuth** — social login via Google Console
+  - **Credentials** — email/password with bcryptjs hashing
+- **Env vars:**
+  - `AUTH_SECRET` — session signing secret
+  - `NEXTAUTH_URL` — canonical app URL
+  - `GOOGLE_CLIENT_ID` — Google OAuth client ID
+  - `GOOGLE_CLIENT_SECRET` — Google OAuth client secret
+- **DB models used:** `Account`, `Session`, `VerificationToken`
 
-## Email — Brevo (Sendinblue)
-- **API endpoint:** `https://api.brevo.com/v3/smtp/email`
-- **Env vars:** `BREVO_API_KEY`, `BREVO_FROM_EMAIL`, `BREVO_FROM_NAME`
-- **Implementation:** `lib/email.ts` — raw `fetch()` call (no SDK)
-- **Templates (HTML inline):**
-  - `sendPasswordResetEmail()` — password reset link (1h expiry)
-  - `sendVerificationEmail()` — email confirmation link (24h expiry)
-  - `sendCommentNotificationEmail()` — comment notification
-  - `sendGroupStatusEmail()` — group creation approved/rejected
-  - `sendJoinRequestStatusEmail()` — group join request approved/rejected
-- **Graceful degradation:** Logs to console when `BREVO_API_KEY` is not set
+## Email — Brevo (formerly Sendinblue)
+
+- **Service:** Brevo transactional email API
+- **Purpose:** Email verification, password reset tokens
+- **Integration:** REST API via fetch (no SDK — direct HTTP calls)
+- **Env vars:**
+  - `BREVO_API_KEY` — API key (`xkeysib-...`)
+  - `BREVO_FROM_EMAIL` — Sender email address
+  - `BREVO_FROM_NAME` — Sender display name
+
+## Rate Limiting — Upstash Redis
+
+- **Service:** Upstash Redis (serverless Redis)
+- **Client:** `@upstash/redis` + `@upstash/ratelimit`
+- **Purpose:** API route rate limiting (auth endpoints, prayer actions)
+- **Protocol:** REST API (HTTP-based, edge-compatible)
+- **Env vars:**
+  - `UPSTASH_REDIS_REST_URL` — Redis REST endpoint
+  - `UPSTASH_REDIS_REST_TOKEN` — Auth token
 
 ## Object Storage — Cloudflare R2
-- **Client:** `lib/r2.ts` — S3-compatible client using `@aws-sdk/client-s3`
-- **Endpoint:** `https://{CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
-- **Env vars:** `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME`, `CLOUDFLARE_R2_PUBLIC_URL`
-- **Upload strategy:** Presigned URLs via `@aws-sdk/s3-presigned-post` — clients upload directly to R2 without proxying through Vercel functions
-- **Upload route:** `app/api/upload/`
 
-## Caching & Rate Limiting — Upstash Redis
-- **Client:** `Redis.fromEnv()` via `@upstash/redis`
-- **Env vars:** `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
-- **Rate limiters** (sliding window, defined in `lib/rate-limit.ts`):
-  | Action    | Limit       |
-  |-----------|-------------|
-  | `pray`    | 20 / 1 min  |
-  | `comment` | 10 / 1 min  |
-  | `prayer`  | 5 / 1 hour  |
-  | `join`    | 10 / 1 min  |
-- **Dev mode:** Gracefully skips rate limiting when Redis env vars are absent
-- **Prod mode:** Blocks actions with error message when Redis is not configured
+- **Service:** Cloudflare R2 (S3-compatible)
+- **Client:** AWS SDK v3 (`@aws-sdk/client-s3`, presigned URLs)
+- **Purpose:** User/group image uploads
+- **Access pattern:** Presigned POST for upload, presigned GET or public URL for read
+- **Env vars:**
+  - `CLOUDFLARE_R2_ACCOUNT_ID` — Cloudflare account ID
+  - `CLOUDFLARE_R2_ACCESS_KEY_ID` — R2 access key
+  - `CLOUDFLARE_R2_SECRET_ACCESS_KEY` — R2 secret key
+  - `CLOUDFLARE_R2_BUCKET_NAME` — Bucket name
+  - `CLOUDFLARE_R2_PUBLIC_URL` — Public CDN base URL (`https://pub-...`)
 
-## Hosting — Vercel
-- **Deploy trigger:** Push to `master` branch
-- **Functions:** Serverless Functions (Server Actions, API Routes)
-- **Edge:** Middleware runs on Edge Runtime
-- **Env vars to configure:** `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, plus Brevo, R2, and Upstash vars
+## Summary Table
+
+| Service         | Purpose               | Package                          | Auth Method    |
+|-----------------|-----------------------|----------------------------------|----------------|
+| Neon PostgreSQL | Primary database      | `@neondatabase/serverless`       | Connection URL |
+| Google OAuth    | Social auth           | `next-auth`                      | Client ID/Secret |
+| Brevo           | Transactional email   | Fetch (HTTP)                     | API Key        |
+| Upstash Redis   | Rate limiting         | `@upstash/redis`                 | REST token     |
+| Cloudflare R2   | Image storage         | `@aws-sdk/client-s3`             | Access key pair |
