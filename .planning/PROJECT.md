@@ -32,11 +32,14 @@ User-submitted content and uploaded files must not be weaponizable against the p
 ### Active
 
 - [ ] Test coverage for server actions, API routes, auth flows, and React components
-- [ ] External error tracking integrated (production errors visible)
 - [ ] Admin moderation and group management actions have an audit trail
-- [ ] Email templates consolidated to prevent sanitization drift
-- [ ] Feed `mural` scope behavior clarified with inline comment
 - [ ] `as any` casts in tests replaced with typed mock factories
+
+### Validated (Phase 1 — Quick Fixes & Observability)
+
+- ✓ External error tracking integrated — Sentry captures unhandled errors in server actions and API routes automatically via `onRequestError` hook — v1.3
+- ✓ Email templates consolidated to shared `buildEmailFields()` builder enforcing `sanitizeUserInput()` on all user-supplied fields including subjects — v1.3
+- ✓ Feed `mural` scope behavior clarified with inline comment referencing `canAccessPrayer()` — v1.3
 
 ### Out of Scope
 
@@ -46,7 +49,7 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ## Context
 
-- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability. Codebase is now type-safe, has DB indexes, and enforces write-path sanitization. Currently addressing quality gaps: test coverage, error observability, and audit logging.
+- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability + v1.3 Phase 1 Complete (Sentry error tracking, email sanitization consolidation, feed.ts scope comment). Currently addressing quality gaps: audit logging and test coverage.
 - **Stack:** Next.js 15 App Router, Prisma + Neon Postgres, NextAuth v5, Cloudflare R2, Upstash Redis, Resend
 
 ## Constraints
