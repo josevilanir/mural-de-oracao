@@ -6,6 +6,8 @@ import { CATEGORY_LABELS, STATUS_LABELS, formatRelativeDate } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { PrayerStatus } from "@/types/prisma";
+import EditProfileModal from "@/components/user/EditProfileModal";
+import ChangePasswordModal from "@/components/user/ChangePasswordModal";
 
 export default async function MeusPedidosPage() {
   const session = await auth();
@@ -72,6 +74,13 @@ export default async function MeusPedidosPage() {
                 </h1>
                 <p className="text-sm text-gray-text">{session.user.email}</p>
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <EditProfileModal
+                initialName={session.user.name}
+                initialImage={session.user.image}
+              />
+              <ChangePasswordModal />
             </div>
           </div>
 

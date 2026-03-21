@@ -9,6 +9,8 @@ import PrayButtonClient from "@/components/prayers/PrayButtonClient";
 import CommentForm from "@/components/prayers/CommentForm";
 import { DeletePrayerButton, DeleteCommentButton } from "@/components/prayers/DeleteButtons";
 import ShareButton from "@/components/prayers/ShareButton";
+import EditPrayerModal from "@/components/prayers/EditPrayerModal";
+import EditCommentInline from "@/components/prayers/EditCommentInline";
 import type { PrayerStatus } from "@/types/prisma";
 
 interface PrayerDetailPageProps {
@@ -123,9 +125,21 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
                 {status?.label}
               </Badge>
             </div>
-            {canDeletePrayer && (
-              <DeletePrayerButton prayerId={prayer.id} />
-            )}
+            <div className="flex items-center gap-2">
+              {isOwner && (
+                <EditPrayerModal
+                  prayerId={prayer.id}
+                  initialTitle={prayer.title}
+                  initialDescription={prayer.description}
+                  initialCategory={prayer.category}
+                  initialIsAnonymous={prayer.isAnonymous}
+                  initialAllowComments={prayer.allowComments}
+                />
+              )}
+              {canDeletePrayer && (
+                <DeletePrayerButton prayerId={prayer.id} />
+              )}
+            </div>
           </div>
 
           <h1 className="font-display text-2xl md:text-3xl font-bold text-navy mb-3">
@@ -201,7 +215,9 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
             ) : (
               <div className="flex flex-col gap-4">
                 {prayer.comments.map((comment) => {
-                  const canDeleteComment = userId && (comment.author.id === userId || isAdmin);
+                  const isCommentAuthor = userId === comment.author.id;
+                  const canEditComment = isCommentAuthor || isAdmin;
+                  const canDeleteComment = isCommentAuthor || isAdmin;
                   return (
                     <div key={comment.id} className="flex gap-3">
                       <div className="w-8 h-8 rounded-full bg-blue-soft flex items-center justify-center text-xs font-bold text-navy shrink-0">
@@ -219,7 +235,14 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
                             <DeleteCommentButton commentId={comment.id} />
                           )}
                         </div>
-                        <p className="text-sm text-navy mt-0.5">{comment.text}</p>
+                        {canEditComment ? (
+                          <EditCommentInline
+                            commentId={comment.id}
+                            initialText={comment.text}
+                          />
+                        ) : (
+                          <p className="text-sm text-navy mt-0.5">{comment.text}</p>
+                        )}
                       </div>
                     </div>
                   );
