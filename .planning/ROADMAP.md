@@ -50,11 +50,11 @@
   2. A thrown error inside an API route appears in the external error-tracking dashboard without any manual logging call
   3. All email templates route user-supplied fields through the shared builder function that calls `sanitizeUserInput()`
   4. `feed.ts` contains an inline comment explaining `scope: 'mural'` query behavior
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: Set up external error tracking (Sentry or equivalent) and instrument server actions and API routes
-- [ ] 01-02: Consolidate email templates to shared builder + add feed.ts mural scope comment
+- [ ] 01-01-PLAN.md — Set up Sentry error tracking and instrument server actions and API routes
+- [ ] 01-02-PLAN.md — Consolidate email templates to shared builder + add feed.ts mural scope comment
 
 ### Phase 2: Audit Logging
 **Goal**: Admin moderation and group management actions leave a durable, queryable audit trail in the database
