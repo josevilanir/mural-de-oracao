@@ -85,8 +85,8 @@ describe('Email HTML escaping', () => {
     await sendJoinRequestStatusEmail('a@b.com', "O'Brien", 'Group "Test"', true);
     expect(calls).toHaveLength(1);
     const { html } = calls[0];
-    // Single quote encoded as &#39; by html-escaper
-    expect(html).toMatch(/O(&#39;|&apos;)Brien/);
+    // Single quote encoded as &#x27; by sanitizeUserInput
+    expect(html).toMatch(/O(&#x27;|&apos;)Brien/);
     expect(html).not.toContain("O'Brien");
     expect(html).toContain('&quot;Test&quot;');
     expect(html).not.toContain('"Test"');

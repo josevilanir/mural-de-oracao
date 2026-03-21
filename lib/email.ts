@@ -1,4 +1,4 @@
-import { escape } from 'html-escaper';
+import { sanitizeUserInput } from '@/lib/sanitize';
 
 const BASE_URL = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
@@ -75,7 +75,7 @@ export async function sendVerificationEmail(email: string, name: string, token: 
     email,
     "Confirme seu e-mail — Mural de Oração",
     layout(`
-      <h2 style="color:#0a1628;margin:0 0 12px;">Bem-vindo, ${escape(name)}!</h2>
+      <h2 style="color:#0a1628;margin:0 0 12px;">Bem-vindo, ${sanitizeUserInput(name)}!</h2>
       <p style="color:#555;line-height:1.6;">Clique no botão abaixo para confirmar seu e-mail e começar a usar o Mural de Oração.</p>
       ${btn(url, "Confirmar e-mail")}
       <p style="color:#9ca3af;font-size:13px;">Este link expira em <strong>24 horas</strong>.</p>
@@ -97,9 +97,9 @@ export async function sendCommentNotificationEmail(
     layout(`
       <h2 style="color:#0a1628;margin:0 0 12px;">Novo comentário de encorajamento</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${escape(authorName)}</strong>!<br/>
-        <strong>${escape(commenterName)}</strong> deixou uma palavra de encorajamento no seu pedido
-        <em>"${escape(prayerTitle)}"</em>.
+        Olá, <strong>${sanitizeUserInput(authorName)}</strong>!<br/>
+        <strong>${sanitizeUserInput(commenterName)}</strong> deixou uma palavra de encorajamento no seu pedido
+        <em>"${sanitizeUserInput(prayerTitle)}"</em>.
       </p>
       ${btn(url, "Ver comentário")}
     `)
@@ -120,7 +120,7 @@ export async function sendGroupStatusEmail(
     ? `
       <h2 style="color:#0a1628;margin:0 0 12px;">Seu grupo foi aprovado! 🎉</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${escape(name)}</strong>! O grupo <strong>${escape(groupName)}</strong> foi aprovado
+        Olá, <strong>${sanitizeUserInput(name)}</strong>! O grupo <strong>${sanitizeUserInput(groupName)}</strong> foi aprovado
         e já está disponível na comunidade.
       </p>
       ${btn(`${BASE_URL}/grupos`, "Ver grupos")}
@@ -128,8 +128,8 @@ export async function sendGroupStatusEmail(
     : `
       <h2 style="color:#0a1628;margin:0 0 12px;">Atualização sobre seu grupo</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${escape(name)}</strong>. Sua solicitação para criar o grupo
-        <strong>${escape(groupName)}</strong> não foi aprovada desta vez.
+        Olá, <strong>${sanitizeUserInput(name)}</strong>. Sua solicitação para criar o grupo
+        <strong>${sanitizeUserInput(groupName)}</strong> não foi aprovada desta vez.
         Entre em contato com um administrador para mais informações.
       </p>
     `;
@@ -151,7 +151,7 @@ export async function sendJoinRequestStatusEmail(
     ? `
       <h2 style="color:#0a1628;margin:0 0 12px;">Solicitação aprovada! 🙏</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${escape(name)}</strong>! Você foi aceito no grupo <strong>${escape(groupName)}</strong>.
+        Olá, <strong>${sanitizeUserInput(name)}</strong>! Você foi aceito no grupo <strong>${sanitizeUserInput(groupName)}</strong>.
         Agora pode ver e publicar pedidos do grupo.
       </p>
       ${btn(`${BASE_URL}/grupos`, "Acessar grupo")}
@@ -159,8 +159,8 @@ export async function sendJoinRequestStatusEmail(
     : `
       <h2 style="color:#0a1628;margin:0 0 12px;">Atualização sobre sua solicitação</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${escape(name)}</strong>. Sua solicitação para entrar no grupo
-        <strong>${escape(groupName)}</strong> não foi aprovada desta vez.
+        Olá, <strong>${sanitizeUserInput(name)}</strong>. Sua solicitação para entrar no grupo
+        <strong>${sanitizeUserInput(groupName)}</strong> não foi aprovada desta vez.
       </p>
     `;
 
