@@ -23,6 +23,7 @@ async function PrayerFeed({ searchParams }: MuralProps) {
 
   return (
     <FeedLoadMore
+      key={JSON.stringify(searchParams)}
       initialPrayers={prayers as PrayerItem[]}
       initialPrayedIds={prayedIds}
       initialNextCursor={nextCursor}

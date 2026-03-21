@@ -24,6 +24,7 @@ async function PrayerFeed({ searchParams }: HomeProps) {
 
   return (
     <FeedLoadMore
+      key={JSON.stringify(searchParams)}
       initialPrayers={prayers as PrayerItem[]}
       initialPrayedIds={prayedIds}
       initialNextCursor={nextCursor}

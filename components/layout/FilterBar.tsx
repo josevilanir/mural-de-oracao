@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const STATUS_FILTERS = [
@@ -49,6 +49,8 @@ export default function FilterBar() {
   const currentStatus = searchParams.get("status") ?? "";
   const currentCategory = searchParams.get("category") ?? "";
 
+  const pathname = usePathname();
+
   function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
     const current = searchParams.get(key) ?? "";
@@ -61,7 +63,7 @@ export default function FilterBar() {
       params.delete(key);
     }
 
-    router.push(`/?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   return (
