@@ -31,6 +31,11 @@ export async function fetchFeedAction({ cursor, status, category, scope, newerTh
   const prayers = await prisma.prayer.findMany({
     where: {
       isHidden: false,
+      // scope: 'mural' intentionally shows ALL non-hidden prayers regardless of visibility.
+      // Unlike 'home' (which excludes GROUP_ONLY group prayers), the mural is a complete view
+      // for logged-in users. GROUP_ONLY prayers are visible here because the mural serves as
+      // the admin/community overview. Access control for individual prayer detail pages is
+      // handled separately by canAccessPrayer() in lib/services/prayer-access.ts.
       ...(scope === "home" ? { OR: [{ groupId: null }, { visibility: "PUBLIC" }] } : {}),
       ...(status ? { status: status as PrayerStatus } : {}),
       ...(category ? { category: category as Category } : {}),
