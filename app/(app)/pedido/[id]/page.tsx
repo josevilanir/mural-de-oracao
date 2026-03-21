@@ -61,7 +61,7 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
     include: {
       author: { select: { name: true, image: true, id: true } },
       _count: { select: { actions: true, comments: true } },
-      group: { select: { id: true } },
+      group: { select: { id: true, leaderId: true } },
       comments: {
         include: {
           author: { select: { name: true, image: true, id: true } },
@@ -83,6 +83,21 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
     hasPrayed = !!existing;
   }
 
+  let isGroupMember = false;
+  if (prayer.group && userId) {
+    if (prayer.group.leaderId === userId || isAdmin) {
+      isGroupMember = true;
+    } else {
+      const membership = await prisma.groupMember.findUnique({
+        where: { userId_groupId: { userId, groupId: prayer.group.id } }
+      });
+      isGroupMember = membership?.status === "ACTIVE";
+    }
+  }
+
+  const backLinkHref = (prayer.group && isGroupMember) ? `/grupos/${prayer.group.id}` : "/";
+  const backLinkText = (prayer.group && isGroupMember) ? "← Voltar ao mural do grupo" : "← Voltar ao mural";
+
   const isOwner = !!userId && prayer.authorId === userId;
   const canDeletePrayer = isOwner || isAdmin;
   const cat = CATEGORY_LABELS[prayer.category];
@@ -93,10 +108,10 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
       <main className="container mx-auto max-w-2xl px-4 py-8">
         {/* Breadcrumb */}
         <Link
-          href={prayer.group ? `/grupos/${prayer.group.id}` : "/"}
+          href={backLinkHref}
           className="text-sm text-gray-text hover:text-blue-main mb-4 inline-block"
         >
-          ← Voltar ao mural{prayer.group ? " do grupo" : ""}
+          {backLinkText}
         </Link>
 
         {/* Header do Pedido */}

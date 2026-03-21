@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { sanitizePrayers } from "@/lib/utils";
@@ -38,6 +38,10 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
 
   const isMember = membership?.status === "ACTIVE";
   const isLeader = userId === group.leaderId;
+
+  if (!isMember && !isLeader && !isAdmin) {
+    redirect("/grupos");
+  }
 
   const [members, totalMembers, rawPrayers] = await Promise.all([
     prisma.groupMember.findMany({
