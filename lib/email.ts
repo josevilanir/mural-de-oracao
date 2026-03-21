@@ -53,6 +53,18 @@ function btn(href: string, label: string) {
   return `<a href="${href}" style="display:inline-block;margin:20px 0;padding:12px 28px;background:#c8912e;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">${label}</a>`;
 }
 
+/**
+ * Sanitizes all user-supplied fields for safe use in email HTML and subjects.
+ * Every email template MUST route user-supplied values through this function.
+ */
+function buildEmailFields<T extends Record<string, string>>(fields: T): T {
+  const sanitized = {} as Record<string, string>;
+  for (const [key, value] of Object.entries(fields)) {
+    sanitized[key] = sanitizeUserInput(value);
+  }
+  return sanitized as T;
+}
+
 // ─── Funções públicas ──────────────────────────────────────
 
 export async function sendPasswordResetEmail(email: string, token: string) {
@@ -70,12 +82,13 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 }
 
 export async function sendVerificationEmail(email: string, name: string, token: string) {
+  const s = buildEmailFields({ name });
   const url = `${BASE_URL}/verify-email?token=${token}`;
   await send(
     email,
     "Confirme seu e-mail — Mural de Oração",
     layout(`
-      <h2 style="color:#0a1628;margin:0 0 12px;">Bem-vindo, ${sanitizeUserInput(name)}!</h2>
+      <h2 style="color:#0a1628;margin:0 0 12px;">Bem-vindo, ${s.name}!</h2>
       <p style="color:#555;line-height:1.6;">Clique no botão abaixo para confirmar seu e-mail e começar a usar o Mural de Oração.</p>
       ${btn(url, "Confirmar e-mail")}
       <p style="color:#9ca3af;font-size:13px;">Este link expira em <strong>24 horas</strong>.</p>
@@ -90,16 +103,17 @@ export async function sendCommentNotificationEmail(
   prayerTitle: string,
   prayerId: string
 ) {
+  const s = buildEmailFields({ authorName, commenterName, prayerTitle });
   const url = `${BASE_URL}/pedido/${prayerId}`;
   await send(
     to,
-    `${commenterName} comentou no seu pedido — Mural de Oração`,
+    `${s.commenterName} comentou no seu pedido — Mural de Oração`,
     layout(`
       <h2 style="color:#0a1628;margin:0 0 12px;">Novo comentário de encorajamento</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${sanitizeUserInput(authorName)}</strong>!<br/>
-        <strong>${sanitizeUserInput(commenterName)}</strong> deixou uma palavra de encorajamento no seu pedido
-        <em>"${sanitizeUserInput(prayerTitle)}"</em>.
+        Olá, <strong>${s.authorName}</strong>!<br/>
+        <strong>${s.commenterName}</strong> deixou uma palavra de encorajamento no seu pedido
+        <em>"${s.prayerTitle}"</em>.
       </p>
       ${btn(url, "Ver comentário")}
     `)
@@ -112,15 +126,16 @@ export async function sendGroupStatusEmail(
   groupName: string,
   approved: boolean
 ) {
+  const s = buildEmailFields({ name, groupName });
   const subject = approved
-    ? `Grupo aprovado: ${groupName} — Mural de Oração`
+    ? `Grupo aprovado: ${s.groupName} — Mural de Oração`
     : `Solicitação de grupo não aprovada — Mural de Oração`;
 
   const body = approved
     ? `
       <h2 style="color:#0a1628;margin:0 0 12px;">Seu grupo foi aprovado! 🎉</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${sanitizeUserInput(name)}</strong>! O grupo <strong>${sanitizeUserInput(groupName)}</strong> foi aprovado
+        Olá, <strong>${s.name}</strong>! O grupo <strong>${s.groupName}</strong> foi aprovado
         e já está disponível na comunidade.
       </p>
       ${btn(`${BASE_URL}/grupos`, "Ver grupos")}
@@ -128,8 +143,8 @@ export async function sendGroupStatusEmail(
     : `
       <h2 style="color:#0a1628;margin:0 0 12px;">Atualização sobre seu grupo</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${sanitizeUserInput(name)}</strong>. Sua solicitação para criar o grupo
-        <strong>${sanitizeUserInput(groupName)}</strong> não foi aprovada desta vez.
+        Olá, <strong>${s.name}</strong>. Sua solicitação para criar o grupo
+        <strong>${s.groupName}</strong> não foi aprovada desta vez.
         Entre em contato com um administrador para mais informações.
       </p>
     `;
@@ -143,15 +158,16 @@ export async function sendJoinRequestStatusEmail(
   groupName: string,
   approved: boolean
 ) {
+  const s = buildEmailFields({ name, groupName });
   const subject = approved
-    ? `Você foi aceito em ${groupName} — Mural de Oração`
-    : `Atualização sobre ${groupName} — Mural de Oração`;
+    ? `Você foi aceito em ${s.groupName} — Mural de Oração`
+    : `Atualização sobre ${s.groupName} — Mural de Oração`;
 
   const body = approved
     ? `
       <h2 style="color:#0a1628;margin:0 0 12px;">Solicitação aprovada! 🙏</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${sanitizeUserInput(name)}</strong>! Você foi aceito no grupo <strong>${sanitizeUserInput(groupName)}</strong>.
+        Olá, <strong>${s.name}</strong>! Você foi aceito no grupo <strong>${s.groupName}</strong>.
         Agora pode ver e publicar pedidos do grupo.
       </p>
       ${btn(`${BASE_URL}/grupos`, "Acessar grupo")}
@@ -159,8 +175,8 @@ export async function sendJoinRequestStatusEmail(
     : `
       <h2 style="color:#0a1628;margin:0 0 12px;">Atualização sobre sua solicitação</h2>
       <p style="color:#555;line-height:1.6;">
-        Olá, <strong>${sanitizeUserInput(name)}</strong>. Sua solicitação para entrar no grupo
-        <strong>${sanitizeUserInput(groupName)}</strong> não foi aprovada desta vez.
+        Olá, <strong>${s.name}</strong>. Sua solicitação para entrar no grupo
+        <strong>${s.groupName}</strong> não foi aprovada desta vez.
       </p>
     `;
 
