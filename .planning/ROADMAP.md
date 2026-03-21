@@ -36,7 +36,7 @@
 **Milestone Goal:** Close all active quality gaps — error observability, audit logging, test coverage, and small code-quality fixes.
 
 - [x] **Phase 1: Quick Fixes & Observability** - Instrument error tracking and resolve two small code-quality items
-- [ ] **Phase 2: Audit Logging** - Add a database audit trail for admin and group management actions
+- [x] **Phase 2: Audit Logging** - Add a database audit trail for admin and group management actions (completed 2026-03-21)
 - [ ] **Phase 3: Test Coverage** - Write automated tests for server actions, API routes, auth flows, and typed mock factories
 
 ## Phase Details
@@ -92,7 +92,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Upload Size Enforcement | v1.0 | 1/1 | Complete | 2026-03-20 |
-| 2. Email HTML Escaping | v1.0 | 1/1 | Complete | 2026-03-20 |
+| 2. Email HTML Escaping | 1/1 | Complete   | 2026-03-21 | 2026-03-20 |
 | 3. CSRF Hardening + Cleanup | v1.0 | 2/2 | Complete | 2026-03-20 |
 | 4. Remove orphaned TypeScript types | v1.0 | 1/1 | Complete | 2026-03-20 |
 | 1. Fix concerns from CONCERNS.md | v1.1 | 1/1 | Complete | 2026-03-20 |

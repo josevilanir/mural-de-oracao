@@ -22,8 +22,8 @@ Requirements for milestone v1.3. Each maps to roadmap phases.
 
 ### Audit Logging
 
-- [ ] **AUDT-01**: Admin moderation actions (hide/approve prayer, approve/reject group) are logged to a database audit trail
-- [ ] **AUDT-02**: Group management actions (create, delete, membership changes) are logged to the audit trail
+- [x] **AUDT-01**: Admin moderation actions (hide/approve prayer, approve/reject group) are logged to a database audit trail
+- [x] **AUDT-02**: Group management actions (create, delete, membership changes) are logged to the audit trail
 
 ### Email
 
@@ -66,8 +66,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-05 | Phase 3 | Pending |
 | OBSV-01 | Phase 1 | Complete |
 | OBSV-02 | Phase 1 | Complete |
-| AUDT-01 | Phase 2 | Pending |
-| AUDT-02 | Phase 2 | Pending |
+| AUDT-01 | Phase 2 | Complete |
+| AUDT-02 | Phase 2 | Complete |
 | EMAIL-01 | Phase 1 | Complete |
 | CODE-01 | Phase 1 | Complete |
 
