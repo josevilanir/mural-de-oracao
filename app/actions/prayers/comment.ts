@@ -7,6 +7,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeUserInput } from "@/lib/sanitize";
 import { sendCommentNotificationEmail } from "@/lib/email";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 export async function createCommentAction(data: unknown) {
   const session = await auth();
@@ -120,5 +121,53 @@ export async function deleteCommentAction(commentId: string) {
   } catch (err) {
     console.error("[deleteCommentAction]", err);
     return { success: false, error: "Algo deu errado. Tente novamente." };
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// updateCommentAction — apenas autor ou admin
+// ─────────────────────────────────────────────────────────
+const UpdateCommentSchema = z.object({
+  text: z.string().min(3, "Mínimo 3 caracteres").max(500, "Máximo 500 caracteres"),
+});
+
+export async function updateCommentAction(commentId: string, data: unknown) {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: "Não autorizado." };
+
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+    select: { authorId: true, prayerId: true },
+  });
+  if (!comment) return { success: false, error: "Comentário não encontrado." };
+
+  const isAuthor = comment.authorId === session.user.id;
+  const isAdmin = session.user.role === "ADMIN";
+  if (!isAuthor && !isAdmin) return { success: false, error: "Acesso negado." };
+
+  const parsed = UpdateCommentSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+
+  try {
+    const updated = await prisma.comment.update({
+      where: { id: commentId },
+      data: { text: sanitizeUserInput(parsed.data.text) },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "COMMENT_UPDATED",
+        actorId: session.user.id,
+        targetId: commentId,
+      },
+    });
+
+    revalidatePath(`/pedido/${comment.prayerId}`);
+    return { success: true, comment: updated };
+  } catch (err) {
+    console.error("[updateCommentAction]", err);
+    return { success: false, error: "Erro ao atualizar comentário." };
   }
 }
