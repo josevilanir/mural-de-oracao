@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Mural de Oração is a prayer-sharing web app built on Next.js App Router with server actions, Neon Postgres (via Prisma), Cloudflare R2 for image storage, and Resend for email. The project has shipped three hardening milestones addressing security vulnerabilities, codebase tech debt, and NextAuth stability.
+Mural de Oração is a prayer-sharing web app built on Next.js App Router with server actions, Neon Postgres (via Prisma), Cloudflare R2 for image storage, and Resend for email. The project has shipped four hardening milestones covering security, tech debt, NextAuth stability, and quality & observability (Sentry, audit logging, full Vitest test suite).
 
 ## Core Value
 
@@ -28,33 +28,30 @@ User-submitted content and uploaded files must not be weaponizable against the p
 - ✓ Rate limiting on mutation server actions — existing
 - ✓ Anonymous prayer anonymity enforced server-side — existing
 - ✓ Role-based access control via middleware — existing
+- ✓ External error tracking — Sentry captures unhandled errors in server actions and API routes via `onRequestError` hook — v1.3
+- ✓ Email templates consolidated to shared `buildEmailFields()` builder enforcing `sanitizeUserInput()` — v1.3
+- ✓ Feed `mural` scope behavior clarified with inline comment — v1.3
+- ✓ Admin moderation and group management actions have a durable database audit trail (AuditLog) — v1.3
+- ✓ Test coverage: server actions (prayers, groups), API routes, and auth flows — 102 tests passing — v1.3
+- ✓ Typed mock factories — zero `as any` casts across entire test suite — v1.3
 
 ### Active
 
-- [ ] Test coverage for React components (remaining)
-
-### Validated (Phase 3 — Test Coverage)
-
-- ✓ Test coverage for server actions (prayers, groups), API routes, and auth flows — Validated in Phase 03: Test Coverage
-- ✓ `as any` casts in tests replaced with typed mock factories — Validated in Phase 03: Test Coverage
-- ✓ Admin moderation and group management actions have an audit trail — Validated in Phase 02: Audit Logging
-
-### Validated (Phase 1 — Quick Fixes & Observability)
-
-- ✓ External error tracking integrated — Sentry captures unhandled errors in server actions and API routes automatically via `onRequestError` hook — v1.3
-- ✓ Email templates consolidated to shared `buildEmailFields()` builder enforcing `sanitizeUserInput()` on all user-supplied fields including subjects — v1.3
-- ✓ Feed `mural` scope behavior clarified with inline comment referencing `canAccessPrayer()` — v1.3
+- [ ] React component test coverage (TEST-06)
+- [ ] End-to-end tests for critical user flows (TEST-07)
+- [ ] Notification system (feature work)
+- [ ] Report UI (feature work)
+- [ ] Email verification enforcement (feature work)
 
 ### Out of Scope
 
-- Missing features (notification system, report UI, email verification enforcement) — next milestone
 - Scaling (R2 lifecycle policies, multi-region DB) — future milestone
 - Dependencies at risk (Neon driver, Resend SDK) — accepted, low probability
 
 ## Context
 
-- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability + v1.3 Phase 1 Complete (Sentry error tracking, email sanitization consolidation, feed.ts scope comment) + v1.3 Phase 2 Complete (AuditLog model, migration, 9 audit writes across moderation and group actions) + v1.3 Phase 3 Complete (102 Vitest tests across 8 files, zero `as any` casts, typed mock factories). Milestone complete.
-- **Stack:** Next.js 15 App Router, Prisma + Neon Postgres, NextAuth v5, Cloudflare R2, Upstash Redis, Resend
+- **Current State:** v1.3 Quality & Observability shipped 2026-03-21. Codebase has Sentry error tracking, AuditLog table, and 102 Vitest tests with typed factories. Next milestone: feature work (notifications, report UI) or expanding test coverage to React components.
+- **Stack:** Next.js 15 App Router, Prisma + Neon Postgres, NextAuth v5, Cloudflare R2, Upstash Redis, Resend, Sentry
 
 ## Constraints
 
@@ -63,22 +60,15 @@ User-submitted content and uploaded files must not be weaponizable against the p
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
-|----------|-----------|---------| 
+|----------|-----------|---------|
 | Fix security issues before other concerns | Security vulnerabilities have no safe workaround period | ✓ Good |
 | CSRF approach: Origin/Host validation in middleware | Next.js server actions have nuanced CSRF exposure | ✓ Good |
 | Group delete: use `prisma.$transaction` vs DDL cascade | Prisma abstraction layer makes app-level tx simpler than schema DDL changes | ✓ Good |
 | Write-path sanitization: `lib/sanitize.ts` escapeHtml | Centralizes protection without adding external deps | ✓ Good |
-
-## Current Milestone: v1.3 Quality & Observability
-
-**Goal:** Close all active concerns from CONCERNS.md — test coverage, error tracking, audit logging, and quick fixes.
-
-**Target features:**
-- Test suite covering server actions, API routes, auth flows, and components
-- External error tracking (Sentry or equivalent)
-- Audit log table for admin/moderation actions
-- Email template consolidation
-- Feed `mural` scope comment + typed test mock factories
+| Sentry: `captureRequestError` not `sentryOnRequestError` | `sentryOnRequestError` doesn't exist in @sentry/nextjs v10.45.0 | ✓ Good |
+| AuditLog: string literal enum values in action files | Consistent with existing codebase pattern; avoids import coupling | ✓ Good |
+| Test mocking: Partial-spread typed factories, no `as any` | Type safety in tests prevents silent mock drift | ✓ Good |
+| `vi.mock` declarations hoisted above imports | Required for Vitest module mock hoisting to work correctly | ✓ Good |
 
 ---
-*Last updated: 2026-03-21 after Phase 03 (Test Coverage) complete — v1.3 milestone complete*
+*Last updated: 2026-03-21 after v1.3 milestone complete*
