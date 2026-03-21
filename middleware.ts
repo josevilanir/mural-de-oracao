@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth.config";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const PRIVATE_ROUTES = ["/meus-pedidos", "/novo-pedido", "/grupos/novo"];
 const ADMIN_ROUTES = ["/admin"];
@@ -8,7 +8,9 @@ const AUTH_ONLY_PUBLIC = ["/welcome", "/login", "/register"];
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req: any) => {
+type NextAuthRequest = NextRequest & { auth: any };
+
+export default auth((req: NextAuthRequest) => {
   const { nextUrl, auth: session, method, headers } = req;
   const pathname = nextUrl.pathname;
 
