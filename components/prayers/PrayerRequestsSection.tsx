@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { PrayerRequestColumn } from "@/components/ui/prayer-request-column";
-import { mockPrayerRequests } from "@/lib/mock-prayer-requests";
+import { mockPrayerRequests } from "@/tests/__mocks__/mock-prayer-requests";
 
 const firstColumn = mockPrayerRequests.slice(0, 3);
 const secondColumn = mockPrayerRequests.slice(3, 6);
