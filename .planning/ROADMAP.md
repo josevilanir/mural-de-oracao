@@ -38,12 +38,3 @@
 | 1. Fix concerns from CONCERNS.md | v1.1 | 1/1 | Complete | 2026-03-20 |
 | 1. NextAuth v5 Beta Stability | v1.2 | 1/1 | Complete | 2026-03-20 |
 
-### Phase 1: Fix concerns from CONCERNS.md
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 0
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 1 to break down)
