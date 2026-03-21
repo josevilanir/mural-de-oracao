@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: milestone
 status: executing
-stopped_at: Completed v1.0 Milestone
-last_updated: "2026-03-21T00:54:16.534Z"
+stopped_at: Completed Phase 01 Plan 01 (fix-concerns-from-concerns-md)
+last_updated: "2026-03-21T00:58:41.698Z"
 progress:
   total_phases: 1
   completed_phases: 1
