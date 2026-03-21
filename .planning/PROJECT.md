@@ -31,9 +31,13 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ### Active
 
-- [ ] Test coverage for server actions, API routes, auth flows, and React components
+- [ ] Test coverage for React components (remaining)
+
+### Validated (Phase 3 — Test Coverage)
+
+- ✓ Test coverage for server actions (prayers, groups), API routes, and auth flows — Validated in Phase 03: Test Coverage
+- ✓ `as any` casts in tests replaced with typed mock factories — Validated in Phase 03: Test Coverage
 - ✓ Admin moderation and group management actions have an audit trail — Validated in Phase 02: Audit Logging
-- [ ] `as any` casts in tests replaced with typed mock factories
 
 ### Validated (Phase 1 — Quick Fixes & Observability)
 
@@ -49,7 +53,7 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ## Context
 
-- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability + v1.3 Phase 1 Complete (Sentry error tracking, email sanitization consolidation, feed.ts scope comment) + v1.3 Phase 2 Complete (AuditLog model, migration, 9 audit writes across moderation and group actions). Next: test coverage.
+- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability + v1.3 Phase 1 Complete (Sentry error tracking, email sanitization consolidation, feed.ts scope comment) + v1.3 Phase 2 Complete (AuditLog model, migration, 9 audit writes across moderation and group actions) + v1.3 Phase 3 Complete (102 Vitest tests across 8 files, zero `as any` casts, typed mock factories). Milestone complete.
 - **Stack:** Next.js 15 App Router, Prisma + Neon Postgres, NextAuth v5, Cloudflare R2, Upstash Redis, Resend
 
 ## Constraints
@@ -77,4 +81,4 @@ User-submitted content and uploaded files must not be weaponizable against the p
 - Feed `mural` scope comment + typed test mock factories
 
 ---
-*Last updated: 2026-03-21 after Phase 02 (Audit Logging) complete*
+*Last updated: 2026-03-21 after Phase 03 (Test Coverage) complete — v1.3 milestone complete*
