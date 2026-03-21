@@ -30,15 +30,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-20)
+See: .planning/PROJECT.md (updated 2026-03-21)
 
 **Core value:** User-submitted content and uploaded files must not be weaponizable against the platform or other users.
-**Current focus:** Phase 01 — fix-concerns-from-concerns-md
+**Current focus:** Milestone v1.3 — Quality & Observability
 
 ## Current Position
 
-Phase: 01 (fix-concerns-from-concerns-md) — COMPLETE
-Plan: 1 of 1 — COMPLETE
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-21 — Milestone v1.3 started
 
 ## Performance Metrics
 

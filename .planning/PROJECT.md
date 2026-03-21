@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Mural de Oração is a prayer-sharing web app built on Next.js App Router with server actions, Neon Postgres (via Prisma), Cloudflare R2 for image storage, and Resend for email. The project has shipped two hardening milestones addressing security vulnerabilities and codebase tech debt.
+Mural de Oração is a prayer-sharing web app built on Next.js App Router with server actions, Neon Postgres (via Prisma), Cloudflare R2 for image storage, and Resend for email. The project has shipped three hardening milestones addressing security vulnerabilities, codebase tech debt, and NextAuth stability.
 
 ## Core Value
 
@@ -31,7 +31,12 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ### Active
 
-(None — run `/gsd-new-milestone` to define v1.2 or v2.0)
+- [ ] Test coverage for server actions, API routes, auth flows, and React components
+- [ ] External error tracking integrated (production errors visible)
+- [ ] Admin moderation and group management actions have an audit trail
+- [ ] Email templates consolidated to prevent sanitization drift
+- [ ] Feed `mural` scope behavior clarified with inline comment
+- [ ] `as any` casts in tests replaced with typed mock factories
 
 ### Out of Scope
 
@@ -41,7 +46,7 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ## Context
 
-- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance. Codebase is now type-safe, has DB indexes, and enforces write-path sanitization.
+- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability. Codebase is now type-safe, has DB indexes, and enforces write-path sanitization. Currently addressing quality gaps: test coverage, error observability, and audit logging.
 - **Stack:** Next.js 15 App Router, Prisma + Neon Postgres, NextAuth v5, Cloudflare R2, Upstash Redis, Resend
 
 ## Constraints
@@ -57,5 +62,16 @@ User-submitted content and uploaded files must not be weaponizable against the p
 | Group delete: use `prisma.$transaction` vs DDL cascade | Prisma abstraction layer makes app-level tx simpler than schema DDL changes | ✓ Good |
 | Write-path sanitization: `lib/sanitize.ts` escapeHtml | Centralizes protection without adding external deps | ✓ Good |
 
+## Current Milestone: v1.3 Quality & Observability
+
+**Goal:** Close all active concerns from CONCERNS.md — test coverage, error tracking, audit logging, and quick fixes.
+
+**Target features:**
+- Test suite covering server actions, API routes, auth flows, and components
+- External error tracking (Sentry or equivalent)
+- Audit log table for admin/moderation actions
+- Email template consolidation
+- Feed `mural` scope comment + typed test mock factories
+
 ---
-*Last updated: 2026-03-20 after v1.1 milestone*
+*Last updated: 2026-03-21 after v1.3 milestone start*
