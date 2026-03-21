@@ -61,6 +61,20 @@ enum PrayerVisibility {
   GROUP_ONLY
 }
 
+enum AuditAction {
+  PRAYER_HIDDEN
+  PRAYER_APPROVED
+  GROUP_APPROVED
+  GROUP_REJECTED
+  GROUP_CREATED
+  GROUP_DELETED
+  JOIN_REQUEST_SUBMITTED
+  JOIN_REQUEST_APPROVED
+  JOIN_REQUEST_REJECTED
+  PRAYER_REMOVAL_APPROVED
+  PRAYER_REMOVAL_REJECTED
+}
+
 // ─────────────────────────────────────────────────────────
 // Models
 // ─────────────────────────────────────────────────────────
@@ -89,6 +103,7 @@ model User {
   ledGroups        Group[]        @relation("GroupLeader")
   groupMemberships GroupMember[]
   removalRequests  PrayerRemovalRequest[]
+  auditLogs        AuditLog[]
 }
 
 // NextAuth required models
@@ -277,4 +292,17 @@ model PrayerRemovalRequest {
   prayer Prayer @relation(fields: [prayerId], references: [id], onDelete: Cascade)
   group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
   leader User   @relation(fields: [leaderId], references: [id])
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  action    AuditAction
+  actorId   String
+  targetId  String?
+  createdAt DateTime    @default(now())
+
+  actor User @relation(fields: [actorId], references: [id])
+
+  @@index([actorId, createdAt])
+  @@index([createdAt])
 }
