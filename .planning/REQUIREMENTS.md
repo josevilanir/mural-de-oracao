@@ -27,11 +27,11 @@ Requirements for milestone v1.3. Each maps to roadmap phases.
 
 ### Email
 
-- [ ] **EMAIL-01**: Email templates use a shared builder function that enforces `sanitizeUserInput()` on all user-supplied fields
+- [x] **EMAIL-01**: Email templates use a shared builder function that enforces `sanitizeUserInput()` on all user-supplied fields
 
 ### Code Quality
 
-- [ ] **CODE-01**: `scope: 'mural'` query behavior clarified with inline comment in `feed.ts`
+- [x] **CODE-01**: `scope: 'mural'` query behavior clarified with inline comment in `feed.ts`
 
 ## Future Requirements
 
@@ -68,8 +68,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OBSV-02 | Phase 1 | Complete |
 | AUDT-01 | Phase 2 | Pending |
 | AUDT-02 | Phase 2 | Pending |
-| EMAIL-01 | Phase 1 | Pending |
-| CODE-01 | Phase 1 | Pending |
+| EMAIL-01 | Phase 1 | Complete |
+| CODE-01 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 11 total
@@ -78,4 +78,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after roadmap creation*
+*Last updated: 2026-03-21 after Phase 1 Plan 02 completion*
