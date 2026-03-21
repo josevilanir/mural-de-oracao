@@ -128,7 +128,7 @@ export async function sendGroupStatusEmail(
 ) {
   const s = buildEmailFields({ name, groupName });
   const subject = approved
-    ? `Grupo aprovado: ${s.groupName} — Mural de Oração`
+    ? `Grupo aprovado: ${groupName} — Mural de Oração`
     : `Solicitação de grupo não aprovada — Mural de Oração`;
 
   const body = approved
@@ -160,8 +160,8 @@ export async function sendJoinRequestStatusEmail(
 ) {
   const s = buildEmailFields({ name, groupName });
   const subject = approved
-    ? `Você foi aceito em ${s.groupName} — Mural de Oração`
-    : `Atualização sobre ${s.groupName} — Mural de Oração`;
+    ? `Você foi aceito em ${groupName} — Mural de Oração`
+    : `Atualização sobre ${groupName} — Mural de Oração`;
 
   const body = approved
     ? `
