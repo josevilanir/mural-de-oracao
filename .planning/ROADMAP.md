@@ -31,7 +31,7 @@
 
 </details>
 
-### 🚧 v1.3 Quality & Observability (In Progress)
+### v1.3 Quality & Observability (In Progress)
 
 **Milestone Goal:** Close all active quality gaps — error observability, audit logging, test coverage, and small code-quality fixes.
 
@@ -80,12 +80,12 @@ Plans:
   3. `npm test` passes and covers `/api/upload`, `/api/notifications`, and `/api/groups` routes
   4. `npm test` passes and covers registration, login, password reset, and email-verification auth flows
   5. All test files use typed mock factories — no remaining `as any` casts in test code
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Test prayer server actions and group management server actions
-- [ ] 03-02: Test API routes and auth flows
-- [ ] 03-03: Replace `as any` casts with typed mock factories across all test files
+- [ ] 03-01-PLAN.md — Typed mock factories + prayer and group server action tests
+- [ ] 03-02-PLAN.md — API route tests and auth flow tests
+- [ ] 03-03-PLAN.md — Replace `as any` casts with typed mock factories in existing tests
 
 ## Progress
 
