@@ -32,7 +32,7 @@ User-submitted content and uploaded files must not be weaponizable against the p
 ### Active
 
 - [ ] Test coverage for server actions, API routes, auth flows, and React components
-- [ ] Admin moderation and group management actions have an audit trail
+- ✓ Admin moderation and group management actions have an audit trail — Validated in Phase 02: Audit Logging
 - [ ] `as any` casts in tests replaced with typed mock factories
 
 ### Validated (Phase 1 — Quick Fixes & Observability)
@@ -49,7 +49,7 @@ User-submitted content and uploaded files must not be weaponizable against the p
 
 ## Context
 
-- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability + v1.3 Phase 1 Complete (Sentry error tracking, email sanitization consolidation, feed.ts scope comment). Currently addressing quality gaps: audit logging and test coverage.
+- **Current State:** Shipped v1.0 Security Remediation + v1.1 Tech Debt & Performance + v1.2 NextAuth v5 Beta Stability + v1.3 Phase 1 Complete (Sentry error tracking, email sanitization consolidation, feed.ts scope comment) + v1.3 Phase 2 Complete (AuditLog model, migration, 9 audit writes across moderation and group actions). Next: test coverage.
 - **Stack:** Next.js 15 App Router, Prisma + Neon Postgres, NextAuth v5, Cloudflare R2, Upstash Redis, Resend
 
 ## Constraints
@@ -77,4 +77,4 @@ User-submitted content and uploaded files must not be weaponizable against the p
 - Feed `mural` scope comment + typed test mock factories
 
 ---
-*Last updated: 2026-03-21 after v1.3 milestone start*
+*Last updated: 2026-03-21 after Phase 02 (Audit Logging) complete*
