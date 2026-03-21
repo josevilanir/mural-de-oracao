@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { CATEGORY_LABELS } from "@/lib/utils";
 import PrayerRemovalForm from "./PrayerRemovalForm";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
+import EditGroupModal from "@/components/groups/EditGroupModal";
+import RemoveMemberButton from "@/components/groups/RemoveMemberButton";
 
 interface Props {
   params: { id: string };
@@ -23,11 +25,16 @@ export default async function GerenciarGrupoPage({ params }: Props) {
   if (!group) notFound();
   if (group.leaderId !== session.user.id) redirect(`/grupos/${params.id}`);
 
-  const [pendingMembers, groupPrayers] = await Promise.all([
+  const [pendingMembers, activeMembers, groupPrayers] = await Promise.all([
     prisma.groupMember.findMany({
       where: { groupId: params.id, status: "PENDING", user: { isDeleted: false } },
       include: { user: { select: { id: true, name: true, image: true, email: true } } },
       orderBy: { createdAt: "asc" },
+    }),
+    prisma.groupMember.findMany({
+      where: { groupId: params.id, status: "ACTIVE", user: { isDeleted: false } },
+      include: { user: { select: { id: true, name: true, image: true } } },
+      orderBy: { joinedAt: "asc" },
     }),
     prisma.prayer.findMany({
       where: { groupId: params.id, isHidden: false },
@@ -43,7 +50,15 @@ export default async function GerenciarGrupoPage({ params }: Props) {
     <main className="container mx-auto max-w-3xl px-4 py-8 space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-display font-bold text-navy">Gerenciar: {group.name}</h1>
-        <DeleteGroupButton groupId={params.id} redirectTo="/grupos" />
+        <div className="flex items-center gap-2">
+          <EditGroupModal
+            groupId={params.id}
+            initialName={group.name}
+            initialDescription={group.description}
+            initialImage={group.image}
+          />
+          <DeleteGroupButton groupId={params.id} redirectTo="/grupos" />
+        </div>
       </div>
 
       {/* Pending members */}
@@ -98,6 +113,54 @@ export default async function GerenciarGrupoPage({ params }: Props) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </section>
+
+      {/* Active members with remove option */}
+      <section>
+        <h2 className="font-semibold text-navy mb-3">
+          Membros Ativos ({activeMembers.length})
+        </h2>
+        {activeMembers.length === 0 ? (
+          <p className="text-sm text-gray-text bg-card rounded-xl border border-gray-med/40 p-5 text-center">
+            Nenhum membro ativo.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {activeMembers.map((m) => {
+              const isGroupLeader = m.userId === group.leaderId;
+              return (
+                <div
+                  key={m.id}
+                  className="bg-card rounded-xl border border-gray-med/40 shadow-sm p-4 flex items-center gap-3"
+                >
+                  {m.user.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.user.image}
+                      alt={m.user.name ?? ""}
+                      className="w-9 h-9 rounded-full object-cover border border-gray-med flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-gold-warm/20 flex items-center justify-center text-gold-warm font-bold flex-shrink-0">
+                      {m.user.name?.charAt(0) ?? "?"}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-navy text-sm">{m.user.name}</p>
+                    {isGroupLeader && (
+                      <p className="text-xs text-gold-warm">líder</p>
+                    )}
+                  </div>
+                  {!isGroupLeader && (
+                    <div className="flex-shrink-0">
+                      <RemoveMemberButton memberId={m.id} memberName={m.user.name ?? "membro"} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </section>

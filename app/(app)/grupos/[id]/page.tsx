@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { sanitizePrayers } from "@/lib/utils";
 import PrayerCard from "@/components/prayers/PrayerCard";
+import LeaveGroupButton from "@/components/groups/LeaveGroupButton";
 
 interface Props {
   params: { id: string };
@@ -128,6 +129,9 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
               <span className="text-xs text-gold-warm font-medium bg-gold-light px-3 py-1.5 rounded-full">
                 Solicitação enviada
               </span>
+            )}
+            {isMember && !isLeader && (
+              <LeaveGroupButton groupId={params.id} />
             )}
           </div>
         </div>

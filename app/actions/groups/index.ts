@@ -51,6 +51,147 @@ export async function requestGroupCreation(data: unknown) {
 }
 
 // ─────────────────────────────────────────────────────────
+// updateGroup — líder ou admin
+// ─────────────────────────────────────────────────────────
+const UpdateGroupSchema = z.object({
+  name: z.string().min(2, "Nome precisa ter ao menos 2 caracteres").max(80),
+  description: z.string().max(500).optional(),
+  image: z.string().url("URL de imagem inválida").optional().or(z.literal("")),
+});
+
+export async function updateGroup(groupId: string, data: unknown) {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: "Não autorizado." };
+
+  const group = await prisma.group.findUnique({ where: { id: groupId } });
+  if (!group) return { success: false, error: "Grupo não encontrado." };
+
+  const isAdmin = session.user.role === "ADMIN";
+  const isLeader = group.leaderId === session.user.id;
+  if (!isAdmin && !isLeader) {
+    return { success: false, error: "Sem permissão para editar este grupo." };
+  }
+
+  const parsed = UpdateGroupSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+
+  const { name, description, image } = parsed.data;
+
+  try {
+    const updated = await prisma.group.update({
+      where: { id: groupId },
+      data: {
+        name,
+        description: description || null,
+        image: image || null,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "GROUP_UPDATED",
+        actorId: session.user.id,
+        targetId: groupId,
+      },
+    });
+
+    revalidatePath(`/grupos/${groupId}`);
+    revalidatePath(`/grupos/${groupId}/gerenciar`);
+    revalidatePath("/grupos");
+    return { success: true, group: updated };
+  } catch (err) {
+    console.error("[updateGroup]", err);
+    return { success: false, error: "Erro ao atualizar grupo." };
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// removeGroupMember — líder ou admin remove membro ativo
+// ─────────────────────────────────────────────────────────
+export async function removeGroupMember(memberId: string) {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: "Não autorizado." };
+
+  const member = await prisma.groupMember.findUnique({
+    where: { id: memberId },
+    include: { group: true },
+  });
+  if (!member) return { success: false, error: "Membro não encontrado." };
+
+  const isAdmin = session.user.role === "ADMIN";
+  const isLeader = member.group.leaderId === session.user.id;
+  if (!isAdmin && !isLeader) {
+    return { success: false, error: "Sem permissão para remover membros." };
+  }
+
+  if (member.userId === member.group.leaderId) {
+    return { success: false, error: "O líder não pode ser removido. Apague o grupo se necessário." };
+  }
+
+  try {
+    await prisma.groupMember.delete({ where: { id: memberId } });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "GROUP_MEMBER_REMOVED",
+        actorId: session.user.id,
+        targetId: memberId,
+      },
+    });
+
+    revalidatePath(`/grupos/${member.groupId}/gerenciar`);
+    revalidatePath(`/grupos/${member.groupId}`);
+    return { success: true };
+  } catch (err) {
+    console.error("[removeGroupMember]", err);
+    return { success: false, error: "Erro ao remover membro." };
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// leaveGroup — membro sai do próprio grupo (líder não pode)
+// ─────────────────────────────────────────────────────────
+export async function leaveGroup(groupId: string) {
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: "Não autorizado." };
+
+  const group = await prisma.group.findUnique({ where: { id: groupId } });
+  if (!group) return { success: false, error: "Grupo não encontrado." };
+
+  if (group.leaderId === session.user.id) {
+    return { success: false, error: "O líder não pode sair do grupo. Apague o grupo se necessário." };
+  }
+
+  const member = await prisma.groupMember.findUnique({
+    where: { userId_groupId: { userId: session.user.id, groupId } },
+  });
+  if (!member || member.status !== "ACTIVE") {
+    return { success: false, error: "Você não é membro ativo deste grupo." };
+  }
+
+  try {
+    await prisma.groupMember.delete({ where: { id: member.id } });
+
+    await prisma.auditLog.create({
+      data: {
+        action: "GROUP_MEMBER_LEFT",
+        actorId: session.user.id,
+        targetId: groupId,
+      },
+    });
+
+    revalidatePath(`/grupos/${groupId}`);
+    revalidatePath("/grupos");
+    return { success: true };
+  } catch (err) {
+    console.error("[leaveGroup]", err);
+    return { success: false, error: "Erro ao sair do grupo." };
+  }
+}
+
+// ─────────────────────────────────────────────────────────
 // deleteGroup — admin (qualquer) ou líder (o próprio grupo)
 // ─────────────────────────────────────────────────────────
 export async function deleteGroup(groupId: string) {
