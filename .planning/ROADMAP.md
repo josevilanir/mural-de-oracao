@@ -65,10 +65,10 @@ Plans:
   2. After an admin approves or rejects a group join request, a corresponding audit log row is written
   3. After a group is created, deleted, or its membership changes, a corresponding audit log row is written
   4. The audit log table is queryable — rows survive application restart and are not ephemeral
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01: Add AuditLog Prisma model, migration, and write audit entries for moderation and group management actions
+- [ ] 02-01-PLAN.md — Add AuditLog Prisma model, migration, and write audit entries for moderation and group management actions
 
 ### Phase 3: Test Coverage
 **Goal**: Server actions, API routes, auth flows, and group management have automated tests that run in CI, with no untyped `as any` casts in test files
