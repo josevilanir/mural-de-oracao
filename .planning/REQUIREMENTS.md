@@ -17,8 +17,8 @@ Requirements for milestone v1.3. Each maps to roadmap phases.
 
 ### Observability
 
-- [ ] **OBSV-01**: Unhandled errors in server actions are captured in external error tracking
-- [ ] **OBSV-02**: Unhandled errors in API routes are captured in external error tracking
+- [x] **OBSV-01**: Unhandled errors in server actions are captured in external error tracking
+- [x] **OBSV-02**: Unhandled errors in API routes are captured in external error tracking
 
 ### Audit Logging
 
@@ -64,8 +64,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TEST-03 | Phase 3 | Pending |
 | TEST-04 | Phase 3 | Pending |
 | TEST-05 | Phase 3 | Pending |
-| OBSV-01 | Phase 1 | Pending |
-| OBSV-02 | Phase 1 | Pending |
+| OBSV-01 | Phase 1 | Complete |
+| OBSV-02 | Phase 1 | Complete |
 | AUDT-01 | Phase 2 | Pending |
 | AUDT-02 | Phase 2 | Pending |
 | EMAIL-01 | Phase 1 | Pending |
