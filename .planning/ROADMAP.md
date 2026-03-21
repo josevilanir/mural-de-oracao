@@ -93,7 +93,7 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 1. Upload Size Enforcement | v1.0 | 1/1 | Complete | 2026-03-20 |
 | 2. Email HTML Escaping | 1/1 | Complete   | 2026-03-21 | 2026-03-20 |
-| 3. CSRF Hardening + Cleanup | v1.0 | 2/2 | Complete | 2026-03-20 |
+| 3. CSRF Hardening + Cleanup | 2/3 | In Progress|  | 2026-03-20 |
 | 4. Remove orphaned TypeScript types | v1.0 | 1/1 | Complete | 2026-03-20 |
 | 1. Fix concerns from CONCERNS.md | v1.1 | 1/1 | Complete | 2026-03-20 |
 | 1. NextAuth v5 Beta Stability | v1.2 | 1/1 | Complete | 2026-03-20 |

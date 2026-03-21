@@ -11,8 +11,8 @@ Requirements for milestone v1.3. Each maps to roadmap phases.
 
 - [x] **TEST-01**: Server actions for prayer operations (create, delete, comment, resolve) have automated tests
 - [x] **TEST-02**: Server actions for group management (create, delete, membership) have automated tests
-- [ ] **TEST-03**: API routes (`/api/upload`, `/api/notifications`, `/api/groups`) have automated tests
-- [ ] **TEST-04**: Auth flows (registration, login, password reset, email verification) have automated tests
+- [x] **TEST-03**: API routes (`/api/upload`, `/api/notifications`, `/api/groups`) have automated tests
+- [x] **TEST-04**: Auth flows (registration, login, password reset, email verification) have automated tests
 - [ ] **TEST-05**: Typed mock factories replace `as any` casts in existing test files
 
 ### Observability
@@ -61,8 +61,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | TEST-01 | Phase 3 | Complete |
 | TEST-02 | Phase 3 | Complete |
-| TEST-03 | Phase 3 | Pending |
-| TEST-04 | Phase 3 | Pending |
+| TEST-03 | Phase 3 | Complete |
+| TEST-04 | Phase 3 | Complete |
 | TEST-05 | Phase 3 | Pending |
 | OBSV-01 | Phase 1 | Complete |
 | OBSV-02 | Phase 1 | Complete |
