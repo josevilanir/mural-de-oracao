@@ -22,7 +22,7 @@ test.describe("Fluxo de Login", () => {
     await expect(page.getByPlaceholder("seu@email.com")).toBeVisible();
     await expect(page.getByPlaceholder("••••••••")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Entrar" })
+      page.getByRole("button", { name: "Entrar", exact: true })
     ).toBeVisible();
     await expect(
       page.getByRole("link", { name: "Criar conta" })
@@ -36,7 +36,7 @@ test.describe("Fluxo de Login", () => {
       .getByPlaceholder("seu@email.com")
       .fill("usuario.invalido@example.com");
     await page.getByPlaceholder("••••••••").fill("senhaerrada123");
-    await page.getByRole("button", { name: "Entrar" }).click();
+    await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
     await expect(
       page.getByText("E-mail ou senha inválidos.")
@@ -53,7 +53,7 @@ test.describe("Fluxo de Login", () => {
 
     await page.getByPlaceholder("seu@email.com").fill(TEST_USER.email);
     await page.getByPlaceholder("••••••••").fill(TEST_USER.password);
-    await page.getByRole("button", { name: "Entrar" }).click();
+    await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
     // Após login bem-sucedido deve sair da página de login
     await page.waitForURL((url) => !url.pathname.includes("/login"), {

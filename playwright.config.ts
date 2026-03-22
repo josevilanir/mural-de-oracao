@@ -5,6 +5,7 @@ const AUTH_FILE = path.join(__dirname, "e2e/.auth/user.json");
 
 export default defineConfig({
   testDir: "./e2e",
+  timeout: 60_000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

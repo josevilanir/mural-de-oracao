@@ -42,7 +42,7 @@ test.describe("Intercessão por Pedido de Oração", () => {
   });
 
   test("deve exibir botão 'Orei por você' nos pedidos", async ({ page }) => {
-    await page.goto("/meus-pedidos");
+    await page.goto("/");
 
     // Aguarda pelo menos um card com o botão
     await page.waitForSelector('button:has-text("Orei por você")', {
@@ -54,13 +54,16 @@ test.describe("Intercessão por Pedido de Oração", () => {
   });
 
   test("deve marcar intercessão ao clicar no botão", async ({ page }) => {
-    await page.goto("/meus-pedidos");
+    await page.goto("/");
     await page.waitForSelector('button:has-text("Orei por você")', {
       timeout: 10_000,
     });
 
     // Localiza o card do pedido criado no beforeAll
-    const card = page.locator("div").filter({ hasText: PRAYER_TITLE }).first();
+    const card = page
+      .locator("div")
+      .filter({ has: page.locator("h3").filter({ hasText: PRAYER_TITLE }) })
+      .last();
     const btn = card.getByRole("button", { name: /Orei por você/ });
 
     // Lê o contador antes de clicar
@@ -84,12 +87,15 @@ test.describe("Intercessão por Pedido de Oração", () => {
   });
 
   test("deve desfazer intercessão ao clicar novamente", async ({ page }) => {
-    await page.goto("/meus-pedidos");
+    await page.goto("/");
     await page.waitForSelector('button:has-text("Orei por você")', {
       timeout: 10_000,
     });
 
-    const card = page.locator("div").filter({ hasText: PRAYER_TITLE }).first();
+    const card = page
+      .locator("div")
+      .filter({ has: page.locator("h3").filter({ hasText: PRAYER_TITLE }) })
+      .last();
     const btn = card.getByRole("button", { name: /Orei por você/ });
 
     // O estado deve estar como "prayed" (do teste anterior, persistido no servidor)
