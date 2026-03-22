@@ -11,6 +11,8 @@
 /playwright-report
 /test-results
 /e2e/.auth
+/report.json
+/parse-report.js
 
 # next.js
 /.next/
