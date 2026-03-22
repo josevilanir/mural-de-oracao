@@ -11,6 +11,7 @@
  */
 import { test as setup, expect } from "@playwright/test";
 import fs from "fs";
+import path from "path";
 import { AUTH_FILE, TEST_USER } from "./helpers";
 
 setup("autenticar usuário de teste", async ({ page }) => {
