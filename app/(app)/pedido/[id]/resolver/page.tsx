@@ -50,7 +50,7 @@ export default function ResolverPedidoPage({ params }: { params: { id: string } 
               onChange={(e) => setTestimony(e.target.value)}
               rows={6}
               placeholder="Conte como Deus agiu..."
-              className="w-full px-3 py-2 rounded-md border border-gray-med bg-white text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none"
+              className="w-full px-3 py-2 rounded-md border border-gray-med bg-card text-sm text-navy placeholder:text-gray-text focus:outline-none focus:ring-2 focus:ring-gold-warm resize-none"
               required
               minLength={20}
               maxLength={2000}

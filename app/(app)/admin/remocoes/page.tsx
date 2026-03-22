@@ -22,7 +22,7 @@ export default async function AdminRemocoesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-cream">
       <header className="bg-red-900 text-white px-6 py-4 flex items-center justify-between">
         <h1 className="text-lg font-bold">🛡️ Admin — Solicitações de Remoção</h1>
         <div className="flex items-center gap-4">
@@ -44,7 +44,7 @@ export default async function AdminRemocoesPage() {
         </p>
 
         {requests.length === 0 ? (
-          <div className="bg-white rounded-lg p-8 text-center text-gray-500 shadow-sm border border-gray-200">
+          <div className="bg-card rounded-lg p-8 text-center text-gray-500 dark:text-gray-text shadow-sm border border-gray-200 dark:border-gray-med/30">
             Nenhuma solicitação pendente.
           </div>
         ) : (
@@ -52,11 +52,11 @@ export default async function AdminRemocoesPage() {
             {requests.map((req) => (
               <div
                 key={req.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-5"
+                className="bg-card rounded-lg shadow-sm border border-gray-200 dark:border-gray-med/30 p-5"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h2 className="font-semibold text-gray-900">
+                    <h2 className="font-semibold text-gray-900 dark:text-navy">
                       Pedido:{" "}
                       <Link
                         href={`/pedido/${req.prayer.id}`}
@@ -65,13 +65,13 @@ export default async function AdminRemocoesPage() {
                         {req.prayer.title}
                       </Link>
                     </h2>
-                    <p className="text-sm text-gray-500 mt-0.5">
+                    <p className="text-sm text-gray-500 dark:text-gray-text mt-0.5">
                       Grupo: {req.group.name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-text">
                       Líder: {req.leader.name} ({req.leader.email})
                     </p>
-                    <div className="mt-2 bg-gray-50 rounded p-2 text-sm text-gray-700">
+                    <div className="mt-2 bg-gray-50 dark:bg-gray-light rounded p-2 text-sm text-gray-700 dark:text-gray-text">
                       <span className="font-medium">Motivo: </span>
                       {req.reason}
                     </div>

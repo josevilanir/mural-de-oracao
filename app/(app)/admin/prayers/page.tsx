@@ -21,7 +21,7 @@ export default async function AdminPrayersPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-cream">
       {/* Admin Header */}
       <header className="bg-red-900 text-white px-6 py-4 flex items-center justify-between">
         <h1 className="text-lg font-bold">🛡️ Painel de Moderação — Mural de Oração</h1>
@@ -44,8 +44,8 @@ export default async function AdminPrayersPage() {
         </p>
 
         <div className="overflow-x-auto">
-          <table className="w-full bg-white rounded-lg shadow-sm border border-gray-200 text-sm">
-            <thead className="bg-gray-100 text-gray-700">
+          <table className="w-full bg-card rounded-lg shadow-sm border border-gray-200 dark:border-gray-med/30 text-sm">
+            <thead className="bg-gray-100 dark:bg-gray-light text-gray-700 dark:text-navy">
               <tr>
                 <th className="text-left px-4 py-3">Título</th>
                 <th className="text-left px-4 py-3">Autor (real)</th>
@@ -62,7 +62,7 @@ export default async function AdminPrayersPage() {
                 const cat = CATEGORY_LABELS[prayer.category];
                 const status = STATUS_LABELS[prayer.status];
                 return (
-                  <tr key={prayer.id} className="border-t border-gray-100 hover:bg-gray-50">
+                  <tr key={prayer.id} className="border-t border-gray-100 dark:border-gray-med/20 hover:bg-gray-50 dark:hover:bg-gray-light">
                     <td className="px-4 py-3 max-w-xs">
                       <span className="line-clamp-1 font-medium text-navy">
                         {prayer.title}
