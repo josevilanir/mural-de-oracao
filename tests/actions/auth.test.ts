@@ -37,7 +37,10 @@ vi.mock("bcryptjs", () => ({
 // ---------------------------------------------------------------------------
 
 import { registerAction } from "@/app/actions/user/register";
-import { forgotPasswordAction, resetPasswordAction } from "@/app/actions/user/password-reset";
+import {
+  forgotPasswordAction,
+  resetPasswordAction,
+} from "@/app/actions/user/password-reset";
 import {
   sendVerificationEmailAction,
   verifyEmailAction,
@@ -114,7 +117,10 @@ describe("login (NextAuth authorize)", () => {
 
     // authorize returns user data when credentials are valid
     expect(isValid).toBe(true);
-    expect(bcrypt.compare).toHaveBeenCalledWith("correct-password", "hashed-pw");
+    expect(bcrypt.compare).toHaveBeenCalledWith(
+      "correct-password",
+      "hashed-pw",
+    );
     // Returned user shape matches what authorize() returns
     expect(user).toMatchObject({
       id: credentialUser.id,
@@ -136,7 +142,11 @@ describe("registerAction", () => {
   });
 
   it("returns error on invalid data", async () => {
-    const result = await registerAction({ name: "", email: "bad", password: "x" });
+    const result = await registerAction({
+      name: "",
+      email: "bad",
+      password: "x",
+    });
 
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
@@ -158,8 +168,12 @@ describe("registerAction", () => {
   it("registers user successfully", async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
     vi.mocked(prisma.user.create).mockResolvedValue(mockUser() as never);
-    vi.mocked(prisma.emailVerificationToken.deleteMany).mockResolvedValue({ count: 0 });
-    vi.mocked(prisma.emailVerificationToken.create).mockResolvedValue({} as never);
+    vi.mocked(prisma.emailVerificationToken.deleteMany).mockResolvedValue({
+      count: 0,
+    });
+    vi.mocked(prisma.emailVerificationToken.create).mockResolvedValue(
+      {} as never,
+    );
 
     const result = await registerAction({
       name: "New User",
@@ -173,8 +187,12 @@ describe("registerAction", () => {
   it("hashes password before storing", async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
     vi.mocked(prisma.user.create).mockResolvedValue(mockUser() as never);
-    vi.mocked(prisma.emailVerificationToken.deleteMany).mockResolvedValue({ count: 0 });
-    vi.mocked(prisma.emailVerificationToken.create).mockResolvedValue({} as never);
+    vi.mocked(prisma.emailVerificationToken.deleteMany).mockResolvedValue({
+      count: 0,
+    });
+    vi.mocked(prisma.emailVerificationToken.create).mockResolvedValue(
+      {} as never,
+    );
 
     await registerAction({
       name: "New User",
@@ -212,7 +230,9 @@ describe("forgotPasswordAction", () => {
   });
 
   it("returns success for OAuth user (no password)", async () => {
-    vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser({ password: null }));
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(
+      mockUser({ password: null }),
+    );
 
     const result = await forgotPasswordAction("test@test.com");
 
@@ -222,14 +242,19 @@ describe("forgotPasswordAction", () => {
 
   it("creates reset token and sends email", async () => {
     vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser());
-    vi.mocked(prisma.passwordResetToken.deleteMany).mockResolvedValue({ count: 0 });
+    vi.mocked(prisma.passwordResetToken.deleteMany).mockResolvedValue({
+      count: 0,
+    });
     vi.mocked(prisma.passwordResetToken.create).mockResolvedValue({} as never);
 
     const result = await forgotPasswordAction("test@test.com");
 
     expect(result.success).toBe(true);
     expect(prisma.passwordResetToken.create).toHaveBeenCalled();
-    expect(sendPasswordResetEmail).toHaveBeenCalledWith("test@test.com", expect.any(String));
+    expect(sendPasswordResetEmail).toHaveBeenCalledWith(
+      "test@test.com",
+      expect.any(String),
+    );
   });
 });
 
@@ -279,7 +304,9 @@ describe("resetPasswordAction", () => {
       email: "test@test.com",
       expires: new Date(Date.now() + 3600000),
     };
-    vi.mocked(prisma.passwordResetToken.findUnique).mockResolvedValue(validToken as never);
+    vi.mocked(prisma.passwordResetToken.findUnique).mockResolvedValue(
+      validToken as never,
+    );
     vi.mocked(prisma.user.update).mockResolvedValue(mockUser() as never);
     vi.mocked(prisma.passwordResetToken.delete).mockResolvedValue({} as never);
 
@@ -287,7 +314,7 @@ describe("resetPasswordAction", () => {
 
     expect(result.success).toBe(true);
     expect(prisma.user.update).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { email: "test@test.com" } })
+      expect.objectContaining({ where: { email: "test@test.com" } }),
     );
     expect(prisma.passwordResetToken.delete).toHaveBeenCalledWith({
       where: { token: "valid-token" },
@@ -305,8 +332,12 @@ describe("sendVerificationEmailAction", () => {
   });
 
   it("deletes old tokens and creates new one", async () => {
-    vi.mocked(prisma.emailVerificationToken.deleteMany).mockResolvedValue({ count: 1 });
-    vi.mocked(prisma.emailVerificationToken.create).mockResolvedValue({} as never);
+    vi.mocked(prisma.emailVerificationToken.deleteMany).mockResolvedValue({
+      count: 1,
+    });
+    vi.mocked(prisma.emailVerificationToken.create).mockResolvedValue(
+      {} as never,
+    );
 
     await sendVerificationEmailAction("test@test.com", "Test User");
 
@@ -317,7 +348,7 @@ describe("sendVerificationEmailAction", () => {
     expect(sendVerificationEmail).toHaveBeenCalledWith(
       "test@test.com",
       "Test User",
-      expect.any(String)
+      expect.any(String),
     );
   });
 });
@@ -361,9 +392,13 @@ describe("verifyEmailAction", () => {
       email: "test@test.com",
       expires: new Date(Date.now() + 3600000),
     };
-    vi.mocked(prisma.emailVerificationToken.findUnique).mockResolvedValue(validToken as never);
+    vi.mocked(prisma.emailVerificationToken.findUnique).mockResolvedValue(
+      validToken as never,
+    );
     vi.mocked(prisma.user.update).mockResolvedValue(mockUser() as never);
-    vi.mocked(prisma.emailVerificationToken.delete).mockResolvedValue({} as never);
+    vi.mocked(prisma.emailVerificationToken.delete).mockResolvedValue(
+      {} as never,
+    );
 
     const result = await verifyEmailAction("valid-token");
 
@@ -372,7 +407,7 @@ describe("verifyEmailAction", () => {
       expect.objectContaining({
         where: { email: "test@test.com" },
         data: expect.objectContaining({ emailVerified: expect.any(Date) }),
-      })
+      }),
     );
     expect(prisma.emailVerificationToken.delete).toHaveBeenCalledWith({
       where: { token: "valid-token" },

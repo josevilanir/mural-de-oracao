@@ -107,7 +107,7 @@ export function mockComment(overrides?: Partial<Comment>): Comment {
 }
 
 export function mockPrayerRemovalRequest(
-  overrides?: Partial<PrayerRemovalRequest>
+  overrides?: Partial<PrayerRemovalRequest>,
 ): PrayerRemovalRequest {
   const defaults: PrayerRemovalRequest = {
     id: "removal-1",

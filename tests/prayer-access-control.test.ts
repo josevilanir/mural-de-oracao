@@ -104,7 +104,7 @@ describe("canAccessPrayer", () => {
 
   it("returns false for GROUP_ONLY prayer when user membership is PENDING", async () => {
     vi.mocked(prisma.groupMember.findUnique).mockResolvedValue(
-      mockGroupMember({ status: "PENDING" })
+      mockGroupMember({ status: "PENDING" }),
     );
 
     const result = await canAccessPrayer("user-1", {
@@ -117,7 +117,7 @@ describe("canAccessPrayer", () => {
 
   it("returns true for GROUP_ONLY prayer when user is an ACTIVE member", async () => {
     vi.mocked(prisma.groupMember.findUnique).mockResolvedValue(
-      mockGroupMember({ status: "ACTIVE" })
+      mockGroupMember({ status: "ACTIVE" }),
     );
 
     const result = await canAccessPrayer("user-1", {
@@ -144,7 +144,8 @@ describe("fetchFeedAction — mural scope excludes GROUP_ONLY prayers", () => {
   it("does NOT filter by visibility when scope is 'mural' (all non-hidden prayers are shown)", async () => {
     await fetchFeedAction({ scope: "mural" });
 
-    const call = vi.mocked(prisma.prayer.findMany).mock.calls[0][0] as Prisma.PrayerFindManyArgs;
+    const call = vi.mocked(prisma.prayer.findMany).mock
+      .calls[0][0] as Prisma.PrayerFindManyArgs;
     // Mural scope shows all non-hidden prayers — no visibility or OR filter
     expect(call.where?.visibility).toBeUndefined();
     expect(call.where?.OR).toBeUndefined();
@@ -154,7 +155,8 @@ describe("fetchFeedAction — mural scope excludes GROUP_ONLY prayers", () => {
   it("does NOT pass a visibility filter when scope is 'home' (uses OR clause instead)", async () => {
     await fetchFeedAction({ scope: "home" });
 
-    const call = vi.mocked(prisma.prayer.findMany).mock.calls[0][0] as Prisma.PrayerFindManyArgs;
+    const call = vi.mocked(prisma.prayer.findMany).mock
+      .calls[0][0] as Prisma.PrayerFindManyArgs;
     // Home scope uses an OR clause, not a top-level visibility field
     expect(call.where?.visibility).toBeUndefined();
     expect(call.where?.OR).toBeDefined();
@@ -163,12 +165,13 @@ describe("fetchFeedAction — mural scope excludes GROUP_ONLY prayers", () => {
   it("home scope OR clause excludes GROUP_ONLY group prayers", async () => {
     await fetchFeedAction({ scope: "home" });
 
-    const call = vi.mocked(prisma.prayer.findMany).mock.calls[0][0] as Prisma.PrayerFindManyArgs;
+    const call = vi.mocked(prisma.prayer.findMany).mock
+      .calls[0][0] as Prisma.PrayerFindManyArgs;
     const orClause = call.where?.OR as Prisma.PrayerWhereInput[];
     // The OR clause should require groupId IS NULL *or* visibility PUBLIC
     // — it never includes a branch that passes GROUP_ONLY group prayers
     const hasGroupOnlyBranch = orClause.some(
-      (branch) => branch.visibility === "GROUP_ONLY"
+      (branch) => branch.visibility === "GROUP_ONLY",
     );
     expect(hasGroupOnlyBranch).toBe(false);
   });

@@ -25,7 +25,11 @@ import { GET as getGroupById } from "@/app/api/groups/[id]/route";
 import { GET as getPendingMembers } from "@/app/api/groups/[id]/pending-members/route";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { mockSession, mockGroup, mockGroupMember } from "@/tests/__mocks__/factories";
+import {
+  mockSession,
+  mockGroup,
+  mockGroupMember,
+} from "@/tests/__mocks__/factories";
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -38,7 +42,11 @@ describe("GET /api/groups", () => {
 
   it("returns active groups", async () => {
     vi.mocked(prisma.group.findMany).mockResolvedValue([
-      { ...mockGroup(), leader: { name: "Leader", image: null }, _count: { members: 5 } },
+      {
+        ...mockGroup(),
+        leader: { name: "Leader", image: null },
+        _count: { members: 5 },
+      },
     ] as never);
 
     const response = await getGroups();
@@ -100,8 +108,12 @@ describe("GET /api/groups/[id]/pending-members", () => {
   it("returns 401 when not authenticated", async () => {
     vi.mocked(auth).mockResolvedValue(null as never);
 
-    const req = new Request("http://localhost/api/groups/group-1/pending-members");
-    const response = await getPendingMembers(req, { params: { id: "group-1" } });
+    const req = new Request(
+      "http://localhost/api/groups/group-1/pending-members",
+    );
+    const response = await getPendingMembers(req, {
+      params: { id: "group-1" },
+    });
 
     expect(response.status).toBe(401);
   });
@@ -110,8 +122,12 @@ describe("GET /api/groups/[id]/pending-members", () => {
     vi.mocked(auth).mockResolvedValue(mockSession({ id: "user-1" }) as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(null);
 
-    const req = new Request("http://localhost/api/groups/nonexistent/pending-members");
-    const response = await getPendingMembers(req, { params: { id: "nonexistent" } });
+    const req = new Request(
+      "http://localhost/api/groups/nonexistent/pending-members",
+    );
+    const response = await getPendingMembers(req, {
+      params: { id: "nonexistent" },
+    });
 
     expect(response.status).toBe(404);
   });
@@ -119,11 +135,15 @@ describe("GET /api/groups/[id]/pending-members", () => {
   it("returns 403 when user is not leader", async () => {
     vi.mocked(auth).mockResolvedValue(mockSession({ id: "user-2" }) as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ leaderId: "user-1" }) as never
+      mockGroup({ leaderId: "user-1" }) as never,
     );
 
-    const req = new Request("http://localhost/api/groups/group-1/pending-members");
-    const response = await getPendingMembers(req, { params: { id: "group-1" } });
+    const req = new Request(
+      "http://localhost/api/groups/group-1/pending-members",
+    );
+    const response = await getPendingMembers(req, {
+      params: { id: "group-1" },
+    });
 
     expect(response.status).toBe(403);
   });
@@ -131,17 +151,26 @@ describe("GET /api/groups/[id]/pending-members", () => {
   it("returns pending members for leader", async () => {
     vi.mocked(auth).mockResolvedValue(mockSession({ id: "user-1" }) as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ leaderId: "user-1" }) as never
+      mockGroup({ leaderId: "user-1" }) as never,
     );
     vi.mocked(prisma.groupMember.findMany).mockResolvedValue([
       {
         ...mockGroupMember({ status: "PENDING" }),
-        user: { id: "user-3", name: "Pending User", image: null, email: "pending@test.com" },
+        user: {
+          id: "user-3",
+          name: "Pending User",
+          image: null,
+          email: "pending@test.com",
+        },
       },
     ] as never);
 
-    const req = new Request("http://localhost/api/groups/group-1/pending-members");
-    const response = await getPendingMembers(req, { params: { id: "group-1" } });
+    const req = new Request(
+      "http://localhost/api/groups/group-1/pending-members",
+    );
+    const response = await getPendingMembers(req, {
+      params: { id: "group-1" },
+    });
 
     expect(response.status).toBe(200);
     const body = await response.json();

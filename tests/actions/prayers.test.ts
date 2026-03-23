@@ -6,7 +6,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    prayer: { create: vi.fn(), findUnique: vi.fn(), delete: vi.fn(), update: vi.fn() },
+    prayer: {
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      delete: vi.fn(),
+      update: vi.fn(),
+    },
     groupMember: { findUnique: vi.fn() },
     comment: { create: vi.fn(), findUnique: vi.fn(), delete: vi.fn() },
     notification: { create: vi.fn() },
@@ -33,11 +38,18 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import { createPrayerAction } from "@/app/actions/prayers/create";
 import { deletePrayer } from "@/app/actions/prayers/delete";
-import { createCommentAction, deleteCommentAction } from "@/app/actions/prayers/comment";
+import {
+  createCommentAction,
+  deleteCommentAction,
+} from "@/app/actions/prayers/comment";
 import { resolveTestimonyAction } from "@/app/actions/prayers/resolve";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { mockSession, mockPrayer, mockComment } from "@/tests/__mocks__/factories";
+import {
+  mockSession,
+  mockPrayer,
+  mockComment,
+} from "@/tests/__mocks__/factories";
 
 // ---------------------------------------------------------------------------
 // Shared test data
@@ -168,7 +180,7 @@ describe("deletePrayer", () => {
 
   it("allows admin to delete", async () => {
     vi.mocked(auth).mockResolvedValue(
-      mockSession({ id: "admin-1", role: "ADMIN" }) as never
+      mockSession({ id: "admin-1", role: "ADMIN" }) as never,
     );
     vi.mocked(prisma.prayer.findUnique).mockResolvedValue({
       authorId: "user-1",
@@ -193,7 +205,10 @@ describe("createCommentAction", () => {
   it("returns error when not authenticated", async () => {
     vi.mocked(auth).mockResolvedValue(null as never);
 
-    const result = await createCommentAction({ prayerId: "prayer-1", text: "Hi" });
+    const result = await createCommentAction({
+      prayerId: "prayer-1",
+      text: "Hi",
+    });
 
     expect(result.success).toBe(false);
   });
@@ -210,7 +225,10 @@ describe("createCommentAction", () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
     vi.mocked(prisma.prayer.findUnique).mockResolvedValue(null as never);
 
-    const result = await createCommentAction({ prayerId: "prayer-1", text: "Hello" });
+    const result = await createCommentAction({
+      prayerId: "prayer-1",
+      text: "Hello",
+    });
 
     expect(result.success).toBe(false);
   });
@@ -222,7 +240,10 @@ describe("createCommentAction", () => {
       author: { name: "Author", email: "author@test.com" },
     } as never);
 
-    const result = await createCommentAction({ prayerId: "prayer-1", text: "Hello" });
+    const result = await createCommentAction({
+      prayerId: "prayer-1",
+      text: "Hello",
+    });
 
     expect(result.success).toBe(false);
   });
@@ -234,7 +255,10 @@ describe("createCommentAction", () => {
       author: { name: "Author", email: "author@test.com" },
     } as never);
 
-    const result = await createCommentAction({ prayerId: "prayer-1", text: "Hello" });
+    const result = await createCommentAction({
+      prayerId: "prayer-1",
+      text: "Hello",
+    });
 
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/desativados/i);
@@ -250,7 +274,10 @@ describe("createCommentAction", () => {
       status: "PENDING",
     } as never);
 
-    const result = await createCommentAction({ prayerId: "prayer-1", text: "Hello" });
+    const result = await createCommentAction({
+      prayerId: "prayer-1",
+      text: "Hello",
+    });
 
     expect(result.success).toBe(false);
   });
@@ -262,12 +289,15 @@ describe("createCommentAction", () => {
       author: { name: "Author", email: "author@test.com" },
     } as never);
     vi.mocked(prisma.comment.create).mockResolvedValue(
-      mockComment({ id: "comment-new" }) as never
+      mockComment({ id: "comment-new" }) as never,
     );
     vi.mocked(prisma.notification.create).mockResolvedValue({} as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue(null as never);
 
-    const result = await createCommentAction({ prayerId: "prayer-1", text: "Hello" });
+    const result = await createCommentAction({
+      prayerId: "prayer-1",
+      text: "Hello",
+    });
 
     expect(result.success).toBe(true);
     expect(prisma.notification.create).toHaveBeenCalled();
@@ -328,7 +358,7 @@ describe("deleteCommentAction", () => {
 
   it("allows admin to delete", async () => {
     vi.mocked(auth).mockResolvedValue(
-      mockSession({ id: "admin-1", role: "ADMIN" }) as never
+      mockSession({ id: "admin-1", role: "ADMIN" }) as never,
     );
     vi.mocked(prisma.comment.findUnique).mockResolvedValue({
       authorId: "user-1",
@@ -404,7 +434,7 @@ describe("resolveTestimonyAction", () => {
       authorId: "user-1",
     } as never);
     vi.mocked(prisma.prayer.update).mockResolvedValue(
-      mockPrayer({ status: "ANSWERED" }) as never
+      mockPrayer({ status: "ANSWERED" }) as never,
     );
 
     const result = await resolveTestimonyAction({
@@ -416,7 +446,7 @@ describe("resolveTestimonyAction", () => {
     expect(prisma.prayer.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: "ANSWERED" }),
-      })
+      }),
     );
   });
 });

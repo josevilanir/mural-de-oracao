@@ -41,7 +41,7 @@ describe("GET /api/upload", () => {
     vi.mocked(auth).mockResolvedValue(null as never);
 
     const req = new Request(
-      "http://localhost/api/upload?contentType=image/jpeg&contentLength=1000"
+      "http://localhost/api/upload?contentType=image/jpeg&contentLength=1000",
     );
     const response = await GET(req);
 
@@ -54,7 +54,7 @@ describe("GET /api/upload", () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
 
     const req = new Request(
-      "http://localhost/api/upload?contentType=application/pdf&contentLength=1000"
+      "http://localhost/api/upload?contentType=application/pdf&contentLength=1000",
     );
     const response = await GET(req);
 
@@ -67,7 +67,7 @@ describe("GET /api/upload", () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
 
     const req = new Request(
-      "http://localhost/api/upload?contentType=image/jpeg&contentLength=6000000"
+      "http://localhost/api/upload?contentType=image/jpeg&contentLength=6000000",
     );
     const response = await GET(req);
 
@@ -80,7 +80,7 @@ describe("GET /api/upload", () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
 
     const req = new Request(
-      "http://localhost/api/upload?contentType=image/jpeg"
+      "http://localhost/api/upload?contentType=image/jpeg",
     );
     const response = await GET(req);
 
@@ -91,7 +91,7 @@ describe("GET /api/upload", () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
 
     const req = new Request(
-      "http://localhost/api/upload?contentType=image/jpeg&contentLength=1000"
+      "http://localhost/api/upload?contentType=image/jpeg&contentLength=1000",
     );
     const response = await GET(req);
 

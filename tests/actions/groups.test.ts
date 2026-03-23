@@ -6,12 +6,26 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
-    group: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn(), delete: vi.fn() },
-    groupMember: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn(), upsert: vi.fn() },
+    group: {
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    groupMember: {
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      upsert: vi.fn(),
+    },
     prayer: { deleteMany: vi.fn(), update: vi.fn(), delete: vi.fn() },
     notification: { create: vi.fn(), createMany: vi.fn() },
     user: { findMany: vi.fn() },
-    prayerRemovalRequest: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
+    prayerRemovalRequest: {
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+    },
     auditLog: { create: vi.fn() },
     $transaction: vi.fn().mockImplementation((arr) => Promise.resolve(arr)),
   },
@@ -45,7 +59,11 @@ import {
 } from "@/app/actions/groups/index";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { mockSession, mockGroup, mockGroupMember } from "@/tests/__mocks__/factories";
+import {
+  mockSession,
+  mockGroup,
+  mockGroupMember,
+} from "@/tests/__mocks__/factories";
 
 // ---------------------------------------------------------------------------
 // requestGroupCreation
@@ -93,7 +111,7 @@ describe("requestGroupCreation", () => {
     expect(prisma.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ action: "GROUP_CREATED" }),
-      })
+      }),
     );
   });
 });
@@ -128,7 +146,7 @@ describe("deleteGroup", () => {
   it("returns error when not admin or leader", async () => {
     vi.mocked(auth).mockResolvedValue(mockSession({ id: "user-2" }) as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ leaderId: "user-1" }) as never
+      mockGroup({ leaderId: "user-1" }) as never,
     );
 
     const result = await deleteGroup("group-1");
@@ -140,7 +158,7 @@ describe("deleteGroup", () => {
   it("allows leader to delete", async () => {
     vi.mocked(auth).mockResolvedValue(mockSession({ id: "user-1" }) as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ leaderId: "user-1" }) as never
+      mockGroup({ leaderId: "user-1" }) as never,
     );
     vi.mocked(prisma.$transaction).mockResolvedValue([] as never);
 
@@ -152,10 +170,10 @@ describe("deleteGroup", () => {
 
   it("allows admin to delete", async () => {
     vi.mocked(auth).mockResolvedValue(
-      mockSession({ id: "admin-1", role: "ADMIN" }) as never
+      mockSession({ id: "admin-1", role: "ADMIN" }) as never,
     );
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ leaderId: "user-1" }) as never
+      mockGroup({ leaderId: "user-1" }) as never,
     );
     vi.mocked(prisma.$transaction).mockResolvedValue([] as never);
 
@@ -193,14 +211,18 @@ describe("approveGroup", () => {
 
   it("approves group and notifies leader", async () => {
     vi.mocked(auth).mockResolvedValue(
-      mockSession({ id: "admin-1", role: "ADMIN" }) as never
+      mockSession({ id: "admin-1", role: "ADMIN" }) as never,
     );
     vi.mocked(prisma.group.update).mockResolvedValue({
       ...mockGroup(),
       leader: { name: "Leader", email: "leader@test.com" },
-    } as ReturnType<typeof mockGroup> & { leader: { name: string; email: string } } as never);
+    } as ReturnType<typeof mockGroup> & {
+      leader: { name: string; email: string };
+    } as never);
     vi.mocked(prisma.auditLog.create).mockResolvedValue({} as never);
-    vi.mocked(prisma.groupMember.upsert).mockResolvedValue(mockGroupMember() as never);
+    vi.mocked(prisma.groupMember.upsert).mockResolvedValue(
+      mockGroupMember() as never,
+    );
     vi.mocked(prisma.notification.create).mockResolvedValue({} as never);
 
     const result = await approveGroup("group-1");
@@ -209,7 +231,7 @@ describe("approveGroup", () => {
     expect(prisma.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ action: "GROUP_APPROVED" }),
-      })
+      }),
     );
     expect(prisma.notification.create).toHaveBeenCalled();
   });
@@ -234,12 +256,14 @@ describe("rejectGroup", () => {
 
   it("rejects group and notifies leader", async () => {
     vi.mocked(auth).mockResolvedValue(
-      mockSession({ id: "admin-1", role: "ADMIN" }) as never
+      mockSession({ id: "admin-1", role: "ADMIN" }) as never,
     );
     vi.mocked(prisma.group.update).mockResolvedValue({
       ...mockGroup({ status: "ARCHIVED" }),
       leader: { name: "Leader", email: "leader@test.com" },
-    } as ReturnType<typeof mockGroup> & { leader: { name: string; email: string } } as never);
+    } as ReturnType<typeof mockGroup> & {
+      leader: { name: string; email: string };
+    } as never);
     vi.mocked(prisma.auditLog.create).mockResolvedValue({} as never);
     vi.mocked(prisma.notification.create).mockResolvedValue({} as never);
 
@@ -249,12 +273,12 @@ describe("rejectGroup", () => {
     expect(prisma.group.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: "ARCHIVED" }),
-      })
+      }),
     );
     expect(prisma.auditLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ action: "GROUP_REJECTED" }),
-      })
+      }),
     );
   });
 });
@@ -279,7 +303,7 @@ describe("requestJoinGroup", () => {
   it("returns error when group not found or not active", async () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ status: "PENDING" }) as never
+      mockGroup({ status: "PENDING" }) as never,
     );
 
     const result = await requestJoinGroup("group-1");
@@ -291,9 +315,11 @@ describe("requestJoinGroup", () => {
   it("creates join request", async () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ status: "ACTIVE" }) as never
+      mockGroup({ status: "ACTIVE" }) as never,
     );
-    vi.mocked(prisma.groupMember.create).mockResolvedValue(mockGroupMember() as never);
+    vi.mocked(prisma.groupMember.create).mockResolvedValue(
+      mockGroupMember() as never,
+    );
     vi.mocked(prisma.auditLog.create).mockResolvedValue({} as never);
     vi.mocked(prisma.notification.create).mockResolvedValue({} as never);
 
@@ -306,9 +332,11 @@ describe("requestJoinGroup", () => {
   it("returns error on duplicate request", async () => {
     vi.mocked(auth).mockResolvedValue(mockSession() as never);
     vi.mocked(prisma.group.findUnique).mockResolvedValue(
-      mockGroup({ status: "ACTIVE" }) as never
+      mockGroup({ status: "ACTIVE" }) as never,
     );
-    vi.mocked(prisma.groupMember.create).mockRejectedValue({ code: "P2002" } as never);
+    vi.mocked(prisma.groupMember.create).mockRejectedValue({
+      code: "P2002",
+    } as never);
 
     const result = await requestJoinGroup("group-1");
 
@@ -348,7 +376,7 @@ describe("approveJoinRequest", () => {
       user: { name: "Member", email: "member@test.com" },
     } as never);
     vi.mocked(prisma.groupMember.update).mockResolvedValue(
-      mockGroupMember({ status: "ACTIVE" }) as never
+      mockGroupMember({ status: "ACTIVE" }) as never,
     );
     vi.mocked(prisma.auditLog.create).mockResolvedValue({} as never);
     vi.mocked(prisma.notification.create).mockResolvedValue({} as never);
@@ -359,7 +387,7 @@ describe("approveJoinRequest", () => {
     expect(prisma.groupMember.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: "ACTIVE" }),
-      })
+      }),
     );
   });
 });
@@ -395,7 +423,7 @@ describe("rejectJoinRequest", () => {
       user: { name: "Member", email: "member@test.com" },
     } as never);
     vi.mocked(prisma.groupMember.update).mockResolvedValue(
-      mockGroupMember({ status: "REJECTED" }) as never
+      mockGroupMember({ status: "REJECTED" }) as never,
     );
     vi.mocked(prisma.auditLog.create).mockResolvedValue({} as never);
     vi.mocked(prisma.notification.create).mockResolvedValue({} as never);
@@ -406,7 +434,7 @@ describe("rejectJoinRequest", () => {
     expect(prisma.groupMember.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: "REJECTED" }),
-      })
+      }),
     );
   });
 });
