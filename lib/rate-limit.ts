@@ -7,17 +7,23 @@ const redis =
     ? Redis.fromEnv()
     : null;
 
-function makeLimiter(requests: number, window: Parameters<typeof Ratelimit.slidingWindow>[1]) {
+function makeLimiter(
+  requests: number,
+  window: Parameters<typeof Ratelimit.slidingWindow>[1],
+) {
   if (!redis) return null;
-  return new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(requests, window) });
+  return new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(requests, window),
+  });
 }
 
 // Limites por tipo de ação
 const limiters = {
-  pray:    makeLimiter(20, "1 m"),   // 20 orações por minuto
-  comment: makeLimiter(10, "1 m"),   // 10 comentários por minuto
-  prayer:  makeLimiter(5,  "1 h"),   // 5 pedidos por hora
-  join:    makeLimiter(10, "1 m"),   // 10 solicitações de entrada por minuto
+  pray: makeLimiter(20, "1 m"), // 20 orações por minuto
+  comment: makeLimiter(10, "1 m"), // 10 comentários por minuto
+  prayer: makeLimiter(5, "1 h"), // 5 pedidos por hora
+  join: makeLimiter(10, "1 m"), // 10 solicitações de entrada por minuto
 } as const;
 
 /**
@@ -27,25 +33,34 @@ const limiters = {
  */
 export async function checkRateLimit(
   type: keyof typeof limiters,
-  identifier: string
+  identifier: string,
 ): Promise<{ success: boolean; error?: string }> {
   const limiter = limiters[type];
   if (!limiter) {
     if (process.env.NODE_ENV === "production") {
       console.error(
-        `[rate-limit] ERRO: Redis não configurado em produção. Ação bloqueada: ${type} (id: ${identifier})`
+        `[rate-limit] ERRO: Redis não configurado em produção. Ação bloqueada: ${type} (id: ${identifier})`,
       );
-      return { success: false, error: "Serviço temporariamente indisponível. Tente novamente em instantes." };
+      return {
+        success: false,
+        error:
+          "Serviço temporariamente indisponível. Tente novamente em instantes.",
+      };
     }
-    console.warn(
-      `[rate-limit] Redis não configurado — ignorando rate limit para a ação: ${type} (id: ${identifier})`
-    );
+    if (process.env.NODE_ENV !== "test") {
+      console.warn(
+        `[rate-limit] Redis não configurado — ignorando rate limit para a ação: ${type} (id: ${identifier})`,
+      );
+    }
     return { success: true };
   }
 
   const result = await limiter.limit(identifier);
   if (!result.success) {
-    return { success: false, error: "Muitas requisições. Tente novamente em instantes." };
+    return {
+      success: false,
+      error: "Muitas requisições. Tente novamente em instantes.",
+    };
   }
   return { success: true };
 }
