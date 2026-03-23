@@ -1,4 +1,4 @@
-import { sanitizeUserInput } from '@/lib/sanitize';
+import { sanitizeUserInput } from "@/lib/sanitize";
 
 const BASE_URL = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
@@ -8,7 +8,12 @@ async function send(to: string, subject: string, html: string) {
   const FROM_NAME = process.env.BREVO_FROM_NAME ?? "Mural de Oração";
 
   if (!API_KEY) {
-    console.log("[email] BREVO_API_KEY não configurado — email não enviado:", subject, "→", to);
+    console.log(
+      "[email] BREVO_API_KEY não configurado — email não enviado:",
+      subject,
+      "→",
+      to,
+    );
     return;
   }
   try {
@@ -77,11 +82,15 @@ export async function sendPasswordResetEmail(email: string, token: string) {
       <p style="color:#555;line-height:1.6;">Recebemos uma solicitação para redefinir a senha da sua conta.</p>
       ${btn(url, "Redefinir senha")}
       <p style="color:#9ca3af;font-size:13px;">Este link expira em <strong>1 hora</strong>. Se não foi você, ignore este e-mail.</p>
-    `)
+    `),
   );
 }
 
-export async function sendVerificationEmail(email: string, name: string, token: string) {
+export async function sendVerificationEmail(
+  email: string,
+  name: string,
+  token: string,
+) {
   const s = buildEmailFields({ name });
   const url = `${BASE_URL}/verify-email?token=${token}`;
   await send(
@@ -92,7 +101,7 @@ export async function sendVerificationEmail(email: string, name: string, token: 
       <p style="color:#555;line-height:1.6;">Clique no botão abaixo para confirmar seu e-mail e começar a usar o Mural de Oração.</p>
       ${btn(url, "Confirmar e-mail")}
       <p style="color:#9ca3af;font-size:13px;">Este link expira em <strong>24 horas</strong>.</p>
-    `)
+    `),
   );
 }
 
@@ -101,7 +110,7 @@ export async function sendCommentNotificationEmail(
   authorName: string,
   commenterName: string,
   prayerTitle: string,
-  prayerId: string
+  prayerId: string,
 ) {
   const s = buildEmailFields({ authorName, commenterName, prayerTitle });
   const url = `${BASE_URL}/pedido/${prayerId}`;
@@ -116,7 +125,7 @@ export async function sendCommentNotificationEmail(
         <em>"${s.prayerTitle}"</em>.
       </p>
       ${btn(url, "Ver comentário")}
-    `)
+    `),
   );
 }
 
@@ -124,7 +133,7 @@ export async function sendGroupStatusEmail(
   to: string,
   name: string,
   groupName: string,
-  approved: boolean
+  approved: boolean,
 ) {
   const s = buildEmailFields({ name, groupName });
   const subject = approved
@@ -156,7 +165,7 @@ export async function sendJoinRequestStatusEmail(
   to: string,
   name: string,
   groupName: string,
-  approved: boolean
+  approved: boolean,
 ) {
   const s = buildEmailFields({ name, groupName });
   const subject = approved

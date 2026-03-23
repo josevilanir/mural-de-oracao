@@ -24,7 +24,10 @@ export async function requestGroupCreation(data: unknown) {
 
   const parsed = RequestGroupSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const { name, description, image } = parsed.data;
@@ -74,7 +77,10 @@ export async function updateGroup(groupId: string, data: unknown) {
 
   const parsed = UpdateGroupSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const { name, description, image } = parsed.data;
@@ -127,7 +133,10 @@ export async function removeGroupMember(memberId: string) {
   }
 
   if (member.userId === member.group.leaderId) {
-    return { success: false, error: "O líder não pode ser removido. Apague o grupo se necessário." };
+    return {
+      success: false,
+      error: "O líder não pode ser removido. Apague o grupo se necessário.",
+    };
   }
 
   try {
@@ -161,7 +170,10 @@ export async function leaveGroup(groupId: string) {
   if (!group) return { success: false, error: "Grupo não encontrado." };
 
   if (group.leaderId === session.user.id) {
-    return { success: false, error: "O líder não pode sair do grupo. Apague o grupo se necessário." };
+    return {
+      success: false,
+      error: "O líder não pode sair do grupo. Apague o grupo se necessário.",
+    };
   }
 
   const member = await prisma.groupMember.findUnique({
@@ -231,7 +243,8 @@ export async function deleteGroup(groupId: string) {
 export async function approveGroup(groupId: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Não autorizado." };
-  if (session.user.role !== "ADMIN") return { success: false, error: "Apenas admins." };
+  if (session.user.role !== "ADMIN")
+    return { success: false, error: "Apenas admins." };
 
   const group = await prisma.group.update({
     where: { id: groupId },
@@ -250,7 +263,12 @@ export async function approveGroup(groupId: string) {
   // Adiciona o líder como membro ativo automaticamente
   await prisma.groupMember.upsert({
     where: { userId_groupId: { userId: group.leaderId, groupId: group.id } },
-    create: { userId: group.leaderId, groupId: group.id, status: "ACTIVE", joinedAt: new Date() },
+    create: {
+      userId: group.leaderId,
+      groupId: group.id,
+      status: "ACTIVE",
+      joinedAt: new Date(),
+    },
     update: { status: "ACTIVE", joinedAt: new Date() },
   });
 
@@ -263,8 +281,12 @@ export async function approveGroup(groupId: string) {
   });
 
   if (group.leader.email) {
-    sendGroupStatusEmail(group.leader.email, group.leader.name ?? "líder", group.name, true)
-      .catch((err) => console.error("[approveGroup] email error:", err));
+    sendGroupStatusEmail(
+      group.leader.email,
+      group.leader.name ?? "líder",
+      group.name,
+      true,
+    ).catch((err) => console.error("[approveGroup] email error:", err));
   }
 
   revalidatePath("/admin");
@@ -278,7 +300,8 @@ export async function approveGroup(groupId: string) {
 export async function rejectGroup(groupId: string) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Não autorizado." };
-  if (session.user.role !== "ADMIN") return { success: false, error: "Apenas admins." };
+  if (session.user.role !== "ADMIN")
+    return { success: false, error: "Apenas admins." };
 
   const group = await prisma.group.update({
     where: { id: groupId },
@@ -303,8 +326,12 @@ export async function rejectGroup(groupId: string) {
   });
 
   if (group.leader.email) {
-    sendGroupStatusEmail(group.leader.email, group.leader.name ?? "líder", group.name, false)
-      .catch((err) => console.error("[rejectGroup] email error:", err));
+    sendGroupStatusEmail(
+      group.leader.email,
+      group.leader.name ?? "líder",
+      group.name,
+      false,
+    ).catch((err) => console.error("[rejectGroup] email error:", err));
   }
 
   revalidatePath("/admin");
@@ -316,7 +343,8 @@ export async function rejectGroup(groupId: string) {
 // ─────────────────────────────────────────────────────────
 export async function requestJoinGroup(groupId: string) {
   const session = await auth();
-  if (!session?.user?.id) return { success: false, error: "Você precisa estar logado." };
+  if (!session?.user?.id)
+    return { success: false, error: "Você precisa estar logado." };
 
   const rl = await checkRateLimit("join", session.user.id);
   if (!rl.success) return { success: false, error: rl.error };
@@ -334,7 +362,12 @@ export async function requestJoinGroup(groupId: string) {
       },
     });
   } catch (err: unknown) {
-    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "P2002") {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as { code: string }).code === "P2002"
+    ) {
       return { success: false, error: "Você já solicitou participação." };
     }
     console.error("[requestJoinGroup]", err);
@@ -401,8 +434,12 @@ export async function approveJoinRequest(memberId: string) {
   });
 
   if (member.user.email) {
-    sendJoinRequestStatusEmail(member.user.email, member.user.name ?? "usuário", member.group.name, true)
-      .catch((err) => console.error("[approveJoinRequest] email error:", err));
+    sendJoinRequestStatusEmail(
+      member.user.email,
+      member.user.name ?? "usuário",
+      member.group.name,
+      true,
+    ).catch((err) => console.error("[approveJoinRequest] email error:", err));
   }
 
   revalidatePath(`/grupos/${member.groupId}/gerenciar`);
@@ -448,8 +485,12 @@ export async function rejectJoinRequest(memberId: string) {
   });
 
   if (member.user.email) {
-    sendJoinRequestStatusEmail(member.user.email, member.user.name ?? "usuário", member.group.name, false)
-      .catch((err) => console.error("[rejectJoinRequest] email error:", err));
+    sendJoinRequestStatusEmail(
+      member.user.email,
+      member.user.name ?? "usuário",
+      member.group.name,
+      false,
+    ).catch((err) => console.error("[rejectJoinRequest] email error:", err));
   }
 
   revalidatePath(`/grupos/${member.groupId}/gerenciar`);
@@ -459,7 +500,11 @@ export async function rejectJoinRequest(memberId: string) {
 // ─────────────────────────────────────────────────────────
 // 2.7 requestPrayerRemoval — líder only
 // ─────────────────────────────────────────────────────────
-export async function requestPrayerRemoval(prayerId: string, groupId: string, reason: string) {
+export async function requestPrayerRemoval(
+  prayerId: string,
+  groupId: string,
+  reason: string,
+) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Não autorizado." };
 
@@ -502,10 +547,14 @@ export async function requestPrayerRemoval(prayerId: string, groupId: string, re
 // ─────────────────────────────────────────────────────────
 // 2.8 resolvePrayerRemoval — admin only
 // ─────────────────────────────────────────────────────────
-export async function resolvePrayerRemoval(removalRequestId: string, approve: boolean) {
+export async function resolvePrayerRemoval(
+  removalRequestId: string,
+  approve: boolean,
+) {
   const session = await auth();
   if (!session?.user?.id) return { success: false, error: "Não autorizado." };
-  if (session.user.role !== "ADMIN") return { success: false, error: "Apenas admins." };
+  if (session.user.role !== "ADMIN")
+    return { success: false, error: "Apenas admins." };
 
   const request = await prisma.prayerRemovalRequest.findUnique({
     where: { id: removalRequestId },

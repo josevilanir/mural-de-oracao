@@ -27,7 +27,9 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-cream flex items-center justify-center p-4">
       <div className="bg-card rounded-xl shadow-sm p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="font-display text-2xl font-bold text-navy mt-2">Esqueceu a senha?</h1>
+          <h1 className="font-display text-2xl font-bold text-navy mt-2">
+            Esqueceu a senha?
+          </h1>
           <p className="text-sm text-gray-text mt-1">
             Digite seu e-mail e enviaremos um link para redefinir sua senha.
           </p>
@@ -36,16 +38,22 @@ export default function ForgotPasswordPage() {
         {status === "done" ? (
           <div className="text-center py-4">
             <p className="text-sm text-gray-text">
-              Se este e-mail estiver cadastrado, você receberá as instruções em breve.
+              Se este e-mail estiver cadastrado, você receberá as instruções em
+              breve.
             </p>
-            <Link href="/login" className="mt-4 inline-block text-blue-main hover:underline text-sm font-medium">
+            <Link
+              href="/login"
+              className="mt-4 inline-block text-blue-main hover:underline text-sm font-medium"
+            >
               Voltar ao login
             </Link>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-sm font-medium text-navy mb-1">E-mail</label>
+              <label className="block text-sm font-medium text-navy mb-1">
+                E-mail
+              </label>
               <input
                 type="email"
                 value={email}
@@ -57,10 +65,17 @@ export default function ForgotPasswordPage() {
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm bg-red-50 rounded p-2">{error}</p>
+              <p className="text-red-500 text-sm bg-red-50 rounded p-2">
+                {error}
+              </p>
             )}
 
-            <Button type="submit" variant="primary" disabled={status === "loading"} className="w-full">
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={status === "loading"}
+              className="w-full"
+            >
               {status === "loading" ? "Enviando..." : "Enviar link"}
             </Button>
           </form>
@@ -68,7 +83,10 @@ export default function ForgotPasswordPage() {
 
         <p className="text-center text-sm text-gray-text mt-4">
           Lembrou a senha?{" "}
-          <Link href="/login" className="text-blue-main hover:underline font-medium">
+          <Link
+            href="/login"
+            className="text-blue-main hover:underline font-medium"
+          >
             Entrar
           </Link>
         </p>

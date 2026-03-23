@@ -30,8 +30,13 @@ export default function CommentForm({ prayerId }: { prayerId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 border-t border-gray-med/50 pt-6">
-      <h3 className="text-sm font-semibold text-navy mb-3">Deixe uma palavra de encorajamento</h3>
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6 border-t border-gray-med/50 pt-6"
+    >
+      <h3 className="text-sm font-semibold text-navy mb-3">
+        Deixe uma palavra de encorajamento
+      </h3>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -44,7 +49,12 @@ export default function CommentForm({ prayerId }: { prayerId: string }) {
       />
       {error && <p className="text-red-500 text-xs mb-2">{error}</p>}
       <div className="flex justify-end">
-        <Button type="submit" variant="primary" size="sm" disabled={isSubmitting || text.trim().length < 3}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          disabled={isSubmitting || text.trim().length < 3}
+        >
           {isSubmitting ? "Enviando..." : "Enviar Comentário"}
         </Button>
       </div>

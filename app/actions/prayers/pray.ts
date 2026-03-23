@@ -18,7 +18,13 @@ export async function prayAction(prayerId: string) {
     // Fetch prayer first to enforce visibility rules
     const prayer = await prisma.prayer.findUnique({
       where: { id: prayerId },
-      select: { authorId: true, isAnonymous: true, visibility: true, groupId: true, isHidden: true },
+      select: {
+        authorId: true,
+        isAnonymous: true,
+        visibility: true,
+        groupId: true,
+        isHidden: true,
+      },
     });
 
     if (!prayer || prayer.isHidden) {
@@ -28,7 +34,9 @@ export async function prayAction(prayerId: string) {
     // GROUP_ONLY prayers require active membership
     if (prayer.visibility === "GROUP_ONLY" && prayer.groupId) {
       const membership = await prisma.groupMember.findUnique({
-        where: { userId_groupId: { userId: session.user.id, groupId: prayer.groupId } },
+        where: {
+          userId_groupId: { userId: session.user.id, groupId: prayer.groupId },
+        },
         select: { status: true },
       });
       if (membership?.status !== "ACTIVE") {
@@ -58,8 +66,17 @@ export async function prayAction(prayerId: string) {
     revalidatePath(`/pedido/${prayerId}`);
     return { success: true };
   } catch (err: unknown) {
-    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "P2002") {
-      return { success: false, error: "Você já orou por este pedido.", code: 409 };
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as { code: string }).code === "P2002"
+    ) {
+      return {
+        success: false,
+        error: "Você já orou por este pedido.",
+        code: 409,
+      };
     }
     console.error("[prayAction]", err);
     return { success: false, error: "Algo deu errado. Tente novamente." };

@@ -24,10 +24,16 @@ export default async function AdminGruposPage() {
       <header className="bg-red-900 text-white px-6 py-4 flex items-center justify-between">
         <h1 className="text-lg font-bold">🛡️ Admin — Aprovação de Grupos</h1>
         <div className="flex items-center gap-4">
-          <Link href="/admin/prayers" className="text-sm text-red-200 hover:text-white">
+          <Link
+            href="/admin/prayers"
+            className="text-sm text-red-200 hover:text-white"
+          >
             Pedidos
           </Link>
-          <Link href="/admin/remocoes" className="text-sm text-red-200 hover:text-white">
+          <Link
+            href="/admin/remocoes"
+            className="text-sm text-red-200 hover:text-white"
+          >
             Remoções
           </Link>
           <Link href="/" className="text-sm text-red-200 hover:text-white">
@@ -54,12 +60,16 @@ export default async function AdminGruposPage() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <h2 className="font-semibold text-gray-900 dark:text-navy">{group.name}</h2>
+                    <h2 className="font-semibold text-gray-900 dark:text-navy">
+                      {group.name}
+                    </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-text mt-0.5">
                       Líder: {group.leader.name} ({group.leader.email})
                     </p>
                     {group.description && (
-                      <p className="text-sm text-gray-600 mt-1">{group.description}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {group.description}
+                      </p>
                     )}
                     <p className="text-xs text-gray-400 mt-1">
                       Solicitado {formatRelativeDate(group.createdAt)}

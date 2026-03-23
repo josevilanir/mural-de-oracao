@@ -18,7 +18,9 @@ export default function AppError({
     <main className="container mx-auto max-w-md px-4 py-24 text-center">
       <div className="bg-card rounded-xl border border-gray-med/40 shadow-sm p-10 flex flex-col items-center gap-4">
         <span className="text-5xl">🙏</span>
-        <h1 className="text-xl font-display font-bold text-navy">Algo deu errado</h1>
+        <h1 className="text-xl font-display font-bold text-navy">
+          Algo deu errado
+        </h1>
         <p className="text-sm text-gray-text">
           Ocorreu um erro inesperado. Tente novamente ou volte para o início.
         </p>
@@ -26,7 +28,10 @@ export default function AppError({
           <Button variant="primary" onClick={reset}>
             Tentar novamente
           </Button>
-          <Button variant="secondary" onClick={() => window.location.href = "/"}>
+          <Button
+            variant="secondary"
+            onClick={() => (window.location.href = "/")}
+          >
             Início
           </Button>
         </div>

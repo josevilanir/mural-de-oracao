@@ -14,7 +14,10 @@ export async function resolveTestimonyAction(data: unknown) {
 
   const parsed = ResolveTestimonySchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const { prayerId, testimony } = parsed.data;
@@ -27,13 +30,19 @@ export async function resolveTestimonyAction(data: unknown) {
 
   if (!prayer) return { success: false, error: "Pedido não encontrado." };
   if (prayer.authorId !== session.user.id) {
-    return { success: false, error: "Apenas o autor pode marcar como respondido." };
+    return {
+      success: false,
+      error: "Apenas o autor pode marcar como respondido.",
+    };
   }
 
   try {
     await prisma.prayer.update({
       where: { id: prayerId },
-      data: { status: "ANSWERED", testimony: testimony ? sanitizeUserInput(testimony) : testimony },
+      data: {
+        status: "ANSWERED",
+        testimony: testimony ? sanitizeUserInput(testimony) : testimony,
+      },
     });
 
     revalidatePath("/");

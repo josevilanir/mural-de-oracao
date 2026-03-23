@@ -9,10 +9,7 @@ export async function GET() {
   const notifications = await prisma.notification.findMany({
     where: {
       recipientId: session.user.id,
-      OR: [
-        { prayerId: null },
-        { prayer: { isHidden: false } },
-      ],
+      OR: [{ prayerId: null }, { prayer: { isHidden: false } }],
     },
     orderBy: { createdAt: "desc" },
     take: 20,
@@ -29,7 +26,8 @@ export async function GET() {
 export async function POST() {
   // Marca todas as notificações do usuário como lidas
   const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.id)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await prisma.notification.updateMany({
     where: { recipientId: session.user.id, isRead: false },

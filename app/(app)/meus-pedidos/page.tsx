@@ -2,7 +2,11 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { CATEGORY_LABELS, STATUS_LABELS, formatRelativeDate } from "@/lib/utils";
+import {
+  CATEGORY_LABELS,
+  STATUS_LABELS,
+  formatRelativeDate,
+} from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { PrayerStatus } from "@/types/prisma";
@@ -15,35 +19,39 @@ export default async function MeusPedidosPage() {
 
   const userId = session.user.id;
 
-  const [prayers, totalPrayed, totalReceived, groupMemberships] = await Promise.all([
-    prisma.prayer.findMany({
-      where: { authorId: userId },
-      include: {
-        _count: { select: { actions: true, comments: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.prayerAction.count({ where: { userId } }),
-    prisma.prayerAction.count({
-      where: { prayer: { authorId: userId } },
-    }),
-    prisma.groupMember.findMany({
-      where: { userId, status: "ACTIVE" },
-      include: {
-        group: {
-          include: {
-            prayers: {
-              where: { authorId: userId },
-              include: { _count: { select: { actions: true } } },
-              orderBy: { createdAt: "desc" },
+  const [prayers, totalPrayed, totalReceived, groupMemberships] =
+    await Promise.all([
+      prisma.prayer.findMany({
+        where: { authorId: userId },
+        include: {
+          _count: { select: { actions: true, comments: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.prayerAction.count({ where: { userId } }),
+      prisma.prayerAction.count({
+        where: { prayer: { authorId: userId } },
+      }),
+      prisma.groupMember.findMany({
+        where: { userId, status: "ACTIVE" },
+        include: {
+          group: {
+            include: {
+              prayers: {
+                where: { authorId: userId },
+                include: { _count: { select: { actions: true } } },
+                orderBy: { createdAt: "desc" },
+              },
             },
           },
         },
-      },
-    }),
-  ]);
+      }),
+    ]);
 
-  const statusVariantMap: Record<PrayerStatus, "active" | "chronic" | "answered"> = {
+  const statusVariantMap: Record<
+    PrayerStatus,
+    "active" | "chronic" | "answered"
+  > = {
     ACTIVE: "active",
     CHRONIC: "chronic",
     ANSWERED: "answered",
@@ -101,7 +109,9 @@ export default async function MeusPedidosPage() {
 
         {/* Prayer List */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-navy">Seus Pedidos de Oração</h2>
+          <h2 className="text-lg font-semibold text-navy">
+            Seus Pedidos de Oração
+          </h2>
           <Button asChild variant="primary" size="sm">
             <Link href="/novo-pedido">+ Novo Pedido</Link>
           </Button>
@@ -109,7 +119,10 @@ export default async function MeusPedidosPage() {
 
         {prayers.length === 0 ? (
           <div className="bg-card rounded-lg p-8 text-center text-gray-text">
-            <p>Você ainda não publicou nenhum pedido. Que tal compartilhar uma necessidade?</p>
+            <p>
+              Você ainda não publicou nenhum pedido. Que tal compartilhar uma
+              necessidade?
+            </p>
             <Button asChild variant="primary" size="md" className="mt-4">
               <Link href="/novo-pedido">Criar primeiro pedido</Link>
             </Button>
@@ -133,7 +146,9 @@ export default async function MeusPedidosPage() {
                         {prayer.title}
                       </span>
                     </div>
-                    <Badge variant={statusVariantMap[prayer.status as PrayerStatus]}>
+                    <Badge
+                      variant={statusVariantMap[prayer.status as PrayerStatus]}
+                    >
                       {status?.label}
                     </Badge>
                   </div>
@@ -142,7 +157,8 @@ export default async function MeusPedidosPage() {
                   </p>
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-xs text-gray-text">
-                      {formatRelativeDate(prayer.createdAt)} · {prayer._count.actions} orações
+                      {formatRelativeDate(prayer.createdAt)} ·{" "}
+                      {prayer._count.actions} orações
                     </span>
                     <div className="ml-auto flex gap-2">
                       <Button asChild variant="secondary" size="sm">
@@ -166,7 +182,9 @@ export default async function MeusPedidosPage() {
         {/* Group prayers section */}
         {groupMemberships.length > 0 && (
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-navy mb-4">Meus Pedidos nos Grupos</h2>
+            <h2 className="text-lg font-semibold text-navy mb-4">
+              Meus Pedidos nos Grupos
+            </h2>
             <div className="flex flex-col gap-6">
               {groupMemberships.map((membership) => {
                 const group = membership.group;
@@ -185,8 +203,12 @@ export default async function MeusPedidosPage() {
                             className="bg-card rounded-lg p-3 border border-gray-med/40 shadow-sm"
                           >
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs text-gray-text">{cat?.label}</span>
-                              <span className="font-medium text-navy text-sm">{prayer.title}</span>
+                              <span className="text-xs text-gray-text">
+                                {cat?.label}
+                              </span>
+                              <span className="font-medium text-navy text-sm">
+                                {prayer.title}
+                              </span>
                               <span
                                 className={`ml-auto text-xs px-2 py-0.5 rounded-full font-medium ${
                                   prayer.visibility === "GROUP_ONLY"
@@ -194,14 +216,22 @@ export default async function MeusPedidosPage() {
                                     : "bg-green-50 text-green-600"
                                 }`}
                               >
-                                {prayer.visibility === "GROUP_ONLY" ? "Só pro grupo" : "Público"}
+                                {prayer.visibility === "GROUP_ONLY"
+                                  ? "Só pro grupo"
+                                  : "Público"}
                               </span>
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="text-xs text-gray-text">
-                                {formatRelativeDate(prayer.createdAt)} · {prayer._count.actions} orações
+                                {formatRelativeDate(prayer.createdAt)} ·{" "}
+                                {prayer._count.actions} orações
                               </span>
-                              <Button asChild variant="secondary" size="sm" className="ml-auto">
+                              <Button
+                                asChild
+                                variant="secondary"
+                                size="sm"
+                                className="ml-auto"
+                              >
                                 <Link href={`/pedido/${prayer.id}`}>Ver</Link>
                               </Button>
                             </div>

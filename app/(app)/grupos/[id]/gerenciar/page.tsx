@@ -1,7 +1,11 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
-import { approveJoinRequest, rejectJoinRequest, requestPrayerRemoval } from "@/app/actions/groups";
+import {
+  approveJoinRequest,
+  rejectJoinRequest,
+  requestPrayerRemoval,
+} from "@/app/actions/groups";
 import { Button } from "@/components/ui/button";
 import { CATEGORY_LABELS } from "@/lib/utils";
 import PrayerRemovalForm from "./PrayerRemovalForm";
@@ -27,12 +31,22 @@ export default async function GerenciarGrupoPage({ params }: Props) {
 
   const [pendingMembers, activeMembers, groupPrayers] = await Promise.all([
     prisma.groupMember.findMany({
-      where: { groupId: params.id, status: "PENDING", user: { isDeleted: false } },
-      include: { user: { select: { id: true, name: true, image: true, email: true } } },
+      where: {
+        groupId: params.id,
+        status: "PENDING",
+        user: { isDeleted: false },
+      },
+      include: {
+        user: { select: { id: true, name: true, image: true, email: true } },
+      },
       orderBy: { createdAt: "asc" },
     }),
     prisma.groupMember.findMany({
-      where: { groupId: params.id, status: "ACTIVE", user: { isDeleted: false } },
+      where: {
+        groupId: params.id,
+        status: "ACTIVE",
+        user: { isDeleted: false },
+      },
       include: { user: { select: { id: true, name: true, image: true } } },
       orderBy: { joinedAt: "asc" },
     }),
@@ -49,7 +63,9 @@ export default async function GerenciarGrupoPage({ params }: Props) {
   return (
     <main className="container mx-auto max-w-3xl px-4 py-8 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-display font-bold text-navy">Gerenciar: {group.name}</h1>
+        <h1 className="text-xl font-display font-bold text-navy">
+          Gerenciar: {group.name}
+        </h1>
         <div className="flex items-center gap-2">
           <EditGroupModal
             groupId={params.id}
@@ -100,7 +116,9 @@ export default async function GerenciarGrupoPage({ params }: Props) {
                       await approveJoinRequest(m.id);
                     }}
                   >
-                    <Button variant="primary" size="sm" type="submit">Aprovar</Button>
+                    <Button variant="primary" size="sm" type="submit">
+                      Aprovar
+                    </Button>
                   </form>
                   <form
                     action={async () => {
@@ -108,7 +126,9 @@ export default async function GerenciarGrupoPage({ params }: Props) {
                       await rejectJoinRequest(m.id);
                     }}
                   >
-                    <Button variant="secondary" size="sm" type="submit">Rejeitar</Button>
+                    <Button variant="secondary" size="sm" type="submit">
+                      Rejeitar
+                    </Button>
                   </form>
                 </div>
               </div>
@@ -148,14 +168,19 @@ export default async function GerenciarGrupoPage({ params }: Props) {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-navy text-sm">{m.user.name}</p>
+                    <p className="font-medium text-navy text-sm">
+                      {m.user.name}
+                    </p>
                     {isGroupLeader && (
                       <p className="text-xs text-gold-warm">líder</p>
                     )}
                   </div>
                   {!isGroupLeader && (
                     <div className="flex-shrink-0">
-                      <RemoveMemberButton memberId={m.id} memberName={m.user.name ?? "membro"} />
+                      <RemoveMemberButton
+                        memberId={m.id}
+                        memberName={m.user.name ?? "membro"}
+                      />
                     </div>
                   )}
                 </div>
@@ -186,14 +211,22 @@ export default async function GerenciarGrupoPage({ params }: Props) {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xs text-gray-text">{cat?.emoji} {cat?.label}</span>
+                        <span className="text-xs text-gray-text">
+                          {cat?.emoji} {cat?.label}
+                        </span>
                       </div>
-                      <p className="font-semibold text-navy text-sm">{prayer.title}</p>
+                      <p className="font-semibold text-navy text-sm">
+                        {prayer.title}
+                      </p>
                       <p className="text-xs text-gray-text mt-0.5">
-                        Por: {prayer.author.name} · {prayer._count.actions} orações
+                        Por: {prayer.author.name} · {prayer._count.actions}{" "}
+                        orações
                       </p>
                     </div>
-                    <PrayerRemovalForm prayerId={prayer.id} groupId={params.id} />
+                    <PrayerRemovalForm
+                      prayerId={prayer.id}
+                      groupId={params.id}
+                    />
                   </div>
                 </div>
               );

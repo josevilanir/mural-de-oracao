@@ -21,7 +21,10 @@ export async function updateProfileAction(data: unknown) {
 
   const parsed = UpdateProfileSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const { name, image } = parsed.data;
@@ -58,7 +61,9 @@ export async function updateProfileAction(data: unknown) {
 // ─────────────────────────────────────────────────────────
 const UpdatePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Informe a senha atual."),
-  newPassword: z.string().min(6, "Nova senha precisa ter ao menos 6 caracteres."),
+  newPassword: z
+    .string()
+    .min(6, "Nova senha precisa ter ao menos 6 caracteres."),
 });
 
 export async function updatePasswordAction(data: unknown) {
@@ -67,7 +72,10 @@ export async function updatePasswordAction(data: unknown) {
 
   const parsed = UpdatePasswordSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const user = await prisma.user.findUnique({
@@ -90,7 +98,10 @@ export async function updatePasswordAction(data: unknown) {
   }
 
   if (currentPassword === newPassword) {
-    return { success: false, error: "A nova senha deve ser diferente da atual." };
+    return {
+      success: false,
+      error: "A nova senha deve ser diferente da atual.",
+    };
   }
 
   const hashed = await bcrypt.hash(newPassword, 12);

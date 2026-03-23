@@ -16,7 +16,10 @@ export default async function NovoPedidoPage({ searchParams }: Props) {
     include: { group: { select: { id: true, name: true } } },
   });
 
-  const groups = memberships.map((m) => ({ id: m.group.id, name: m.group.name }));
+  const groups = memberships.map((m) => ({
+    id: m.group.id,
+    name: m.group.name,
+  }));
 
   return (
     <>
@@ -28,7 +31,10 @@ export default async function NovoPedidoPage({ searchParams }: Props) {
           A comunidade está aqui para orar por você
         </p>
         <div className="bg-card rounded-xl shadow-sm p-6">
-          <NewPrayerForm groups={groups} defaultGroupId={searchParams.groupId} />
+          <NewPrayerForm
+            groups={groups}
+            defaultGroupId={searchParams.groupId}
+          />
         </div>
       </main>
     </>

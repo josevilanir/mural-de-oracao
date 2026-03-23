@@ -12,7 +12,10 @@ export default async function Header() {
   return (
     <header className="sticky top-0 z-40 h-16 bg-cream/95 backdrop-blur border-b border-gray-med flex items-center px-4 gap-4">
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 font-display text-lg font-bold text-navy shrink-0">
+      <Link
+        href="/"
+        className="flex items-center gap-2 font-display text-lg font-bold text-navy shrink-0"
+      >
         <span className="hidden sm:inline">Mural de Oração</span>
       </Link>
 

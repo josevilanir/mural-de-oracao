@@ -24,12 +24,20 @@ export default async function AdminRemocoesPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-cream">
       <header className="bg-red-900 text-white px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold">🛡️ Admin — Solicitações de Remoção</h1>
+        <h1 className="text-lg font-bold">
+          🛡️ Admin — Solicitações de Remoção
+        </h1>
         <div className="flex items-center gap-4">
-          <Link href="/admin/prayers" className="text-sm text-red-200 hover:text-white">
+          <Link
+            href="/admin/prayers"
+            className="text-sm text-red-200 hover:text-white"
+          >
             Pedidos
           </Link>
-          <Link href="/admin/grupos" className="text-sm text-red-200 hover:text-white">
+          <Link
+            href="/admin/grupos"
+            className="text-sm text-red-200 hover:text-white"
+          >
             Grupos
           </Link>
           <Link href="/" className="text-sm text-red-200 hover:text-white">

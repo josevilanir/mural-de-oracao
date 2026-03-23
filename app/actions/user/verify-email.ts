@@ -21,7 +21,9 @@ export async function sendVerificationEmailAction(email: string, name: string) {
 }
 
 export async function verifyEmailAction(token: string) {
-  const record = await prisma.emailVerificationToken.findUnique({ where: { token } });
+  const record = await prisma.emailVerificationToken.findUnique({
+    where: { token },
+  });
   if (!record || record.expires < new Date()) {
     return { success: false, error: "Link inválido ou expirado." };
   }

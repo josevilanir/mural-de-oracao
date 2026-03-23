@@ -27,18 +27,18 @@ A aplicação conta com **autenticação completa via Google OAuth 2.0** e crede
 
 ## ✨ Funcionalidades
 
-| Funcionalidade | Descrição |
-|---|---|
+| Funcionalidade                       | Descrição                                                                          |
+| ------------------------------------ | ---------------------------------------------------------------------------------- |
 | 🔐 **Autenticação Google OAuth 2.0** | Login com conta Google integrado via Auth.js (NextAuth v5), com sessão JWT segura. |
-| 📧 **Login com Credenciais** | Cadastro e login por e-mail e senha, com hash bcrypt. |
-| 📝 **Pedidos de Oração** | Publique pedidos de forma pública ou anônima, categorizados por tema. |
-| 🙏 **Intercessão** | Clique para registrar que está orando — o autor é notificado em tempo real. |
-| 💬 **Comentários de Apoio** | Deixe palavras de encorajamento nos pedidos da comunidade. |
-| ✅ **Testemunhos** | Marque orações como respondidas e compartilhe sua vitória. |
-| 🔔 **Notificações** | Sistema de notificações para interações recebidas nos seus pedidos. |
-| 🛡️ **Moderação & Admin** | Painel administrativo com sistema de denúncias e ocultação de conteúdo. |
-| 🎨 **UI Premium** | Interface responsiva com Shadcn UI, Framer Motion e sidebar colapsável. |
-| 🔒 **Middleware de Rotas** | Proteção de rotas privadas e administrativas via Edge Middleware. |
+| 📧 **Login com Credenciais**         | Cadastro e login por e-mail e senha, com hash bcrypt.                              |
+| 📝 **Pedidos de Oração**             | Publique pedidos de forma pública ou anônima, categorizados por tema.              |
+| 🙏 **Intercessão**                   | Clique para registrar que está orando — o autor é notificado em tempo real.        |
+| 💬 **Comentários de Apoio**          | Deixe palavras de encorajamento nos pedidos da comunidade.                         |
+| ✅ **Testemunhos**                   | Marque orações como respondidas e compartilhe sua vitória.                         |
+| 🔔 **Notificações**                  | Sistema de notificações para interações recebidas nos seus pedidos.                |
+| 🛡️ **Moderação & Admin**             | Painel administrativo com sistema de denúncias e ocultação de conteúdo.            |
+| 🎨 **UI Premium**                    | Interface responsiva com Shadcn UI, Framer Motion e sidebar colapsável.            |
+| 🔒 **Middleware de Rotas**           | Proteção de rotas privadas e administrativas via Edge Middleware.                  |
 
 ---
 
@@ -75,19 +75,19 @@ Fluxo de Autenticação Google:
 
 ## 🛠 Tech Stack
 
-| Camada | Tecnologia |
-|---|---|
-| **Framework** | [Next.js 14](https://nextjs.org/) (App Router, Server Actions) |
-| **Linguagem** | [TypeScript](https://www.typescriptlang.org/) |
-| **Estilização** | [Tailwind CSS](https://tailwindcss.com/) |
-| **Componentes UI** | [Shadcn UI](https://ui.shadcn.com/) + [Radix Primitives](https://www.radix-ui.com/) |
-| **Animações** | [Framer Motion](https://www.framer.com/motion/) |
-| **Autenticação** | [Auth.js / NextAuth v5](https://authjs.dev/) (Google OAuth + Credentials) |
-| **ORM** | [Prisma](https://www.prisma.io/) v7 |
+| Camada             | Tecnologia                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------- |
+| **Framework**      | [Next.js 14](https://nextjs.org/) (App Router, Server Actions)                        |
+| **Linguagem**      | [TypeScript](https://www.typescriptlang.org/)                                         |
+| **Estilização**    | [Tailwind CSS](https://tailwindcss.com/)                                              |
+| **Componentes UI** | [Shadcn UI](https://ui.shadcn.com/) + [Radix Primitives](https://www.radix-ui.com/)   |
+| **Animações**      | [Framer Motion](https://www.framer.com/motion/)                                       |
+| **Autenticação**   | [Auth.js / NextAuth v5](https://authjs.dev/) (Google OAuth + Credentials)             |
+| **ORM**            | [Prisma](https://www.prisma.io/) v7                                                   |
 | **Banco de Dados** | [PostgreSQL](https://www.postgresql.org/) via [Neon](https://neon.tech/) (Serverless) |
-| **Validação** | [Zod](https://zod.dev/) + [React Hook Form](https://react-hook-form.com/) |
-| **Deploy** | [Vercel](https://vercel.com/) |
-| **Ícones** | [Lucide React](https://lucide.dev/) |
+| **Validação**      | [Zod](https://zod.dev/) + [React Hook Form](https://react-hook-form.com/)             |
+| **Deploy**         | [Vercel](https://vercel.com/)                                                         |
+| **Ícones**         | [Lucide React](https://lucide.dev/)                                                   |
 
 ---
 
@@ -177,12 +177,12 @@ Acesse [http://localhost:3000](http://localhost:3000) 🎉
 
 ### Scripts Úteis
 
-| Comando | Descrição |
-|---|---|
-| `npm run dev` | Inicia o servidor de desenvolvimento |
-| `npm run build` | Gera o build de produção |
-| `npx prisma studio` | Interface visual para o banco de dados |
-| `npx prisma db push` | Sincroniza o schema com o banco |
+| Comando              | Descrição                              |
+| -------------------- | -------------------------------------- |
+| `npm run dev`        | Inicia o servidor de desenvolvimento   |
+| `npm run build`      | Gera o build de produção               |
+| `npx prisma studio`  | Interface visual para o banco de dados |
+| `npx prisma db push` | Sincroniza o schema com o banco        |
 
 ---
 

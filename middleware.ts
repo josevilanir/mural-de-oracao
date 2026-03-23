@@ -28,7 +28,7 @@ export default auth((req: NextAuthRequest) => {
           const originHost = new URL(origin).host;
           if (originHost !== expectedHost) {
             console.error(
-              `CSRF Origin Mismatch: Origin=${originHost}, Expected=${expectedHost}`
+              `CSRF Origin Mismatch: Origin=${originHost}, Expected=${expectedHost}`,
             );
             return new NextResponse("Invalid Origin", { status: 403 });
           }
@@ -42,7 +42,7 @@ export default auth((req: NextAuthRequest) => {
   const isPrivate = PRIVATE_ROUTES.some((route) => pathname.startsWith(route));
   const isAdmin = ADMIN_ROUTES.some((route) => pathname.startsWith(route));
   const isAuthOnlyPublic = AUTH_ONLY_PUBLIC.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   // Redirect authenticated users away from welcome/login/register
@@ -52,7 +52,9 @@ export default auth((req: NextAuthRequest) => {
 
   if (isPrivate && !session?.user) {
     const callbackUrl = encodeURIComponent(pathname);
-    return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, req.url));
+    return NextResponse.redirect(
+      new URL(`/login?callbackUrl=${callbackUrl}`, req.url),
+    );
   }
 
   if (isAdmin) {

@@ -3,6 +3,7 @@
 ## Status: Em Desenvolvimento
 
 ## ✅ Concluído
+
 - [x] Inicialização do projeto Next.js 14 + TypeScript + Tailwind
 - [x] Dependências instaladas (Prisma, NextAuth v5, Zod, Radix UI, etc.)
 - [x] Tailwind configurado com design tokens do Design Doc
@@ -25,6 +26,7 @@
 - [x] Adicionado verseReference ao modelo e UI
 
 ## 🔲 Próximos Passos (Dev/Infra)
+
 - [x] Configurar banco de dados Neon e adicionar DATABASE_URL no .env.local
 - [x] Rodar `npx prisma migrate dev --name init` para criar as tabelas
 - [x] Bug corrigido: botão "Editar" removido (rota inexistente, não é MVP CA)
@@ -41,6 +43,7 @@
 - [ ] Deploy na Vercel
 
 ## ✅ Recém Concluído
+
 - [x] Reatividade em tempo real (polling + banner de novos pedidos)
   - [x] `feed.ts` — parâmetro `newerThan` para buscar itens mais recentes
   - [x] `FeedLoadMore.tsx` — polling 30s + banner "X novos pedidos"
@@ -50,7 +53,9 @@
   - [x] `meus-pedidos/page.tsx` — AutoRefresh
 
 ## Critérios de Aceitação MVP
+
 Referência: PRD v1.1 Seção 7
+
 - [ ] CA01 — Google OAuth funciona em aba anônima
 - [ ] CA02 — Pedido anônimo: authorId null na API
 - [ ] CA03 — 'Orei por você' incrementa contador

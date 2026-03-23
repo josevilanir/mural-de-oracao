@@ -1,13 +1,21 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sanitizePrayer, CATEGORY_LABELS, STATUS_LABELS, formatRelativeDate } from "@/lib/utils";
+import {
+  sanitizePrayer,
+  CATEGORY_LABELS,
+  STATUS_LABELS,
+  formatRelativeDate,
+} from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import PrayButtonClient from "@/components/prayers/PrayButtonClient";
 import CommentForm from "@/components/prayers/CommentForm";
-import { DeletePrayerButton, DeleteCommentButton } from "@/components/prayers/DeleteButtons";
+import {
+  DeletePrayerButton,
+  DeleteCommentButton,
+} from "@/components/prayers/DeleteButtons";
 import ShareButton from "@/components/prayers/ShareButton";
 import EditPrayerModal from "@/components/prayers/EditPrayerModal";
 import EditCommentInline from "@/components/prayers/EditCommentInline";
@@ -21,14 +29,22 @@ interface PrayerDetailPageProps {
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const prayer = await prisma.prayer.findUnique({
     where: { id: params.id },
-    select: { title: true, description: true, isAnonymous: true, isHidden: true, author: { select: { name: true } } },
+    select: {
+      title: true,
+      description: true,
+      isAnonymous: true,
+      isHidden: true,
+      author: { select: { name: true } },
+    },
   });
 
   if (!prayer || prayer.isHidden) {
     return { title: "Mural de Oração" };
   }
 
-  const raw = prayer.description.slice(0, 140) + (prayer.description.length > 140 ? "..." : "");
+  const raw =
+    prayer.description.slice(0, 140) +
+    (prayer.description.length > 140 ? "..." : "");
   const description =
     !prayer.isAnonymous && prayer.author?.name
       ? `Pedido de ${prayer.author.name} · ${raw}`
@@ -47,13 +63,18 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-const statusVariantMap: Record<PrayerStatus, "active" | "chronic" | "answered"> = {
+const statusVariantMap: Record<
+  PrayerStatus,
+  "active" | "chronic" | "answered"
+> = {
   ACTIVE: "active",
   CHRONIC: "chronic",
   ANSWERED: "answered",
 };
 
-export default async function PrayerDetailPage({ params }: PrayerDetailPageProps) {
+export default async function PrayerDetailPage({
+  params,
+}: PrayerDetailPageProps) {
   const session = await auth();
   const userId = session?.user?.id;
   const isAdmin = session?.user?.role === "ADMIN";
@@ -91,14 +112,18 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
       isGroupMember = true;
     } else {
       const membership = await prisma.groupMember.findUnique({
-        where: { userId_groupId: { userId, groupId: prayer.group.id } }
+        where: { userId_groupId: { userId, groupId: prayer.group.id } },
       });
       isGroupMember = membership?.status === "ACTIVE";
     }
   }
 
-  const backLinkHref = (prayer.group && isGroupMember) ? `/grupos/${prayer.group.id}` : "/";
-  const backLinkText = (prayer.group && isGroupMember) ? "← Voltar ao mural do grupo" : "← Voltar ao mural";
+  const backLinkHref =
+    prayer.group && isGroupMember ? `/grupos/${prayer.group.id}` : "/";
+  const backLinkText =
+    prayer.group && isGroupMember
+      ? "← Voltar ao mural do grupo"
+      : "← Voltar ao mural";
 
   const isOwner = !!userId && prayer.authorId === userId;
   const canDeletePrayer = isOwner || isAdmin;
@@ -136,16 +161,14 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
                   initialAllowComments={prayer.allowComments}
                 />
               )}
-              {canDeletePrayer && (
-                <DeletePrayerButton prayerId={prayer.id} />
-              )}
+              {canDeletePrayer && <DeletePrayerButton prayerId={prayer.id} />}
             </div>
           </div>
 
           <h1 className="font-display text-2xl md:text-3xl font-bold text-navy mb-3">
             {prayer.title}
           </h1>
-          
+
           <div className="flex items-center gap-3 text-sm text-gray-text mb-4">
             <ShareButton prayerId={prayer.id} title={prayer.title} />
           </div>
@@ -156,13 +179,15 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
             <span>
               {prayer.isAnonymous
                 ? "Anônimo"
-                : sanitized.author?.name ?? "Usuário"}
+                : (sanitized.author?.name ?? "Usuário")}
             </span>
           </div>
 
           {prayer.verseReference && (
             <div className="bg-blue-soft rounded-lg p-3 border border-blue-200 dark:border-blue-900 mb-4">
-              <span className="text-sm italic text-navy">{prayer.verseReference}</span>
+              <span className="text-sm italic text-navy">
+                {prayer.verseReference}
+              </span>
             </div>
           )}
 
@@ -174,7 +199,9 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
           {isOwner && prayer.status !== "ANSWERED" && (
             <div className="mt-4 pt-4 border-t border-gray-med/50">
               <Button asChild variant="primary" size="sm">
-                <Link href={`/pedido/${prayer.id}/resolver`}>Marcar como Respondido</Link>
+                <Link href={`/pedido/${prayer.id}/resolver`}>
+                  Marcar como Respondido
+                </Link>
               </Button>
             </div>
           )}
@@ -183,7 +210,8 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
         {/* Prayer Counter */}
         <div className="bg-card rounded-xl shadow-sm p-6 mb-4 text-center">
           <p className="text-gold-warm font-bold text-lg mb-3">
-            {prayer._count.actions} pessoa{prayer._count.actions !== 1 ? "s" : ""} já{" "}
+            {prayer._count.actions} pessoa
+            {prayer._count.actions !== 1 ? "s" : ""} já{" "}
             {prayer._count.actions !== 1 ? "oraram" : "orou"} por este pedido
           </p>
           <PrayButtonClient
@@ -197,8 +225,12 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
         {/* Testimony */}
         {prayer.status === "ANSWERED" && prayer.testimony && (
           <div className="bg-green-50 dark:bg-green-950/30 border-l-4 border-status-green rounded-lg p-5 mb-4">
-            <h2 className="font-semibold text-green-700 dark:text-green-400 mb-2">Oração Respondida!</h2>
-            <p className="text-sm text-green-800 dark:text-green-300 leading-relaxed">{prayer.testimony}</p>
+            <h2 className="font-semibold text-green-700 dark:text-green-400 mb-2">
+              Oração Respondida!
+            </h2>
+            <p className="text-sm text-green-800 dark:text-green-300 leading-relaxed">
+              {prayer.testimony}
+            </p>
           </div>
         )}
 
@@ -241,7 +273,9 @@ export default async function PrayerDetailPage({ params }: PrayerDetailPageProps
                             initialText={comment.text}
                           />
                         ) : (
-                          <p className="text-sm text-navy mt-0.5">{comment.text}</p>
+                          <p className="text-sm text-navy mt-0.5">
+                            {comment.text}
+                          </p>
                         )}
                       </div>
                     </div>

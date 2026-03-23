@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
-import { formatRelativeDate, CATEGORY_LABELS, STATUS_LABELS, cn } from "@/lib/utils";
+import {
+  formatRelativeDate,
+  CATEGORY_LABELS,
+  STATUS_LABELS,
+  cn,
+} from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { prayAction, unprayAction } from "@/app/actions/prayers/pray";
 import { deletePrayer } from "@/app/actions/prayers/delete";
@@ -51,8 +56,8 @@ export default function PrayerCard({
     prayer.status === "ACTIVE"
       ? "active"
       : prayer.status === "CHRONIC"
-      ? "chronic"
-      : "answered";
+        ? "chronic"
+        : "answered";
 
   function handlePray() {
     if (!currentUserId || isPending) return;
@@ -75,7 +80,8 @@ export default function PrayerCard({
   }
 
   function handleDelete() {
-    if (!confirm("Tem certeza que deseja excluir este pedido de oração?")) return;
+    if (!confirm("Tem certeza que deseja excluir este pedido de oração?"))
+      return;
     startDeleteTransition(async () => {
       const result = await deletePrayer(prayer.id);
       if (result.success) setIsDeleted(true);
@@ -90,18 +96,14 @@ export default function PrayerCard({
     <div
       className={cn(
         "bg-card rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-med/50 flex flex-col",
-        isOwner && "border-l-4 border-l-gold-warm bg-gold-light/30"
+        isOwner && "border-l-4 border-l-gold-warm bg-gold-light/30",
       )}
     >
       {/* Top */}
       <div className="p-4 flex items-start justify-between gap-2">
-        <Badge variant="category">
-          {cat?.label}
-        </Badge>
+        <Badge variant="category">{cat?.label}</Badge>
         <div className="flex items-center gap-2">
-          <Badge variant={statusVariant}>
-            {status?.label}
-          </Badge>
+          <Badge variant={statusVariant}>{status?.label}</Badge>
           {canDelete && (
             <button
               onClick={handleDelete}
@@ -116,7 +118,10 @@ export default function PrayerCard({
       </div>
 
       {/* Body */}
-      <Link href={`/pedido/${prayer.id}`} className="flex-1 px-4 pb-2 block group">
+      <Link
+        href={`/pedido/${prayer.id}`}
+        className="flex-1 px-4 pb-2 block group"
+      >
         <h3 className="font-semibold text-navy text-base leading-snug mb-1 group-hover:text-blue-main transition-colors line-clamp-2">
           {prayer.title}
         </h3>
@@ -163,13 +168,21 @@ export default function PrayerCard({
             hasPrayed
               ? "bg-blue-main text-white border-blue-main hover:bg-blue-700 hover:border-blue-700"
               : !currentUserId
-              ? "bg-blue-soft text-gray-text border-blue-200 cursor-not-allowed opacity-70"
-              : "bg-blue-soft text-navy border-blue-200 hover:bg-blue-main hover:text-white hover:border-blue-main"
+                ? "bg-blue-soft text-gray-text border-blue-200 cursor-not-allowed opacity-70"
+                : "bg-blue-soft text-navy border-blue-200 hover:bg-blue-main hover:text-white hover:border-blue-main",
           )}
-          title={!currentUserId ? "Entre para orar" : hasPrayed ? "Clique para desfazer" : undefined}
+          title={
+            !currentUserId
+              ? "Entre para orar"
+              : hasPrayed
+                ? "Clique para desfazer"
+                : undefined
+          }
         >
           {hasPrayed ? "Orei por você ✓" : "Orei por você"} ({prayCount})
-          {isPending && <span className="ml-1 inline-block animate-spin">·</span>}
+          {isPending && (
+            <span className="ml-1 inline-block animate-spin">·</span>
+          )}
         </button>
       </div>
     </div>

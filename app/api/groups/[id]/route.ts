@@ -5,14 +5,17 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const session = await auth();
   const userId = session?.user?.id;
 
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") ?? "20")));
+  const limit = Math.min(
+    50,
+    Math.max(1, parseInt(searchParams.get("limit") ?? "20")),
+  );
   const skip = (page - 1) * limit;
 
   const group = await prisma.group.findUnique({
@@ -24,7 +27,10 @@ export async function GET(
   });
 
   if (!group) {
-    return NextResponse.json({ error: "Grupo não encontrado." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Grupo não encontrado." },
+      { status: 404 },
+    );
   }
 
   // Check if user is an active member

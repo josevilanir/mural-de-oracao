@@ -17,7 +17,10 @@ export async function createCommentAction(data: unknown) {
 
   const parsed = CreateCommentSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const rl = await checkRateLimit("comment", session.user.id);
@@ -29,19 +32,31 @@ export async function createCommentAction(data: unknown) {
   const prayer = await prisma.prayer.findUnique({
     where: { id: prayerId },
     select: {
-      allowComments: true, authorId: true, isAnonymous: true,
-      visibility: true, groupId: true, isHidden: true, title: true,
+      allowComments: true,
+      authorId: true,
+      isAnonymous: true,
+      visibility: true,
+      groupId: true,
+      isHidden: true,
+      title: true,
       author: { select: { name: true, email: true } },
     },
   });
 
-  if (!prayer || prayer.isHidden) return { success: false, error: "Pedido não encontrado." };
-  if (!prayer.allowComments) return { success: false, error: "Comentários estão desativados para este pedido." };
+  if (!prayer || prayer.isHidden)
+    return { success: false, error: "Pedido não encontrado." };
+  if (!prayer.allowComments)
+    return {
+      success: false,
+      error: "Comentários estão desativados para este pedido.",
+    };
 
   // GROUP_ONLY prayers require active membership
   if (prayer.visibility === "GROUP_ONLY" && prayer.groupId) {
     const membership = await prisma.groupMember.findUnique({
-      where: { userId_groupId: { userId: session.user.id, groupId: prayer.groupId } },
+      where: {
+        userId_groupId: { userId: session.user.id, groupId: prayer.groupId },
+      },
       select: { status: true },
     });
     if (membership?.status !== "ACTIVE") {
@@ -81,8 +96,10 @@ export async function createCommentAction(data: unknown) {
           prayer.author.name ?? "usuário",
           commenter?.name ?? "Alguém",
           prayer.title,
-          prayerId
-        ).catch((err) => console.error("[createCommentAction] email error:", err));
+          prayerId,
+        ).catch((err) =>
+          console.error("[createCommentAction] email error:", err),
+        );
       }
     }
 
@@ -128,7 +145,10 @@ export async function deleteCommentAction(commentId: string) {
 // updateCommentAction — apenas autor ou admin
 // ─────────────────────────────────────────────────────────
 const UpdateCommentSchema = z.object({
-  text: z.string().min(3, "Mínimo 3 caracteres").max(500, "Máximo 500 caracteres"),
+  text: z
+    .string()
+    .min(3, "Mínimo 3 caracteres")
+    .max(500, "Máximo 500 caracteres"),
 });
 
 export async function updateCommentAction(commentId: string, data: unknown) {
@@ -147,7 +167,10 @@ export async function updateCommentAction(commentId: string, data: unknown) {
 
   const parsed = UpdateCommentSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   try {

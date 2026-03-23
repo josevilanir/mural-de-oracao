@@ -11,7 +11,8 @@ export function DeletePrayerButton({ prayerId }: { prayerId: string }) {
   const router = useRouter();
 
   function handleDelete() {
-    if (!confirm("Tem certeza que deseja excluir este pedido de oração?")) return;
+    if (!confirm("Tem certeza que deseja excluir este pedido de oração?"))
+      return;
     startTransition(async () => {
       const result = await deletePrayer(prayerId);
       if (result.success) {

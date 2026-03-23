@@ -3,7 +3,9 @@ import { auth } from "@/lib/auth";
 import FilterBar from "@/components/layout/FilterBar";
 import PrayerCardSkeleton from "@/components/prayers/PrayerCardSkeleton";
 import Link from "next/link";
-import FeedLoadMore, { type PrayerItem } from "@/components/prayers/FeedLoadMore";
+import FeedLoadMore, {
+  type PrayerItem,
+} from "@/components/prayers/FeedLoadMore";
 import { fetchFeedAction } from "@/app/actions/prayers/feed";
 
 interface MuralProps {

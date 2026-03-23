@@ -20,7 +20,10 @@ function ResetPasswordForm() {
     return (
       <div className="text-center py-4">
         <p className="text-sm text-red-500">Link inválido ou expirado.</p>
-        <Link href="/forgot-password" className="mt-4 inline-block text-blue-main hover:underline text-sm font-medium">
+        <Link
+          href="/forgot-password"
+          className="mt-4 inline-block text-blue-main hover:underline text-sm font-medium"
+        >
           Solicitar novo link
         </Link>
       </div>
@@ -48,7 +51,9 @@ function ResetPasswordForm() {
   if (status === "done") {
     return (
       <div className="text-center py-4">
-        <p className="text-sm text-gray-text">Senha redefinida com sucesso! Redirecionando...</p>
+        <p className="text-sm text-gray-text">
+          Senha redefinida com sucesso! Redirecionando...
+        </p>
       </div>
     );
   }
@@ -56,7 +61,9 @@ function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
-        <label className="block text-sm font-medium text-navy mb-1">Nova senha</label>
+        <label className="block text-sm font-medium text-navy mb-1">
+          Nova senha
+        </label>
         <input
           type="password"
           value={password}
@@ -69,7 +76,9 @@ function ResetPasswordForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-navy mb-1">Confirmar senha</label>
+        <label className="block text-sm font-medium text-navy mb-1">
+          Confirmar senha
+        </label>
         <input
           type="password"
           value={confirm}
@@ -85,7 +94,12 @@ function ResetPasswordForm() {
         <p className="text-red-500 text-sm bg-red-50 rounded p-2">{error}</p>
       )}
 
-      <Button type="submit" variant="primary" disabled={status === "loading"} className="w-full">
+      <Button
+        type="submit"
+        variant="primary"
+        disabled={status === "loading"}
+        className="w-full"
+      >
         {status === "loading" ? "Salvando..." : "Redefinir senha"}
       </Button>
     </form>
@@ -97,8 +111,12 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-cream flex items-center justify-center p-4">
       <div className="bg-card rounded-xl shadow-sm p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <h1 className="font-display text-2xl font-bold text-navy mt-2">Redefinir senha</h1>
-          <p className="text-sm text-gray-text mt-1">Digite sua nova senha abaixo.</p>
+          <h1 className="font-display text-2xl font-bold text-navy mt-2">
+            Redefinir senha
+          </h1>
+          <p className="text-sm text-gray-text mt-1">
+            Digite sua nova senha abaixo.
+          </p>
         </div>
 
         <Suspense fallback={<div className="h-32" />}>
@@ -106,7 +124,10 @@ export default function ResetPasswordPage() {
         </Suspense>
 
         <p className="text-center text-sm text-gray-text mt-4">
-          <Link href="/login" className="text-blue-main hover:underline font-medium">
+          <Link
+            href="/login"
+            className="text-blue-main hover:underline font-medium"
+          >
             Voltar ao login
           </Link>
         </p>

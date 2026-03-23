@@ -8,7 +8,10 @@ interface AdminToggleProps {
   initialHidden: boolean;
 }
 
-export default function AdminToggle({ prayerId, initialHidden }: AdminToggleProps) {
+export default function AdminToggle({
+  prayerId,
+  initialHidden,
+}: AdminToggleProps) {
   const [isHidden, setIsHidden] = useState(initialHidden);
   const [isPending, startTransition] = useTransition();
 
@@ -27,7 +30,11 @@ export default function AdminToggle({ prayerId, initialHidden }: AdminToggleProp
       className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
         isHidden ? "bg-red-500" : "bg-green-500"
       } disabled:opacity-50`}
-      title={isHidden ? "Oculto — clique para tornar visível" : "Visível — clique para ocultar"}
+      title={
+        isHidden
+          ? "Oculto — clique para tornar visível"
+          : "Visível — clique para ocultar"
+      }
     >
       <span
         className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${

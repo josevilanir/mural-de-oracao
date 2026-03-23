@@ -46,13 +46,23 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
 
   const [members, totalMembers, rawPrayers] = await Promise.all([
     prisma.groupMember.findMany({
-      where: { groupId: params.id, status: "ACTIVE", user: { isDeleted: false } },
+      where: {
+        groupId: params.id,
+        status: "ACTIVE",
+        user: { isDeleted: false },
+      },
       include: { user: { select: { id: true, name: true, image: true } } },
       skip: membersSkip,
       take: membersLimit,
       orderBy: { joinedAt: "asc" },
     }),
-    prisma.groupMember.count({ where: { groupId: params.id, status: "ACTIVE", user: { isDeleted: false } } }),
+    prisma.groupMember.count({
+      where: {
+        groupId: params.id,
+        status: "ACTIVE",
+        user: { isDeleted: false },
+      },
+    }),
     prisma.prayer.findMany({
       where: {
         groupId: params.id,
@@ -98,7 +108,9 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-display font-bold text-navy">{group.name}</h1>
+            <h1 className="text-xl font-display font-bold text-navy">
+              {group.name}
+            </h1>
             <p className="text-sm text-gray-text">
               Líder: {group.leader.name} · {group._count.members} membro(s)
             </p>
@@ -112,27 +124,29 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
                 <Link href={`/grupos/${params.id}/gerenciar`}>Gerenciar</Link>
               </Button>
             )}
-            {!isMember && !isLeader && userId && membership?.status !== "PENDING" && (
-              <form
-                action={async () => {
-                  "use server";
-                  const { requestJoinGroup } = await import("@/app/actions/groups");
-                  await requestJoinGroup(params.id);
-                }}
-              >
-                <Button variant="primary" size="sm" type="submit">
-                  Pedir pra participar
-                </Button>
-              </form>
-            )}
+            {!isMember &&
+              !isLeader &&
+              userId &&
+              membership?.status !== "PENDING" && (
+                <form
+                  action={async () => {
+                    "use server";
+                    const { requestJoinGroup } =
+                      await import("@/app/actions/groups");
+                    await requestJoinGroup(params.id);
+                  }}
+                >
+                  <Button variant="primary" size="sm" type="submit">
+                    Pedir pra participar
+                  </Button>
+                </form>
+              )}
             {membership?.status === "PENDING" && (
               <span className="text-xs text-gold-warm font-medium bg-gold-light px-3 py-1.5 rounded-full">
                 Solicitação enviada
               </span>
             )}
-            {isMember && !isLeader && (
-              <LeaveGroupButton groupId={params.id} />
-            )}
+            {isMember && !isLeader && <LeaveGroupButton groupId={params.id} />}
           </div>
         </div>
       </div>
@@ -141,7 +155,9 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
         {/* Members card */}
         <div className="md:col-span-1">
           <div className="bg-card rounded-xl border border-gray-med/40 shadow-sm p-4 sticky top-6">
-            <h2 className="font-semibold text-navy mb-3">Membros ({totalMembers})</h2>
+            <h2 className="font-semibold text-navy mb-3">
+              Membros ({totalMembers})
+            </h2>
             <div className="flex flex-col gap-2">
               {members.map((m) => (
                 <div key={m.id} className="flex items-center gap-2">
@@ -157,9 +173,13 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
                       {m.user.name?.charAt(0) ?? "?"}
                     </div>
                   )}
-                  <span className="text-sm text-navy truncate">{m.user.name}</span>
+                  <span className="text-sm text-navy truncate">
+                    {m.user.name}
+                  </span>
                   {m.user.id === group.leaderId && (
-                    <span className="ml-auto text-xs text-gold-warm flex-shrink-0">líder</span>
+                    <span className="ml-auto text-xs text-gold-warm flex-shrink-0">
+                      líder
+                    </span>
                   )}
                 </div>
               ))}
@@ -167,13 +187,21 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
             {totalMembersPages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-med/40">
                 {membersPage > 1 && (
-                  <Link href={`/grupos/${params.id}?membersPage=${membersPage - 1}`} className="text-xs text-blue-main hover:underline">
+                  <Link
+                    href={`/grupos/${params.id}?membersPage=${membersPage - 1}`}
+                    className="text-xs text-blue-main hover:underline"
+                  >
                     ← Ant.
                   </Link>
                 )}
-                <span className="text-xs text-gray-text mx-auto">{membersPage}/{totalMembersPages}</span>
+                <span className="text-xs text-gray-text mx-auto">
+                  {membersPage}/{totalMembersPages}
+                </span>
                 {membersPage < totalMembersPages && (
-                  <Link href={`/grupos/${params.id}?membersPage=${membersPage + 1}`} className="text-xs text-blue-main hover:underline">
+                  <Link
+                    href={`/grupos/${params.id}?membersPage=${membersPage + 1}`}
+                    className="text-xs text-blue-main hover:underline"
+                  >
                     Próx. →
                   </Link>
                 )}
@@ -188,12 +216,16 @@ export default async function GroupDetailPage({ params, searchParams }: Props) {
             <h2 className="font-semibold text-navy">
               Mural do Grupo
               {!isMember && (
-                <span className="ml-2 text-xs text-gray-text font-normal">(apenas pedidos públicos)</span>
+                <span className="ml-2 text-xs text-gray-text font-normal">
+                  (apenas pedidos públicos)
+                </span>
               )}
             </h2>
             {isMember && (
               <Button asChild variant="primary" size="sm">
-                <Link href={`/novo-pedido?groupId=${params.id}`}>+ Novo Pedido</Link>
+                <Link href={`/novo-pedido?groupId=${params.id}`}>
+                  + Novo Pedido
+                </Link>
               </Button>
             )}
           </div>

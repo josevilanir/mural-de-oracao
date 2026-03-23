@@ -50,10 +50,16 @@ export default function PrayButtonClient({
         hasPrayed
           ? "bg-blue-main text-white border-blue-main hover:bg-blue-700 hover:border-blue-700"
           : !currentUserId
-          ? "bg-blue-soft text-gray-text border-blue-200 cursor-not-allowed opacity-70"
-          : "bg-blue-soft text-navy border-blue-200 hover:bg-blue-main hover:text-white hover:border-blue-main"
+            ? "bg-blue-soft text-gray-text border-blue-200 cursor-not-allowed opacity-70"
+            : "bg-blue-soft text-navy border-blue-200 hover:bg-blue-main hover:text-white hover:border-blue-main",
       )}
-      title={!currentUserId ? "Entre para orar" : hasPrayed ? "Clique para desfazer" : undefined}
+      title={
+        !currentUserId
+          ? "Entre para orar"
+          : hasPrayed
+            ? "Clique para desfazer"
+            : undefined
+      }
     >
       {hasPrayed ? "Você orou por este pedido ✓" : "Orei por você"} ({count})
     </button>

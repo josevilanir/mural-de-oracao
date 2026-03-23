@@ -26,15 +26,15 @@ test.describe("Intercessão por Pedido de Oração", () => {
     const page = await ctx.newPage();
 
     await page.goto("/novo-pedido");
-    await page
-      .getByPlaceholder("e.g., Cura para minha mãe")
-      .fill(PRAYER_TITLE);
+    await page.getByPlaceholder("e.g., Cura para minha mãe").fill(PRAYER_TITLE);
     await page.locator("select").first().selectOption({ index: 1 });
     await page
       .getByPlaceholder(
-        "Conte sua necessidade em detalhes. A comunidade está aqui para orar por você."
+        "Conte sua necessidade em detalhes. A comunidade está aqui para orar por você.",
       )
-      .fill("Pedido criado pelo Playwright para testar o botão de intercessão.");
+      .fill(
+        "Pedido criado pelo Playwright para testar o botão de intercessão.",
+      );
     await page.getByRole("button", { name: "Publicar Pedido" }).click();
     await page.waitForURL("**/meus-pedidos", { timeout: 15_000 });
 

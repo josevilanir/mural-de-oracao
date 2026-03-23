@@ -7,7 +7,16 @@
  * Idempotente: usa upsert onde possível e limpa dados não-auth antes de recriar.
  */
 
-import { PrismaClient, Role, Category, PrayerStatus, GroupStatus, GroupMemberStatus, PrayerVisibility, AuditAction } from "@prisma/client";
+import {
+  PrismaClient,
+  Role,
+  Category,
+  PrayerStatus,
+  GroupStatus,
+  GroupMemberStatus,
+  PrayerVisibility,
+  AuditAction,
+} from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient({
@@ -53,7 +62,11 @@ async function main() {
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@mural.dev" },
-    update: { name: "Administrador", role: Role.ADMIN, emailVerified: new Date() },
+    update: {
+      name: "Administrador",
+      role: Role.ADMIN,
+      emailVerified: new Date(),
+    },
     create: {
       email: "admin@mural.dev",
       name: "Administrador",
@@ -126,7 +139,8 @@ async function main() {
       // HEALTH
       {
         title: "Cura completa da minha mãe",
-        description: "Minha mãe foi diagnosticada com câncer no estágio inicial. Peço oração pela cura completa e pela paz da família durante o tratamento.",
+        description:
+          "Minha mãe foi diagnosticada com câncer no estágio inicial. Peço oração pela cura completa e pela paz da família durante o tratamento.",
         category: Category.HEALTH,
         status: PrayerStatus.ACTIVE,
         authorId: maria.id,
@@ -135,7 +149,8 @@ async function main() {
       },
       {
         title: "Recuperação após cirurgia",
-        description: "Passei por uma cirurgia na coluna e a recuperação está sendo lenta. Preciso de oração para acelerar a cura e ter forças para a fisioterapia.",
+        description:
+          "Passei por uma cirurgia na coluna e a recuperação está sendo lenta. Preciso de oração para acelerar a cura e ter forças para a fisioterapia.",
         category: Category.HEALTH,
         status: PrayerStatus.CHRONIC,
         authorId: joao.id,
@@ -144,18 +159,21 @@ async function main() {
       },
       {
         title: "Cura da depressão respondida!",
-        description: "Após dois anos de luta contra a depressão severa, com muito tratamento e orações, estou bem. Deus é fiel!",
+        description:
+          "Após dois anos de luta contra a depressão severa, com muito tratamento e orações, estou bem. Deus é fiel!",
         category: Category.HEALTH,
         status: PrayerStatus.ANSWERED,
         authorId: ana.id,
-        testimony: "Deus usou médicos, medicação e a intercessão de irmãos para me restaurar completamente. Gratidão a todos que oraram por mim.",
+        testimony:
+          "Deus usou médicos, medicação e a intercessão de irmãos para me restaurar completamente. Gratidão a todos que oraram por mim.",
         createdAt: daysAgo(90),
       },
 
       // FAMILY
       {
         title: "Reconciliação com meu pai",
-        description: "Há 5 anos não falo com meu pai por causa de uma briga séria. Quero pedir oração para Deus abrir portas de reconciliação e nos restaurar.",
+        description:
+          "Há 5 anos não falo com meu pai por causa de uma briga séria. Quero pedir oração para Deus abrir portas de reconciliação e nos restaurar.",
         category: Category.FAMILY,
         status: PrayerStatus.ACTIVE,
         isAnonymous: true,
@@ -164,7 +182,8 @@ async function main() {
       },
       {
         title: "Meu filho voltando para a fé",
-        description: "Meu filho de 22 anos se afastou da igreja e está fazendo escolhas que me preocupam. Intercedo pelo retorno dele ao Senhor.",
+        description:
+          "Meu filho de 22 anos se afastou da igreja e está fazendo escolhas que me preocupam. Intercedo pelo retorno dele ao Senhor.",
         category: Category.FAMILY,
         status: PrayerStatus.CHRONIC,
         authorId: maria.id,
@@ -175,7 +194,8 @@ async function main() {
       // FINANCES
       {
         title: "Emprego urgente",
-        description: "Estou desempregado há 4 meses com família para sustentar. Preciso de oração para encontrar trabalho que supra as necessidades da minha família.",
+        description:
+          "Estou desempregado há 4 meses com família para sustentar. Preciso de oração para encontrar trabalho que supra as necessidades da minha família.",
         category: Category.FINANCES,
         status: PrayerStatus.ACTIVE,
         authorId: joao.id,
@@ -184,7 +204,8 @@ async function main() {
       },
       {
         title: "Quitação de dívidas",
-        description: "Acumulei dívidas no período difícil e agora luto para quitar tudo. Peço sabedoria financeira e provisão de Deus.",
+        description:
+          "Acumulei dívidas no período difícil e agora luto para quitar tudo. Peço sabedoria financeira e provisão de Deus.",
         category: Category.FINANCES,
         status: PrayerStatus.CHRONIC,
         authorId: pedro.id,
@@ -194,7 +215,8 @@ async function main() {
       // RELATIONSHIPS
       {
         title: "Deus no centro do meu casamento",
-        description: "Meu casamento está passando por uma fase difícil. Peço oração para que a presença de Deus seja restaurada e que encontremos a cura para as feridas.",
+        description:
+          "Meu casamento está passando por uma fase difícil. Peço oração para que a presença de Deus seja restaurada e que encontremos a cura para as feridas.",
         category: Category.RELATIONSHIPS,
         status: PrayerStatus.ACTIVE,
         isAnonymous: true,
@@ -205,7 +227,8 @@ async function main() {
       // WORK_STUDY
       {
         title: "Aprovação no concurso público",
-        description: "Estudo há 2 anos para um concurso importante. A prova é em 30 dias. Peço oração pelo foco, pela retenção do conteúdo e pela paz no dia da prova.",
+        description:
+          "Estudo há 2 anos para um concurso importante. A prova é em 30 dias. Peço oração pelo foco, pela retenção do conteúdo e pela paz no dia da prova.",
         category: Category.WORK_STUDY,
         status: PrayerStatus.ACTIVE,
         authorId: maria.id,
@@ -214,18 +237,21 @@ async function main() {
       },
       {
         title: "Passou na faculdade!",
-        description: "Depois de 3 anos tentando, passei no vestibular para medicina! As orações foram fundamentais para eu não desistir.",
+        description:
+          "Depois de 3 anos tentando, passei no vestibular para medicina! As orações foram fundamentais para eu não desistir.",
         category: Category.WORK_STUDY,
         status: PrayerStatus.ANSWERED,
         authorId: joao.id,
-        testimony: "Na véspera da prova estava desanimado, mas senti a paz de Deus me cobrir. Acertei mais que nunca e passei em 1º lugar na ampla concorrência!",
+        testimony:
+          "Na véspera da prova estava desanimado, mas senti a paz de Deus me cobrir. Acertei mais que nunca e passei em 1º lugar na ampla concorrência!",
         createdAt: daysAgo(120),
       },
 
       // HOLINESS
       {
         title: "Vitória sobre a pornografia",
-        description: "Luto há anos com esse vício que destrói meu testemunho e minha vida espiritual. Preciso de oração e encorajamento de irmãos.",
+        description:
+          "Luto há anos com esse vício que destrói meu testemunho e minha vida espiritual. Preciso de oração e encorajamento de irmãos.",
         category: Category.HOLINESS,
         status: PrayerStatus.CHRONIC,
         isAnonymous: true,
@@ -235,7 +261,8 @@ async function main() {
       },
       {
         title: "Aprofundamento na oração diária",
-        description: "Sinto que minha vida de oração está fria e mecânica. Peço que irmãos intercedam para que eu tenha mais desejo genuíno de comunhão com Deus.",
+        description:
+          "Sinto que minha vida de oração está fria e mecânica. Peço que irmãos intercedam para que eu tenha mais desejo genuíno de comunhão com Deus.",
         category: Category.HOLINESS,
         status: PrayerStatus.ACTIVE,
         authorId: ana.id,
@@ -253,7 +280,8 @@ async function main() {
   const group = await prisma.group.create({
     data: {
       name: "Intercessores Unidos",
-      description: "Grupo dedicado à intercessão contínua pela família, saúde e avivamento espiritual na nossa comunidade.",
+      description:
+        "Grupo dedicado à intercessão contínua pela família, saúde e avivamento espiritual na nossa comunidade.",
       status: GroupStatus.ACTIVE,
       leaderId: maria.id,
       createdAt: daysAgo(40),
@@ -297,7 +325,8 @@ async function main() {
   const groupPrayer = await prisma.prayer.create({
     data: {
       title: "Avivamento na nossa cidade",
-      description: "Intercedemos juntos por um mover genuíno de Deus nas igrejas e nas ruas da nossa cidade. Que almas sejam salvas e vidas transformadas.",
+      description:
+        "Intercedemos juntos por um mover genuíno de Deus nas igrejas e nas ruas da nossa cidade. Que almas sejam salvas e vidas transformadas.",
       category: Category.HOLINESS,
       status: PrayerStatus.ACTIVE,
       authorId: maria.id,
@@ -321,7 +350,7 @@ async function main() {
 
   for (const prayer of publicPrayers) {
     const intercessors = [admin, maria, joao, ana, pedro].filter(
-      (u) => u.id !== prayer.authorId
+      (u) => u.id !== prayer.authorId,
     );
     for (const user of intercessors.slice(0, 3)) {
       prayerActionData.push({ userId: user.id, prayerId: prayer.id });
@@ -339,7 +368,7 @@ async function main() {
       createdAt: daysAgo(9),
     },
     {
-      text: "Intercedendo com fé. \"Pelo ferimento dele fomos sarados\" — Isaías 53:5",
+      text: 'Intercedendo com fé. "Pelo ferimento dele fomos sarados" — Isaías 53:5',
       authorId: ana.id,
       prayerId: prayers[0].id,
       createdAt: daysAgo(8),
@@ -392,7 +421,8 @@ async function main() {
 
   await prisma.report.create({
     data: {
-      reason: "Conteúdo parece ser spam ou autopublicidade, não um pedido genuíno de oração.",
+      reason:
+        "Conteúdo parece ser spam ou autopublicidade, não um pedido genuíno de oração.",
       reporterId: admin.id,
       prayerId: prayers[6].id,
       createdAt: daysAgo(1),
@@ -435,7 +465,9 @@ async function main() {
   console.log("═══════════════════════════════════════════════════");
   console.log("📊 Resumo:");
   console.log(`   • Usuários : 5 (1 admin + 4 regulares)`);
-  console.log(`   • Orações  : ${prayers.length + 1} (${prayers.length} públicas + 1 exclusiva de grupo)`);
+  console.log(
+    `   • Orações  : ${prayers.length + 1} (${prayers.length} públicas + 1 exclusiva de grupo)`,
+  );
   console.log(`   • Grupos   : 1 (com 4 membros)`);
   console.log(`   • Intercessões: ${prayerActionData.length}`);
   console.log(`   • Comentários : ${commentData.length}`);

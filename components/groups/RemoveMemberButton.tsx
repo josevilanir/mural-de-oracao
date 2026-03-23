@@ -39,11 +39,23 @@ export default function RemoveMemberButton({ memberId, memberName }: Props) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs text-red-600 font-medium">Remover {memberName}?</span>
-      <Button variant="danger" size="sm" disabled={loading} onClick={handleRemove}>
+      <span className="text-xs text-red-600 font-medium">
+        Remover {memberName}?
+      </span>
+      <Button
+        variant="danger"
+        size="sm"
+        disabled={loading}
+        onClick={handleRemove}
+      >
         {loading ? "..." : "Confirmar"}
       </Button>
-      <Button variant="secondary" size="sm" onClick={() => setConfirm(false)} disabled={loading}>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => setConfirm(false)}
+        disabled={loading}
+      >
         Cancelar
       </Button>
     </div>

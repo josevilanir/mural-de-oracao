@@ -26,7 +26,10 @@ setup("autenticar usuário de teste", async ({ page }) => {
   await page.getByPlaceholder("••••••••").fill(TEST_USER.password);
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
-  await page.waitForTimeout(3000);
+  // Wait for navigation away from /login (or silently continue if login failed)
+  await page
+    .waitForURL((url) => !url.pathname.includes("/login"), { timeout: 10_000 })
+    .catch(() => {});
 
   const loginFailed =
     page.url().includes("/login") ||
@@ -38,7 +41,9 @@ setup("autenticar usuário de teste", async ({ page }) => {
     await page.getByPlaceholder("Seu nome").fill(TEST_USER.name);
     await page.getByPlaceholder("seu@email.com").fill(TEST_USER.email);
     await page.getByPlaceholder("Mínimo 6 caracteres").fill(TEST_USER.password);
-    await page.getByRole("button", { name: "Criar Conta", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Criar Conta", exact: true })
+      .click();
 
     await page.waitForURL((url) => !url.pathname.includes("/register"), {
       timeout: 15_000,

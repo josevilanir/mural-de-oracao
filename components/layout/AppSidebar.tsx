@@ -7,7 +7,16 @@ export default async function AppSidebar() {
 
   return (
     <AppSidebarClient
-      user={user ? { name: user.name ?? null, email: user.email ?? null, image: user.image ?? null, role: user.role ?? "USER" } : null}
+      user={
+        user
+          ? {
+              name: user.name ?? null,
+              email: user.email ?? null,
+              image: user.image ?? null,
+              role: user.role ?? "USER",
+            }
+          : null
+      }
     />
   );
 }

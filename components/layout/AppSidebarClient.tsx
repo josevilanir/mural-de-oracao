@@ -72,7 +72,9 @@ export function AppSidebarClient({ user }: Props) {
           {
             label: "Admin",
             href: "/admin",
-            icon: <ShieldCheck className="h-5 w-5 flex-shrink-0 text-gold-warm" />,
+            icon: (
+              <ShieldCheck className="h-5 w-5 flex-shrink-0 text-gold-warm" />
+            ),
           },
         ]
       : []),
@@ -82,7 +84,7 @@ export function AppSidebarClient({ user }: Props) {
     <Sidebar open={open} setOpen={setOpen}>
       <SidebarBody
         className={cn(
-          "justify-between gap-6 bg-card border-r border-gray-med dark:border-gray-med h-screen sticky top-0"
+          "justify-between gap-6 bg-card border-r border-gray-med dark:border-gray-med h-screen sticky top-0",
         )}
       >
         {/* Top section */}
@@ -102,7 +104,10 @@ export function AppSidebarClient({ user }: Props) {
               </motion.span>
             </Link>
           ) : (
-            <Link href="/" className="w-full flex items-center justify-center py-1">
+            <Link
+              href="/"
+              className="w-full flex items-center justify-center py-1"
+            >
               <span className="font-bold text-gold-warm text-lg">M</span>
             </Link>
           )}
@@ -117,7 +122,8 @@ export function AppSidebarClient({ user }: Props) {
                   link={link}
                   className={cn(
                     "hover:bg-blue-soft dark:hover:bg-navy/40 text-navy dark:text-[#94a3b8] dark:hover:text-[#e2e8f0] rounded-lg transition-colors dark:[&_svg]:opacity-60 dark:[&_svg]:transition-opacity",
-                    isActive && "bg-gold-light dark:bg-gold-warm/20 text-gold-warm dark:text-white font-semibold dark:font-semibold dark:[&_svg]:!opacity-100"
+                    isActive &&
+                      "bg-gold-light dark:bg-gold-warm/20 text-gold-warm dark:text-white font-semibold dark:font-semibold dark:[&_svg]:!opacity-100",
                   )}
                 />
               );
@@ -128,7 +134,10 @@ export function AppSidebarClient({ user }: Props) {
           <div className="mt-4">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={cn("flex items-center px-2 py-2 w-full rounded-md hover:bg-blue-soft dark:hover:bg-navy/40 transition-colors group/sidebar", open ? "gap-3 justify-start" : "justify-center")}
+              className={cn(
+                "flex items-center px-2 py-2 w-full rounded-md hover:bg-blue-soft dark:hover:bg-navy/40 transition-colors group/sidebar",
+                open ? "gap-3 justify-start" : "justify-center",
+              )}
             >
               {mounted && (
                 <>
@@ -157,7 +166,12 @@ export function AppSidebarClient({ user }: Props) {
           {user ? (
             <>
               {/* Notification Bell — só mostra label quando aberto */}
-              <div className={cn("flex items-center gap-3 px-2 py-1", !open && "justify-center")}>
+              <div
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1",
+                  !open && "justify-center",
+                )}
+              >
                 <NotificationBell />
                 <motion.span
                   animate={{
@@ -171,7 +185,12 @@ export function AppSidebarClient({ user }: Props) {
               </div>
 
               {/* User avatar + name */}
-              <div className={cn("flex items-center gap-3 px-2 py-2", !open && "justify-center")}>
+              <div
+                className={cn(
+                  "flex items-center gap-3 px-2 py-2",
+                  !open && "justify-center",
+                )}
+              >
                 {user.image ? (
                   <Image
                     src={user.image}
@@ -195,14 +214,19 @@ export function AppSidebarClient({ user }: Props) {
                   <span className="text-sm font-semibold text-navy dark:text-[#e2e8f0] dark:font-semibold truncate transition-colors">
                     {user.name}
                   </span>
-                  <span className="text-xs text-gray-text dark:text-[#64748b] truncate transition-colors">{user.email}</span>
+                  <span className="text-xs text-gray-text dark:text-[#64748b] truncate transition-colors">
+                    {user.email}
+                  </span>
                 </motion.div>
               </div>
 
               {/* Logout */}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className={cn("flex items-center px-2 py-2 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group/sidebar w-full text-left", open ? "gap-3 justify-start" : "justify-center")}
+                className={cn(
+                  "flex items-center px-2 py-2 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group/sidebar w-full text-left",
+                  open ? "gap-3 justify-start" : "justify-center",
+                )}
               >
                 <LogOut className="h-5 w-5 flex-shrink-0 text-red-500" />
                 <motion.span
@@ -230,7 +254,9 @@ export function AppSidebarClient({ user }: Props) {
                 link={{
                   label: "Criar Conta",
                   href: "/register",
-                  icon: <UserPlus className="h-5 w-5 flex-shrink-0 text-gold-warm" />,
+                  icon: (
+                    <UserPlus className="h-5 w-5 flex-shrink-0 text-gold-warm" />
+                  ),
                 }}
                 className="hover:bg-gold-light dark:hover:bg-gold-warm/20 rounded-lg"
               />

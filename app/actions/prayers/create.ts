@@ -19,13 +19,19 @@ export async function createPrayerAction(data: unknown) {
 
   const parsed = CreatePrayerSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const { visibility, groupId } = parsed.data;
 
   if (visibility === "GROUP_ONLY" && !groupId) {
-    return { success: false, error: "Pedido privado precisa estar vinculado a um grupo." };
+    return {
+      success: false,
+      error: "Pedido privado precisa estar vinculado a um grupo.",
+    };
   }
 
   if (groupId) {
@@ -33,7 +39,10 @@ export async function createPrayerAction(data: unknown) {
       where: { userId_groupId: { userId: session.user.id, groupId } },
     });
     if (membership?.status !== "ACTIVE") {
-      return { success: false, error: "Você precisa ser membro ativo do grupo para postar nele." };
+      return {
+        success: false,
+        error: "Você precisa ser membro ativo do grupo para postar nele.",
+      };
     }
   }
 
@@ -43,7 +52,9 @@ export async function createPrayerAction(data: unknown) {
         ...parsed.data,
         title: sanitizeUserInput(parsed.data.title),
         description: sanitizeUserInput(parsed.data.description),
-        verseReference: parsed.data.verseReference ? sanitizeUserInput(parsed.data.verseReference) : null,
+        verseReference: parsed.data.verseReference
+          ? sanitizeUserInput(parsed.data.verseReference)
+          : null,
         groupId: groupId || null,
         authorId: session.user.id,
       },

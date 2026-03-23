@@ -4,7 +4,9 @@ import FilterBar from "@/components/layout/FilterBar";
 import PrayerCardSkeleton from "@/components/prayers/PrayerCardSkeleton";
 import Link from "next/link";
 import PrayerRequestsSection from "@/components/prayers/PrayerRequestsSection";
-import FeedLoadMore, { type PrayerItem } from "@/components/prayers/FeedLoadMore";
+import FeedLoadMore, {
+  type PrayerItem,
+} from "@/components/prayers/FeedLoadMore";
 import { fetchFeedAction } from "@/app/actions/prayers/feed";
 
 interface HomeProps {

@@ -15,7 +15,7 @@ interface PrayerAccessInfo {
  */
 export async function canAccessPrayer(
   userId: string | undefined,
-  prayer: PrayerAccessInfo
+  prayer: PrayerAccessInfo,
 ): Promise<boolean> {
   if (prayer.isHidden) return false;
   if (prayer.visibility === "PUBLIC") return true;

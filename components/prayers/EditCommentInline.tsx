@@ -33,7 +33,9 @@ export default function EditCommentInline({ commentId, initialText }: Props) {
       return;
     }
     startTransition(async () => {
-      const result = await updateCommentAction(commentId, { text: draft.trim() });
+      const result = await updateCommentAction(commentId, {
+        text: draft.trim(),
+      });
       if (result.success) {
         setText(draft.trim());
         setEditing(false);
@@ -87,7 +89,9 @@ export default function EditCommentInline({ commentId, initialText }: Props) {
         >
           <X className="w-4 h-4" />
         </button>
-        <span className="text-xs text-gray-text ml-auto">{draft.length}/500</span>
+        <span className="text-xs text-gray-text ml-auto">
+          {draft.length}/500
+        </span>
       </div>
     </div>
   );

@@ -62,7 +62,10 @@ export default function GroupCard({ group, memberStatus, userId }: Props) {
   }
 
   async function handleJoin() {
-    if (!userId) { router.push("/login"); return; }
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
     setJoining(true);
     await requestJoinGroup(group.id);
     setJoining(false);
@@ -97,7 +100,9 @@ export default function GroupCard({ group, memberStatus, userId }: Props) {
               {group.leader.name} · {group._count.members} membro(s)
             </p>
             {group.description && (
-              <p className="text-xs text-gray-text mt-0.5 line-clamp-1">{group.description}</p>
+              <p className="text-xs text-gray-text mt-0.5 line-clamp-1">
+                {group.description}
+              </p>
             )}
           </div>
 
@@ -147,7 +152,9 @@ export default function GroupCard({ group, memberStatus, userId }: Props) {
               >
                 {/* Modal header */}
                 <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-med/40">
-                  <h2 className="font-display font-bold text-navy text-lg">{group.name}</h2>
+                  <h2 className="font-display font-bold text-navy text-lg">
+                    {group.name}
+                  </h2>
                   <button
                     onClick={() => setModalOpen(false)}
                     className="p-1.5 rounded-full hover:bg-gray-light dark:hover:bg-navy/40 text-gray-text transition-colors"
@@ -174,25 +181,37 @@ export default function GroupCard({ group, memberStatus, userId }: Props) {
                   {/* Info */}
                   <div className="text-center -mt-1">
                     <p className="text-xs text-gray-text">
-                      Líder: <span className="font-medium text-navy">{group.leader.name}</span>
+                      Líder:{" "}
+                      <span className="font-medium text-navy">
+                        {group.leader.name}
+                      </span>
                     </p>
-                    <p className="text-xs text-gray-text">{group._count.members} membro(s)</p>
+                    <p className="text-xs text-gray-text">
+                      {group._count.members} membro(s)
+                    </p>
                   </div>
 
                   {/* Description */}
                   {group.description && (
                     <div className="bg-blue-soft/30 dark:bg-navy/20 rounded-xl p-4">
-                      <p className="text-sm text-gray-text leading-relaxed">{group.description}</p>
+                      <p className="text-sm text-gray-text leading-relaxed">
+                        {group.description}
+                      </p>
                     </div>
                   )}
 
                   {/* Members list */}
                   <div>
-                    <h3 className="text-sm font-semibold text-navy mb-3">Membros</h3>
+                    <h3 className="text-sm font-semibold text-navy mb-3">
+                      Membros
+                    </h3>
                     {loadingMembers ? (
                       <div className="flex flex-col gap-2">
                         {[...Array(3)].map((_, i) => (
-                          <div key={i} className="flex items-center gap-2 animate-pulse">
+                          <div
+                            key={i}
+                            className="flex items-center gap-2 animate-pulse"
+                          >
                             <div className="w-8 h-8 rounded-full bg-gray-med/40 flex-shrink-0" />
                             <div className="h-3 w-28 bg-gray-med/40 rounded" />
                           </div>
@@ -214,12 +233,16 @@ export default function GroupCard({ group, memberStatus, userId }: Props) {
                                 {m.user.name?.charAt(0) ?? "?"}
                               </div>
                             )}
-                            <span className="text-sm text-navy">{m.user.name}</span>
+                            <span className="text-sm text-navy">
+                              {m.user.name}
+                            </span>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-text italic">Nenhum membro ainda.</p>
+                      <p className="text-sm text-gray-text italic">
+                        Nenhum membro ainda.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -227,7 +250,9 @@ export default function GroupCard({ group, memberStatus, userId }: Props) {
                 {/* Footer */}
                 <div className="px-5 py-4 border-t border-gray-med/40 flex items-center justify-end gap-3">
                   {joined ? (
-                    <span className="text-sm text-gold-warm font-medium">Solicitação enviada ✓</span>
+                    <span className="text-sm text-gold-warm font-medium">
+                      Solicitação enviada ✓
+                    </span>
                   ) : (
                     <Button
                       variant="primary"

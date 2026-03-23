@@ -35,7 +35,7 @@ function FilterButton({
         "px-3 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap flex-shrink-0",
         active
           ? "bg-gold-warm text-white border-gold-warm"
-          : "bg-card border-gray-med text-navy hover:border-gold-warm"
+          : "bg-card border-gray-med text-navy hover:border-gold-warm",
       )}
     >
       {label}
@@ -76,7 +76,10 @@ export default function FilterBar() {
               <FilterButton
                 key={f.value}
                 label={f.label}
-                active={(f.value === "" && !currentStatus) || currentStatus === f.value}
+                active={
+                  (f.value === "" && !currentStatus) ||
+                  currentStatus === f.value
+                }
                 onClick={() => setFilter("status", f.value)}
               />
             ))}
@@ -104,7 +107,9 @@ export default function FilterBar() {
           <FilterButton
             key={f.value}
             label={f.label}
-            active={(f.value === "" && !currentStatus) || currentStatus === f.value}
+            active={
+              (f.value === "" && !currentStatus) || currentStatus === f.value
+            }
             onClick={() => setFilter("status", f.value)}
           />
         ))}

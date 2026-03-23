@@ -107,7 +107,9 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
           {description.length} / 1000
         </div>
         {errors.description && (
-          <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>
+          <p className="text-red-500 text-xs mt-1">
+            {errors.description.message}
+          </p>
         )}
       </div>
 
@@ -129,7 +131,8 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
         <div className="border border-gray-med rounded-lg p-4 flex flex-col gap-3 bg-blue-soft/20">
           <div>
             <label className="block text-sm font-medium text-navy mb-1">
-              Publicar em um grupo <span className="text-xs text-gray-text">(opcional)</span>
+              Publicar em um grupo{" "}
+              <span className="text-xs text-gray-text">(opcional)</span>
             </label>
             <select
               {...register("groupId")}
@@ -146,7 +149,9 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
 
           {selectedGroupId && (
             <div>
-              <label className="block text-sm font-medium text-navy mb-1">Visibilidade</label>
+              <label className="block text-sm font-medium text-navy mb-1">
+                Visibilidade
+              </label>
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -156,7 +161,9 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
                     className="accent-gold-warm"
                   />
                   <span className="text-sm text-navy">Público</span>
-                  <span className="text-xs text-gray-text">(aparece no mural geral e do grupo)</span>
+                  <span className="text-xs text-gray-text">
+                    (aparece no mural geral e do grupo)
+                  </span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -166,7 +173,9 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
                     className="accent-gold-warm"
                   />
                   <span className="text-sm text-navy">Só pro grupo</span>
-                  <span className="text-xs text-gray-text">(apenas membros veem)</span>
+                  <span className="text-xs text-gray-text">
+                    (apenas membros veem)
+                  </span>
                 </label>
               </div>
             </div>
@@ -183,7 +192,10 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
             className="w-4 h-4 accent-gold-warm"
           />
           <span className="text-sm text-navy">Postar como anônimo</span>
-          <span className="text-xs text-gray-text" title="Seu nome e foto não aparecerão no feed.">
+          <span
+            className="text-xs text-gray-text"
+            title="Seu nome e foto não aparecerão no feed."
+          >
             (seu nome e foto não aparecerão)
           </span>
         </label>
@@ -195,12 +207,16 @@ export default function NewPrayerForm({ groups = [], defaultGroupId }: Props) {
             defaultChecked
             className="w-4 h-4 accent-gold-warm"
           />
-          <span className="text-sm text-navy">Permitir comentários de encorajamento</span>
+          <span className="text-sm text-navy">
+            Permitir comentários de encorajamento
+          </span>
         </label>
       </div>
 
       {serverError && (
-        <p className="text-red-500 text-sm bg-red-50 dark:bg-red-950/30 rounded p-2">{serverError}</p>
+        <p className="text-red-500 text-sm bg-red-50 dark:bg-red-950/30 rounded p-2">
+          {serverError}
+        </p>
       )}
 
       {/* Submit */}

@@ -4,7 +4,8 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Mural de Oração — Comunidade de Intercessão",
-  description: "Compartilhe seus pedidos de oração e interceda pelos outros. Ninguém precisa orar sozinho.",
+  description:
+    "Compartilhe seus pedidos de oração e interceda pelos outros. Ninguém precisa orar sozinho.",
   openGraph: {
     title: "Mural de Oração",
     description: "Ninguém precisa orar sozinho.",
@@ -12,7 +13,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className="min-h-screen bg-cream text-navy font-sans antialiased">

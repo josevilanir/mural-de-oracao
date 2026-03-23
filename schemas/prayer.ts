@@ -10,8 +10,15 @@ export const CreatePrayerSchema = z.object({
     .min(20, "Conte um pouco mais — mínimo 20 caracteres")
     .max(1000, "Máximo 1000 caracteres"),
   category: z.enum(
-    ["HEALTH", "FAMILY", "FINANCES", "RELATIONSHIPS", "WORK_STUDY", "HOLINESS"] as const,
-    { error: "Por favor, selecione uma categoria" }
+    [
+      "HEALTH",
+      "FAMILY",
+      "FINANCES",
+      "RELATIONSHIPS",
+      "WORK_STUDY",
+      "HOLINESS",
+    ] as const,
+    { error: "Por favor, selecione uma categoria" },
   ),
   verseReference: z
     .string()
@@ -40,6 +47,9 @@ export type ResolveTestimonyInput = z.infer<typeof ResolveTestimonySchema>;
 
 export const CreateCommentSchema = z.object({
   prayerId: z.string().min(1),
-  text: z.string().min(3, "Mínimo 3 caracteres").max(500, "Máximo 500 caracteres"),
+  text: z
+    .string()
+    .min(3, "Mínimo 3 caracteres")
+    .max(500, "Máximo 500 caracteres"),
 });
 export type CreateCommentInput = z.infer<typeof CreateCommentSchema>;

@@ -38,7 +38,10 @@ export default function PrayerRemovalForm({ prayerId, groupId }: Props) {
           Solicitar Remoção
         </Button>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2 min-w-[200px]">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-2 min-w-[200px]"
+        >
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -48,7 +51,12 @@ export default function PrayerRemovalForm({ prayerId, groupId }: Props) {
             className="border border-gray-med rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-gold-warm bg-background text-navy resize-none"
           />
           <div className="flex gap-2">
-            <Button type="submit" variant="primary" size="sm" disabled={loading}>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={loading}
+            >
               {loading ? "..." : "Enviar"}
             </Button>
             <Button

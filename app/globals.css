@@ -2,26 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Nunito+Sans:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Nunito+Sans:wght@400;500;600;700&display=swap");
 
 /* ── Light Mode (default) ─────────────────────────────────
    Valores: canais RGB separados por espaço para que o Tailwind
    consiga aplicar modificadores de opacidade (ex: bg-cream/95).
 ──────────────────────────────────────────────────────────── */
 :root {
-  --cream:        250 247 242;   /* #FAF7F2 — background geral */
-  --card:         255 255 255;   /* #FFFFFF — superfície de cards */
-  --navy:          30  58  95;   /* #1E3A5F — texto principal */
-  --blue-main:     59 130 196;   /* #3B82C4 — ações, links */
-  --gold-warm:    201 133  58;   /* #C9853A — CTA principal */
-  --gold-light:   254 243 226;   /* #FEF3E2 — CTA secundário bg */
-  --blue-soft:    214 232 247;   /* #D6E8F7 — cards info */
-  --gray-light:   245 244 240;   /* #F5F4F0 — fundo alternado */
-  --gray-med:     217 217 217;   /* #D9D9D9 — bordas */
-  --gray-text:     85  85  85;   /* #555555 — texto secundário */
-  --status-blue:   46 117 182;   /* #2E75B6 */
-  --status-amber: 230 126  34;   /* #E67E22 */
-  --status-green:  39 174  96;   /* #27AE60 */
+  --cream: 250 247 242; /* #FAF7F2 — background geral */
+  --card: 255 255 255; /* #FFFFFF — superfície de cards */
+  --navy: 30 58 95; /* #1E3A5F — texto principal */
+  --blue-main: 59 130 196; /* #3B82C4 — ações, links */
+  --gold-warm: 201 133 58; /* #C9853A — CTA principal */
+  --gold-light: 254 243 226; /* #FEF3E2 — CTA secundário bg */
+  --blue-soft: 214 232 247; /* #D6E8F7 — cards info */
+  --gray-light: 245 244 240; /* #F5F4F0 — fundo alternado */
+  --gray-med: 217 217 217; /* #D9D9D9 — bordas */
+  --gray-text: 85 85 85; /* #555555 — texto secundário */
+  --status-blue: 46 117 182; /* #2E75B6 */
+  --status-amber: 230 126 34; /* #E67E22 */
+  --status-green: 39 174 96; /* #27AE60 */
 }
 
 /* ── Dark Mode ────────────────────────────────────────────
@@ -29,31 +29,33 @@
    Azul-aço escuro como base, dourado vivo como acento.
 ──────────────────────────────────────────────────────────── */
 .dark {
-  --cream:         13  22  35;   /* fundo principal escuro */
-  --card:          22  35  55;   /* superfície elevada */
-  --navy:         245 245 245;   /* texto principal (claro) */
-  --blue-main:    100 165 220;   /* links e ações */
-  --gold-warm:    218 155  70;   /* acento dourado mais vivo */
-  --gold-light:    40  28  10;   /* bg CTA secundário escuro */
-  --blue-soft:     20  40  65;   /* cards informativos escuros */
-  --gray-light:    20  32  50;   /* fundo alternado escuro */
-  --gray-med:      60  85 115;   /* bordas sutis */
-  --gray-text:    180 200 220;   /* texto secundário */
-  --status-blue:   80 150 210;
-  --status-amber: 230 126  34;
-  --status-green:  50 210 110;
+  --cream: 13 22 35; /* fundo principal escuro */
+  --card: 22 35 55; /* superfície elevada */
+  --navy: 245 245 245; /* texto principal (claro) */
+  --blue-main: 100 165 220; /* links e ações */
+  --gold-warm: 218 155 70; /* acento dourado mais vivo */
+  --gold-light: 40 28 10; /* bg CTA secundário escuro */
+  --blue-soft: 20 40 65; /* cards informativos escuros */
+  --gray-light: 20 32 50; /* fundo alternado escuro */
+  --gray-med: 60 85 115; /* bordas sutis */
+  --gray-text: 180 200 220; /* texto secundário */
+  --status-blue: 80 150 210;
+  --status-amber: 230 126 34;
+  --status-green: 50 210 110;
 }
 
 /* ── Base ─────────────────────────────────────────────── */
 html {
-  font-family: 'Nunito Sans', sans-serif;
+  font-family: "Nunito Sans", sans-serif;
   color-scheme: light dark;
 }
 
 body {
   background-color: rgb(var(--cream));
   color: rgb(var(--navy));
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 /* Scrollbar hide utility */

@@ -22,11 +22,9 @@ test.describe("Fluxo de Login", () => {
     await expect(page.getByPlaceholder("seu@email.com")).toBeVisible();
     await expect(page.getByPlaceholder("••••••••")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Entrar", exact: true })
+      page.getByRole("button", { name: "Entrar", exact: true }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: "Criar conta" })
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Criar conta" })).toBeVisible();
   });
 
   test("deve mostrar erro com credenciais inválidas", async ({ page }) => {
@@ -38,9 +36,9 @@ test.describe("Fluxo de Login", () => {
     await page.getByPlaceholder("••••••••").fill("senhaerrada123");
     await page.getByRole("button", { name: "Entrar", exact: true }).click();
 
-    await expect(
-      page.getByText("E-mail ou senha inválidos.")
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("E-mail ou senha inválidos.")).toBeVisible({
+      timeout: 10_000,
+    });
 
     // Deve permanecer na página de login
     await expect(page).toHaveURL(/\/login/);

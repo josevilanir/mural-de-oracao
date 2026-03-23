@@ -14,4 +14,3 @@ export type Category =
   | "HOLINESS";
 
 export type PrayerStatus = "ACTIVE" | "CHRONIC" | "ANSWERED";
-

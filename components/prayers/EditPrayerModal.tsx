@@ -52,10 +52,16 @@ export default function EditPrayerModal({
     const form = e.currentTarget;
     const data = {
       title: (form.elements.namedItem("title") as HTMLInputElement).value,
-      description: (form.elements.namedItem("description") as HTMLTextAreaElement).value,
-      category: (form.elements.namedItem("category") as HTMLSelectElement).value,
-      isAnonymous: (form.elements.namedItem("isAnonymous") as HTMLInputElement).checked,
-      allowComments: (form.elements.namedItem("allowComments") as HTMLInputElement).checked,
+      description: (
+        form.elements.namedItem("description") as HTMLTextAreaElement
+      ).value,
+      category: (form.elements.namedItem("category") as HTMLSelectElement)
+        .value,
+      isAnonymous: (form.elements.namedItem("isAnonymous") as HTMLInputElement)
+        .checked,
+      allowComments: (
+        form.elements.namedItem("allowComments") as HTMLInputElement
+      ).checked,
     };
     const result = await updatePrayerAction(prayerId, data);
     setLoading(false);
@@ -81,7 +87,10 @@ export default function EditPrayerModal({
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
           <div>
-            <label htmlFor="prayer-title" className="block text-sm font-medium text-navy mb-1">
+            <label
+              htmlFor="prayer-title"
+              className="block text-sm font-medium text-navy mb-1"
+            >
               Título <span className="text-red-500">*</span>
             </label>
             <input
@@ -158,7 +167,9 @@ export default function EditPrayerModal({
           </div>
 
           {error && (
-            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
+              {error}
+            </p>
           )}
 
           <div className="flex gap-2 justify-end pt-1">
@@ -171,7 +182,12 @@ export default function EditPrayerModal({
             >
               Cancelar
             </Button>
-            <Button type="submit" variant="primary" size="sm" disabled={loading}>
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              disabled={loading}
+            >
               {loading ? "Salvando..." : "Salvar"}
             </Button>
           </div>

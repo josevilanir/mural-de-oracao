@@ -13,7 +13,11 @@ export async function deleteAccountAction() {
   const userId = session.user.id;
 
   // RF04b — LGPD anonymization (NOT hard delete)
-  const hash = crypto.createHash("sha256").update(userId).digest("hex").slice(0, 12);
+  const hash = crypto
+    .createHash("sha256")
+    .update(userId)
+    .digest("hex")
+    .slice(0, 12);
 
   try {
     await prisma.user.update({

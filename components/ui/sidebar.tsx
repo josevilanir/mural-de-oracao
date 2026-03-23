@@ -18,11 +18,14 @@ interface SidebarContextProps {
   animate: boolean;
 }
 
-const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
+const SidebarContext = createContext<SidebarContextProps | undefined>(
+  undefined,
+);
 
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
-  if (!context) throw new Error("useSidebar must be used within a SidebarProvider");
+  if (!context)
+    throw new Error("useSidebar must be used within a SidebarProvider");
   return context;
 };
 
@@ -81,7 +84,7 @@ export const DesktopSidebar = ({
       className={cn(
         "h-full py-4 hidden md:flex md:flex-col flex-shrink-0 transition-all duration-300",
         open ? "px-4" : "px-2",
-        className
+        className,
       )}
       animate={{ width: animate ? (open ? "220px" : "64px") : "220px" }}
       onMouseEnter={() => setOpen(true)}
@@ -142,7 +145,7 @@ export const MobileSidebar = ({
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className={cn(
                 "fixed top-0 left-0 h-full w-[280px] z-[100] md:hidden flex flex-col justify-between",
-                className
+                className,
               )}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
@@ -176,7 +179,11 @@ export const SidebarLink = ({
   return (
     <Link
       href={link.href}
-      className={cn("flex items-center py-2 px-2 rounded-md transition-colors group/sidebar", open ? "justify-start gap-3" : "justify-center", className)}
+      className={cn(
+        "flex items-center py-2 px-2 rounded-md transition-colors group/sidebar",
+        open ? "justify-start gap-3" : "justify-center",
+        className,
+      )}
       {...props}
     >
       {link.icon}

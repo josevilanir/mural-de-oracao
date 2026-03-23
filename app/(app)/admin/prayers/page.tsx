@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { CATEGORY_LABELS, STATUS_LABELS, formatRelativeDate } from "@/lib/utils";
+import {
+  CATEGORY_LABELS,
+  STATUS_LABELS,
+  formatRelativeDate,
+} from "@/lib/utils";
 import Link from "next/link";
 import AdminToggle from "@/components/admin/AdminToggle";
 
@@ -24,12 +28,20 @@ export default async function AdminPrayersPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-cream">
       {/* Admin Header */}
       <header className="bg-red-900 text-white px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold">🛡️ Painel de Moderação — Mural de Oração</h1>
+        <h1 className="text-lg font-bold">
+          🛡️ Painel de Moderação — Mural de Oração
+        </h1>
         <div className="flex items-center gap-4">
-          <Link href="/admin/grupos" className="text-sm text-red-200 hover:text-white">
+          <Link
+            href="/admin/grupos"
+            className="text-sm text-red-200 hover:text-white"
+          >
             Grupos
           </Link>
-          <Link href="/admin/remocoes" className="text-sm text-red-200 hover:text-white">
+          <Link
+            href="/admin/remocoes"
+            className="text-sm text-red-200 hover:text-white"
+          >
             Remoções
           </Link>
           <Link href="/" className="text-sm text-red-200 hover:text-white">
@@ -62,7 +74,10 @@ export default async function AdminPrayersPage() {
                 const cat = CATEGORY_LABELS[prayer.category];
                 const status = STATUS_LABELS[prayer.status];
                 return (
-                  <tr key={prayer.id} className="border-t border-gray-100 dark:border-gray-med/20 hover:bg-gray-50 dark:hover:bg-gray-light">
+                  <tr
+                    key={prayer.id}
+                    className="border-t border-gray-100 dark:border-gray-med/20 hover:bg-gray-50 dark:hover:bg-gray-light"
+                  >
                     <td className="px-4 py-3 max-w-xs">
                       <span className="line-clamp-1 font-medium text-navy">
                         {prayer.title}
@@ -71,7 +86,9 @@ export default async function AdminPrayersPage() {
                     <td className="px-4 py-3 text-gray-600">
                       {prayer.author.name ?? "—"}
                       <br />
-                      <span className="text-xs text-gray-400">{prayer.author.email}</span>
+                      <span className="text-xs text-gray-400">
+                        {prayer.author.email}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       {cat?.emoji} {cat?.label}

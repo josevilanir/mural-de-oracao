@@ -43,10 +43,20 @@ export default function LeaveGroupButton({ groupId }: Props) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-red-600 font-medium">Tem certeza?</span>
-      <Button variant="danger" size="sm" disabled={loading} onClick={handleLeave}>
+      <Button
+        variant="danger"
+        size="sm"
+        disabled={loading}
+        onClick={handleLeave}
+      >
         {loading ? "Saindo..." : "Confirmar"}
       </Button>
-      <Button variant="secondary" size="sm" onClick={() => setConfirm(false)} disabled={loading}>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => setConfirm(false)}
+        disabled={loading}
+      >
         Cancelar
       </Button>
     </div>

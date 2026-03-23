@@ -17,13 +17,24 @@ export async function GET(req: Request) {
   const contentType = searchParams.get("contentType") ?? "";
 
   if (!ALLOWED_TYPES.includes(contentType)) {
-    return NextResponse.json({ error: "Tipo de arquivo não permitido." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Tipo de arquivo não permitido." },
+      { status: 400 },
+    );
   }
 
   const contentLengthParam = searchParams.get("contentLength");
   const contentLength = parseInt(contentLengthParam ?? "", 10);
-  if (!contentLengthParam || isNaN(contentLength) || contentLength < 1 || contentLength > MAX_FILE_SIZE) {
-    return NextResponse.json({ error: "Tamanho do arquivo excede o limite de 5MB." }, { status: 400 });
+  if (
+    !contentLengthParam ||
+    isNaN(contentLength) ||
+    contentLength < 1 ||
+    contentLength > MAX_FILE_SIZE
+  ) {
+    return NextResponse.json(
+      { error: "Tamanho do arquivo excede o limite de 5MB." },
+      { status: 400 },
+    );
   }
 
   const ext = contentType.split("/")[1];

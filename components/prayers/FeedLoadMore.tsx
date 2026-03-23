@@ -60,7 +60,7 @@ export default function FeedLoadMore({
   const newestTimestampRef = useRef<string | null>(
     initialPrayers.length > 0
       ? new Date(initialPrayers[0].createdAt).toISOString()
-      : null
+      : null,
   );
 
   // Polling: busca pedidos criados após o mais recente já visível
@@ -77,11 +77,15 @@ export default function FeedLoadMore({
       if (result.prayers.length === 0) return;
 
       // Atualiza o timestamp de referência para o próximo poll
-      newestTimestampRef.current = new Date(result.prayers[0].createdAt).toISOString();
+      newestTimestampRef.current = new Date(
+        result.prayers[0].createdAt,
+      ).toISOString();
 
       setPendingPrayers((prev) => {
         const existingIds = new Set(prev.map((p) => p.id));
-        const novos = (result.prayers as PrayerItem[]).filter((p) => !existingIds.has(p.id));
+        const novos = (result.prayers as PrayerItem[]).filter(
+          (p) => !existingIds.has(p.id),
+        );
         return [...novos, ...prev];
       });
 

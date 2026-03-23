@@ -56,8 +56,22 @@ export default async function WelcomePage() {
         {/* Decorative watermark cross */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none select-none">
           <svg width="700" height="700" viewBox="0 0 700 700" fill="none">
-            <rect x="295" y="60" width="110" height="580" rx="12" fill="white" />
-            <rect x="60" y="230" width="580" height="110" rx="12" fill="white" />
+            <rect
+              x="295"
+              y="60"
+              width="110"
+              height="580"
+              rx="12"
+              fill="white"
+            />
+            <rect
+              x="60"
+              y="230"
+              width="580"
+              height="110"
+              rx="12"
+              fill="white"
+            />
           </svg>
         </div>
 
@@ -244,7 +258,9 @@ export default async function WelcomePage() {
       {/* ── Final CTA ──────────────────────────────────────── */}
       <section className="py-24 px-6 bg-gold-warm text-white text-center">
         <div className="max-w-2xl mx-auto">
-          <div className="text-5xl mb-6 text-white/60 font-display font-bold">✦</div>
+          <div className="text-5xl mb-6 text-white/60 font-display font-bold">
+            ✦
+          </div>
           <h2 className="font-display text-4xl font-bold mb-4">
             Junte-se à comunidade
           </h2>

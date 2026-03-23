@@ -17,7 +17,13 @@ interface FetchFeedInput {
   newerThan?: string | null;
 }
 
-export async function fetchFeedAction({ cursor, status, category, scope, newerThan }: FetchFeedInput) {
+export async function fetchFeedAction({
+  cursor,
+  status,
+  category,
+  scope,
+  newerThan,
+}: FetchFeedInput) {
   const session = await auth();
   const userId = session?.user?.id;
   const isAdmin = session?.user?.role === "ADMIN";
@@ -25,8 +31,8 @@ export async function fetchFeedAction({ cursor, status, category, scope, newerTh
   const dateFilter = newerThan
     ? { createdAt: { gt: new Date(newerThan) } }
     : cursor
-    ? { createdAt: { lt: new Date(cursor) } }
-    : {};
+      ? { createdAt: { lt: new Date(cursor) } }
+      : {};
 
   const prayers = await prisma.prayer.findMany({
     where: {
@@ -36,7 +42,9 @@ export async function fetchFeedAction({ cursor, status, category, scope, newerTh
       // for logged-in users. GROUP_ONLY prayers are visible here because the mural serves as
       // the admin/community overview. Access control for individual prayer detail pages is
       // handled separately by canAccessPrayer() in lib/services/prayer-access.ts.
-      ...(scope === "home" ? { OR: [{ groupId: null }, { visibility: "PUBLIC" }] } : {}),
+      ...(scope === "home"
+        ? { OR: [{ groupId: null }, { visibility: "PUBLIC" }] }
+        : {}),
       ...(status ? { status: status as PrayerStatus } : {}),
       ...(category ? { category: category as Category } : {}),
       ...dateFilter,
@@ -61,12 +69,21 @@ export async function fetchFeedAction({ cursor, status, category, scope, newerTh
       });
       prayedIds = prayedActions.map((a) => a.prayerId);
     }
-    return { prayers: sanitized, prayedIds, nextCursor: null, hasMore: false, currentUserId: userId ?? null, isAdmin };
+    return {
+      prayers: sanitized,
+      prayedIds,
+      nextCursor: null,
+      hasMore: false,
+      currentUserId: userId ?? null,
+      isAdmin,
+    };
   }
 
   const hasMore = prayers.length > FEED_PAGE_SIZE;
   const items = hasMore ? prayers.slice(0, FEED_PAGE_SIZE) : prayers;
-  const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
+  const nextCursor = hasMore
+    ? items[items.length - 1].createdAt.toISOString()
+    : null;
 
   const sanitized = sanitizePrayers(items);
 

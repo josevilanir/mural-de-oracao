@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { resolveTestimonyAction } from "@/app/actions/prayers/resolve";
 import { Button } from "@/components/ui/button";
 
-export default function ResolverPedidoPage({ params }: { params: { id: string } }) {
+export default function ResolverPedidoPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const router = useRouter();
   const [testimony, setTestimony] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,7 +47,8 @@ export default function ResolverPedidoPage({ params }: { params: { id: string } 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-medium text-navy mb-2">
-              Como Deus respondeu sua oração? <span className="text-red-500">*</span>
+              Como Deus respondeu sua oração?{" "}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               value={testimony}
@@ -61,7 +66,9 @@ export default function ResolverPedidoPage({ params }: { params: { id: string } 
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm bg-red-50 rounded p-2">{error}</p>
+            <p className="text-red-500 text-sm bg-red-50 rounded p-2">
+              {error}
+            </p>
           )}
 
           <div className="flex gap-3 justify-end mt-4">

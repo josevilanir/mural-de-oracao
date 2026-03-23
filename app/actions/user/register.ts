@@ -8,7 +8,10 @@ import bcrypt from "bcryptjs";
 export async function registerAction(data: unknown) {
   const parsed = RegisterSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
   const { name, email, password } = parsed.data;
@@ -27,7 +30,7 @@ export async function registerAction(data: unknown) {
 
     // Enviar e-mail de verificação (não bloqueia o cadastro se falhar)
     await sendVerificationEmailAction(email, name).catch((err) =>
-      console.error("[register] Falha ao enviar e-mail de verificação:", err)
+      console.error("[register] Falha ao enviar e-mail de verificação:", err),
     );
 
     return { success: true };

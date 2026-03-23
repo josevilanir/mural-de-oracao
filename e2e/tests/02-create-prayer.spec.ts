@@ -16,16 +16,16 @@ test.describe("Criação de Pedido de Oração", () => {
     await page.goto("/novo-pedido");
 
     await expect(
-      page.getByPlaceholder("e.g., Cura para minha mãe")
+      page.getByPlaceholder("e.g., Cura para minha mãe"),
     ).toBeVisible();
     await expect(page.locator("select").first()).toBeVisible();
     await expect(
       page.getByPlaceholder(
-        "Conte sua necessidade em detalhes. A comunidade está aqui para orar por você."
-      )
+        "Conte sua necessidade em detalhes. A comunidade está aqui para orar por você.",
+      ),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Publicar Pedido" })
+      page.getByRole("button", { name: "Publicar Pedido" }),
     ).toBeVisible();
   });
 
@@ -51,9 +51,7 @@ test.describe("Criação de Pedido de Oração", () => {
     await page.goto("/novo-pedido");
 
     // Título
-    await page
-      .getByPlaceholder("e.g., Cura para minha mãe")
-      .fill(titulo);
+    await page.getByPlaceholder("e.g., Cura para minha mãe").fill(titulo);
 
     // Categoria (primeiro option não-vazio)
     await page.locator("select").first().selectOption({ index: 1 });
@@ -61,10 +59,10 @@ test.describe("Criação de Pedido de Oração", () => {
     // Descrição
     await page
       .getByPlaceholder(
-        "Conte sua necessidade em detalhes. A comunidade está aqui para orar por você."
+        "Conte sua necessidade em detalhes. A comunidade está aqui para orar por você.",
       )
       .fill(
-        "Este é um pedido criado automaticamente pelo Playwright para validar o fluxo de criação. Por favor, ore conosco."
+        "Este é um pedido criado automaticamente pelo Playwright para validar o fluxo de criação. Por favor, ore conosco.",
       );
 
     // Submete

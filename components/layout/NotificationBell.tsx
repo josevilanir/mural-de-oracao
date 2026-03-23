@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, Heart, MessageSquare, GripHorizontal, Users } from "lucide-react";
+import {
+  Bell,
+  Heart,
+  MessageSquare,
+  GripHorizontal,
+  Users,
+} from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -31,7 +37,9 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   // null = anchored to button; {x,y} = floating (after drag) — desktop only
-  const [floatPos, setFloatPos] = useState<{ x: number; y: number } | null>(null);
+  const [floatPos, setFloatPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const dragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const panelRef = useRef<HTMLDivElement>(null);
@@ -121,14 +129,22 @@ export function NotificationBell() {
     const group = n.group?.name ?? "seu grupo";
     const prayer = n.prayer?.title ?? "um pedido";
     switch (n.type) {
-      case "PRAYER_CLICK":        return `${actor} orou pelo seu pedido "${prayer}"`;
-      case "COMMENT_ADDED":       return `${actor} comentou no seu pedido "${prayer}"`;
-      case "GROUP_CREATION_APPROVED": return `🎉 Parabéns! Seu grupo "${group}" foi aprovado!`;
-      case "GROUP_CREATION_REJECTED": return `Seu pedido de criação do grupo "${group}" foi recusado.`;
-      case "GROUP_JOIN_REQUEST":  return `${actor} pediu para entrar no grupo "${group}"`;
-      case "GROUP_REQUEST_APPROVED": return `✅ Sua solicitação para entrar no grupo "${group}" foi aprovada!`;
-      case "GROUP_REQUEST_REJECTED": return `Sua solicitação para entrar no grupo "${group}" foi recusada.`;
-      case "GROUP_PRAYER_REMOVAL_REQUEST": return `${actor} solicitou a remoção do pedido "${prayer}" no grupo "${group}"`;
+      case "PRAYER_CLICK":
+        return `${actor} orou pelo seu pedido "${prayer}"`;
+      case "COMMENT_ADDED":
+        return `${actor} comentou no seu pedido "${prayer}"`;
+      case "GROUP_CREATION_APPROVED":
+        return `🎉 Parabéns! Seu grupo "${group}" foi aprovado!`;
+      case "GROUP_CREATION_REJECTED":
+        return `Seu pedido de criação do grupo "${group}" foi recusado.`;
+      case "GROUP_JOIN_REQUEST":
+        return `${actor} pediu para entrar no grupo "${group}"`;
+      case "GROUP_REQUEST_APPROVED":
+        return `✅ Sua solicitação para entrar no grupo "${group}" foi aprovada!`;
+      case "GROUP_REQUEST_REJECTED":
+        return `Sua solicitação para entrar no grupo "${group}" foi recusada.`;
+      case "GROUP_PRAYER_REMOVAL_REQUEST":
+        return `${actor} solicitou a remoção do pedido "${prayer}" no grupo "${group}"`;
     }
   }
 
@@ -166,9 +182,11 @@ export function NotificationBell() {
               // Desktop: dropdown (anchored or floating)
               isFloating
                 ? "md:fixed md:inset-x-auto md:bottom-auto md:rounded-xl md:w-80"
-                : "md:absolute md:inset-x-auto md:bottom-auto md:left-0 md:top-12 md:rounded-xl md:w-80"
+                : "md:absolute md:inset-x-auto md:bottom-auto md:left-0 md:top-12 md:rounded-xl md:w-80",
             )}
-            style={isFloating ? { left: floatPos.x, top: floatPos.y } : undefined}
+            style={
+              isFloating ? { left: floatPos.x, top: floatPos.y } : undefined
+            }
           >
             {/* Desktop header — draggable */}
             <div
@@ -177,7 +195,9 @@ export function NotificationBell() {
             >
               <div className="flex items-center gap-2">
                 <GripHorizontal className="w-4 h-4 text-gray-text opacity-50" />
-                <span className="font-semibold text-navy text-sm">Notificações</span>
+                <span className="font-semibold text-navy text-sm">
+                  Notificações
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 {unread > 0 && (
@@ -204,7 +224,9 @@ export function NotificationBell() {
 
             {/* Mobile header — no drag */}
             <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-gray-med">
-              <span className="font-semibold text-navy text-sm">Notificações</span>
+              <span className="font-semibold text-navy text-sm">
+                Notificações
+              </span>
               <div className="flex items-center gap-3">
                 {unread > 0 && (
                   <button
@@ -226,23 +248,29 @@ export function NotificationBell() {
 
             <div className="overflow-y-auto max-h-72 md:max-h-72">
               {loading && notifications.length === 0 && (
-                <p className="text-center text-sm text-gray-text py-6">Carregando...</p>
+                <p className="text-center text-sm text-gray-text py-6">
+                  Carregando...
+                </p>
               )}
               {!loading && notifications.length === 0 && (
-                <p className="text-center text-sm text-gray-text py-6">Nenhuma notificação ainda</p>
+                <p className="text-center text-sm text-gray-text py-6">
+                  Nenhuma notificação ainda
+                </p>
               )}
               {notifications.map((n) => (
                 <Link
                   key={n.id}
                   href={
-                    n.prayer ? `/pedido/${n.prayer.id}`
-                    : n.group ? `/grupos/${n.group.id}`
-                    : "#"
+                    n.prayer
+                      ? `/pedido/${n.prayer.id}`
+                      : n.group
+                        ? `/grupos/${n.group.id}`
+                        : "#"
                   }
                   onClick={() => setOpen(false)}
                   className={cn(
                     "flex items-start gap-3 px-4 py-3 hover:bg-gray-light transition-colors border-b border-gray-med/40 last:border-0",
-                    !n.isRead && "bg-blue-soft/40"
+                    !n.isRead && "bg-blue-soft/40",
                   )}
                 >
                   <span className="mt-0.5 text-gray-text">

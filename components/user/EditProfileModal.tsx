@@ -23,14 +23,16 @@ function compressImage(file: File): Promise<Blob> {
         const canvas = document.createElement("canvas");
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
-        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas
+          .getContext("2d")!
+          .drawImage(img, 0, 0, canvas.width, canvas.height);
         canvas.toBlob(
           (blob) => {
             if (blob) resolve(blob);
             else reject(new Error("Falha ao comprimir imagem"));
           },
           "image/jpeg",
-          0.8
+          0.8,
         );
       };
       img.onerror = reject;
@@ -63,7 +65,7 @@ export default function EditProfileModal({ initialName, initialImage }: Props) {
     try {
       const blob = await compressImage(file);
       const res = await fetch(
-        `/api/upload?contentType=${encodeURIComponent(blob.type)}&contentLength=${blob.size}`
+        `/api/upload?contentType=${encodeURIComponent(blob.type)}&contentLength=${blob.size}`,
       );
       if (!res.ok) {
         const d = await res.json();
@@ -72,7 +74,7 @@ export default function EditProfileModal({ initialName, initialImage }: Props) {
       const { url, fields, publicUrl } = await res.json();
       const formData = new FormData();
       Object.entries(fields as Record<string, string>).forEach(([k, v]) =>
-        formData.append(k, v)
+        formData.append(k, v),
       );
       formData.append("file", blob);
       const uploadRes = await fetch(url, { method: "POST", body: formData });
@@ -80,7 +82,9 @@ export default function EditProfileModal({ initialName, initialImage }: Props) {
       imageUrlRef.current = publicUrl;
       setPreview(URL.createObjectURL(blob));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erro ao processar imagem.");
+      setError(
+        err instanceof Error ? err.message : "Erro ao processar imagem.",
+      );
     } finally {
       setImageUploading(false);
     }
@@ -119,7 +123,10 @@ export default function EditProfileModal({ initialName, initialImage }: Props) {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
           <div>
-            <label htmlFor="profile-name" className="block text-sm font-medium text-navy mb-1">
+            <label
+              htmlFor="profile-name"
+              className="block text-sm font-medium text-navy mb-1"
+            >
               Nome <span className="text-red-500">*</span>
             </label>
             <input
@@ -134,7 +141,9 @@ export default function EditProfileModal({ initialName, initialImage }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-navy mb-1">Foto de perfil</label>
+            <label className="block text-sm font-medium text-navy mb-1">
+              Foto de perfil
+            </label>
             <div className="flex items-center gap-4">
               {preview ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -154,7 +163,11 @@ export default function EditProfileModal({ initialName, initialImage }: Props) {
                   imageUploading ? "opacity-50 pointer-events-none" : ""
                 }`}
               >
-                {imageUploading ? "Enviando..." : preview ? "Trocar foto" : "Escolher arquivo"}
+                {imageUploading
+                  ? "Enviando..."
+                  : preview
+                    ? "Trocar foto"
+                    : "Escolher arquivo"}
                 <input
                   id="profile-image"
                   type="file"
@@ -168,7 +181,9 @@ export default function EditProfileModal({ initialName, initialImage }: Props) {
           </div>
 
           {error && (
-            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
+              {error}
+            </p>
           )}
 
           <div className="flex gap-2 justify-end pt-1">

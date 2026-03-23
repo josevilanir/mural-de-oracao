@@ -3,10 +3,12 @@
 Este arquivo fornece instruções rápidas para validar seu ambiente de desenvolvimento local.
 
 ## Pré-requisitos
+
 - Node.js instalado.
 - Banco de Dados (PostgreSQL) acessível ou as credenciais do Neon configuradas no arquivo `.env`.
 
 ## Como Validar o Ambiente
+
 1. **Verifique se o Servidor está Rodando**:
    - O servidor deve estar acessível em [http://localhost:3000](http://localhost:3000).
    - Você deve ver a página inicial (Mural de Oração).
@@ -27,9 +29,11 @@ Este arquivo fornece instruções rápidas para validar seu ambiente de desenvol
    - Lembre-se de adicionar `http://localhost:3000/api/auth/callback/google` como uma URI de redirecionamento autorizada.
 
 ## Comandos Úteis
+
 - `npm run dev`: Inicia o servidor de desenvolvimento.
 - `npx prisma generate`: Atualiza o cliente Prisma após mudanças no `schema.prisma`.
 - `npx prisma db push`: Sincroniza o banco de dados sem migrações (ideal para dev rápido).
 
 ---
-*Este é um ambiente isolado na branch `local-development`.*
+
+_Este é um ambiente isolado na branch `local-development`._

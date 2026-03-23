@@ -16,8 +16,15 @@ const UpdatePrayerSchema = z.object({
     .min(20, "Conte um pouco mais — mínimo 20 caracteres")
     .max(1000, "Máximo 1000 caracteres"),
   category: z.enum(
-    ["HEALTH", "FAMILY", "FINANCES", "RELATIONSHIPS", "WORK_STUDY", "HOLINESS"] as const,
-    { error: "Por favor, selecione uma categoria" }
+    [
+      "HEALTH",
+      "FAMILY",
+      "FINANCES",
+      "RELATIONSHIPS",
+      "WORK_STUDY",
+      "HOLINESS",
+    ] as const,
+    { error: "Por favor, selecione uma categoria" },
   ),
   isAnonymous: z.boolean(),
   allowComments: z.boolean(),
@@ -41,10 +48,14 @@ export async function updatePrayerAction(prayerId: string, data: unknown) {
 
   const parsed = UpdatePrayerSchema.safeParse(data);
   if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+    return {
+      success: false,
+      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+    };
   }
 
-  const { title, description, category, isAnonymous, allowComments } = parsed.data;
+  const { title, description, category, isAnonymous, allowComments } =
+    parsed.data;
 
   try {
     const updated = await prisma.prayer.update({

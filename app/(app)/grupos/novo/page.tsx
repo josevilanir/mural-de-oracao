@@ -16,14 +16,16 @@ function compressImage(file: File): Promise<Blob> {
         const canvas = document.createElement("canvas");
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
-        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas
+          .getContext("2d")!
+          .drawImage(img, 0, 0, canvas.width, canvas.height);
         canvas.toBlob(
           (blob) => {
             if (blob) resolve(blob);
             else reject(new Error("Falha ao comprimir imagem"));
           },
           "image/jpeg",
-          0.8
+          0.8,
         );
       };
       img.onerror = reject;
@@ -55,7 +57,9 @@ export default function NovoGrupoPage() {
       const blob = await compressImage(file);
 
       // 2. Obter presigned URL
-      const res = await fetch(`/api/upload?contentType=${encodeURIComponent(blob.type)}&contentLength=${blob.size}`);
+      const res = await fetch(
+        `/api/upload?contentType=${encodeURIComponent(blob.type)}&contentLength=${blob.size}`,
+      );
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error ?? "Erro ao obter URL de upload.");
@@ -64,9 +68,11 @@ export default function NovoGrupoPage() {
 
       // 3. Upload direto para o R2 via presigned POST
       const formData = new FormData();
-      Object.entries(fields as Record<string, string>).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+      Object.entries(fields as Record<string, string>).forEach(
+        ([key, value]) => {
+          formData.append(key, value);
+        },
+      );
       formData.append("file", blob);
 
       const uploadRes = await fetch(url, {
@@ -78,7 +84,9 @@ export default function NovoGrupoPage() {
       imageUrlRef.current = publicUrl;
       setPreview(URL.createObjectURL(blob));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erro ao processar imagem.");
+      setError(
+        err instanceof Error ? err.message : "Erro ao processar imagem.",
+      );
     } finally {
       setImageUploading(false);
     }
@@ -92,7 +100,9 @@ export default function NovoGrupoPage() {
     const form = e.currentTarget;
     const data = {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
-      description: (form.elements.namedItem("description") as HTMLTextAreaElement).value,
+      description: (
+        form.elements.namedItem("description") as HTMLTextAreaElement
+      ).value,
       image: imageUrlRef.current ?? undefined,
     };
 
@@ -111,9 +121,12 @@ export default function NovoGrupoPage() {
       <main className="container mx-auto max-w-lg px-4 py-16 text-center">
         <div className="bg-card rounded-xl border border-gray-med/40 shadow-sm p-8">
           <div className="text-4xl mb-4">🙏</div>
-          <h1 className="text-xl font-display font-bold text-navy mb-2">Solicitação enviada!</h1>
+          <h1 className="text-xl font-display font-bold text-navy mb-2">
+            Solicitação enviada!
+          </h1>
           <p className="text-gray-text mb-6">
-            Sua solicitação foi enviada para aprovação. Você será notificado quando o grupo for aprovado!
+            Sua solicitação foi enviada para aprovação. Você será notificado
+            quando o grupo for aprovado!
           </p>
           <Button variant="primary" onClick={() => router.push("/grupos")}>
             Ver grupos
@@ -126,14 +139,19 @@ export default function NovoGrupoPage() {
   return (
     <main className="container mx-auto max-w-lg px-4 py-8">
       <div className="bg-card rounded-xl border border-gray-med/40 shadow-sm p-6">
-        <h1 className="text-xl font-display font-bold text-navy mb-1">Solicitar criação de grupo</h1>
+        <h1 className="text-xl font-display font-bold text-navy mb-1">
+          Solicitar criação de grupo
+        </h1>
         <p className="text-sm text-gray-text mb-6">
           Sua solicitação será analisada por um administrador.
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-navy mb-1">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-navy mb-1"
+            >
               Nome do grupo <span className="text-red-500">*</span>
             </label>
             <input
@@ -148,7 +166,10 @@ export default function NovoGrupoPage() {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-navy mb-1">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-navy mb-1"
+            >
               Descrição
             </label>
             <textarea
@@ -162,7 +183,10 @@ export default function NovoGrupoPage() {
           </div>
 
           <div>
-            <label htmlFor="image" className="block text-sm font-medium text-navy mb-1">
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium text-navy mb-1"
+            >
               Foto do grupo
             </label>
             <div className="flex items-center gap-4">
@@ -182,7 +206,11 @@ export default function NovoGrupoPage() {
                 htmlFor="image"
                 className={`cursor-pointer text-sm text-blue-main hover:underline ${imageUploading ? "opacity-50 pointer-events-none" : ""}`}
               >
-                {imageUploading ? "Enviando..." : preview ? "Trocar foto" : "Escolher arquivo"}
+                {imageUploading
+                  ? "Enviando..."
+                  : preview
+                    ? "Trocar foto"
+                    : "Escolher arquivo"}
                 <input
                   id="image"
                   name="image"
@@ -195,15 +223,23 @@ export default function NovoGrupoPage() {
               </label>
             </div>
             <p className="text-xs text-gray-text mt-1">
-              JPG, PNG ou WEBP. Será redimensionado para 400×400px automaticamente.
+              JPG, PNG ou WEBP. Será redimensionado para 400×400px
+              automaticamente.
             </p>
           </div>
 
           {error && (
-            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-sm text-red-500 bg-red-50 rounded-lg px-3 py-2">
+              {error}
+            </p>
           )}
 
-          <Button type="submit" variant="primary" size="md" disabled={loading || imageUploading}>
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={loading || imageUploading}
+          >
             {loading ? "Enviando..." : "Enviar solicitação"}
           </Button>
         </form>

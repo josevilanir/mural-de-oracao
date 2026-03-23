@@ -30,8 +30,12 @@ export default async function GruposPage() {
     <main className="container mx-auto max-w-4xl px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-display font-bold text-navy">Comunidade</h1>
-          <p className="text-sm text-gray-text mt-1">Grupos de oração e relacionamento</p>
+          <h1 className="text-2xl font-display font-bold text-navy">
+            Comunidade
+          </h1>
+          <p className="text-sm text-gray-text mt-1">
+            Grupos de oração e relacionamento
+          </p>
         </div>
         {userId && (
           <Button asChild variant="primary" size="sm">
@@ -55,7 +59,13 @@ export default async function GruposPage() {
             <GroupCard
               key={group.id}
               group={group}
-              memberStatus={membershipMap.get(group.id) as "ACTIVE" | "PENDING" | "REJECTED" | undefined}
+              memberStatus={
+                membershipMap.get(group.id) as
+                  | "ACTIVE"
+                  | "PENDING"
+                  | "REJECTED"
+                  | undefined
+              }
               userId={userId}
             />
           ))}
