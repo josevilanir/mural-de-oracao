@@ -12,25 +12,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 These skills are loaded automatically. Read the relevant SKILL.md before starting any task that matches a skill's domain — this is mandatory, not optional.
 
-@C:\Users\vilan\claude-skills\algorithmic-art\SKILL.md
-@C:\Users\vilan\claude-skills\brand-guidelines\SKILL.md
-@C:\Users\vilan\claude-skills\canvas-design\SKILL.md
-@C:\Users\vilan\claude-skills\claude-api\SKILL.md
-@C:\Users\vilan\claude-skills\doc-coauthoring\SKILL.md
-@C:\Users\vilan\claude-skills\docx\SKILL.md
-@C:\Users\vilan\claude-skills\frontend-design\SKILL.md
-@C:\Users\vilan\claude-skills\internal-comms\SKILL.md
-@C:\Users\vilan\claude-skills\mcp-builder\SKILL.md
-@C:\Users\vilan\claude-skills\pdf\SKILL.md
-@C:\Users\vilan\claude-skills\pptx\SKILL.md
-@C:\Users\vilan\claude-skills\skill-creator\SKILL.md
-@C:\Users\vilan\claude-skills\slack-gif-creator\SKILL.md
-@C:\Users\vilan\claude-skills\theme-factory\SKILL.md
-@C:\Users\vilan\claude-skills\webapp-testing\SKILL.md
-@C:\Users\vilan\claude-skills\web-artifacts-builder\SKILL.md
-@C:\Users\vilan\claude-skills\xlsx\SKILL.md
-@C:\Users\vilan\claude-skills\design-an-interface\SKILL.md
-
 ## Workflow
 
 ### Plan Before Acting

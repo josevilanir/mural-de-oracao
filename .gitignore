@@ -42,4 +42,6 @@ next-env.d.ts
 .env
 server_log.txt
 /.claude/
-
+/.claude-flow/
+/.swarm/
+/.mcp.json
