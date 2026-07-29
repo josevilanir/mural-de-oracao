@@ -136,7 +136,9 @@ describe("canAccessPrayer", () => {
 describe("fetchFeedAction — mural scope excludes GROUP_ONLY prayers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(auth).mockResolvedValue(null as Awaited<ReturnType<typeof auth>>);
+    vi.mocked(auth).mockResolvedValue(
+      null as unknown as Awaited<ReturnType<typeof auth>>,
+    );
     vi.mocked(prisma.prayer.findMany).mockResolvedValue([]);
     vi.mocked(prisma.prayerAction.findMany).mockResolvedValue([]);
   });

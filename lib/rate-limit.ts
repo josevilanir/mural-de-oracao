@@ -55,12 +55,24 @@ export async function checkRateLimit(
     return { success: true };
   }
 
-  const result = await limiter.limit(identifier);
-  if (!result.success) {
+  try {
+    const result = await limiter.limit(identifier);
+    if (!result.success) {
+      return {
+        success: false,
+        error: "Muitas requisições. Tente novamente em instantes.",
+      };
+    }
+    return { success: true };
+  } catch (err) {
+    console.error(
+      `[rate-limit] Falha ao consultar o Upstash Redis (${type}, id: ${identifier}):`,
+      err,
+    );
     return {
       success: false,
-      error: "Muitas requisições. Tente novamente em instantes.",
+      error:
+        "Serviço temporariamente indisponível. Tente novamente em instantes.",
     };
   }
-  return { success: true };
 }
